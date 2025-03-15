@@ -1,4 +1,4 @@
-#include "HashCalculation.h"
+#include "../Headers/HashCalculation.h"
 
 QString HashCalculation::Md5Hashing(const QString &filePathMd5) {
     QString hashResult;
