@@ -6,18 +6,19 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# Qt'nin bulunduğu yeri CMake'e bildir
+set(Qt6_DIR "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6")
 set(CMAKE_PREFIX_PATH "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6")
 
-find_package(Qt6 COMPONENTS
-  Core
-  Gui
-  Widgets
-        Sql
-  REQUIRED)
+# Qt'nin include ve library dizinlerini ekle
+include_directories("/Volumes/Crucial/QT/6.10.0/macos/include")
+link_directories("/Volumes/Crucial/QT/6.10.0/macos/lib")
 
+# Qt bileşenlerini bul
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql)
 
-
-add_executable(Endpoint_Protection_Platform main.cpp
+add_executable(Endpoint_Protection_Platform
+        main.cpp
         Headers/HashCalculation.h
         Src/HashCalculation.cpp
         Headers/UserInterface.h
@@ -25,11 +26,11 @@ add_executable(Endpoint_Protection_Platform main.cpp
         Headers/DbManager.h
         Src/DbManager.cpp
 )
+
 target_link_libraries(Endpoint_Protection_Platform
         PRIVATE
-  Qt::Core
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
         Qt6::Sql
-  Qt::Gui
-  Qt::Widgets
 )
-

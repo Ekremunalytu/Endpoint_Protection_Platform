@@ -8,6 +8,7 @@
 #include <QtSql/QSqlError>
 #include <QFile>
 #include <QDebug>
+#include <QMessageBox>
 
 // DatabaseManager sınıfı, veritabanı bağlantısı, şema oluşturma, tablo listeleme,
 // örnek sorgu çalıştırma ve bağlantı kapatma işlemlerini yöneten static metodları içerir.
@@ -19,9 +20,12 @@ public:
     // Veritabanındaki tabloları listeler.
     static void listTables();
 
-    // Belirtilen şema dosyasını çalıştırarak veritabanı yapısını oluşturur.
-    // Şema oluşturma, veritabanında gerekli "FILE" tablosu yoksa gerçekleştirilir.
-    static bool applySchemaFromFile(const QString &schemaFilePath);
+    static QString searchHashmMd5(const QString &md5Hash);
+
+    static QString searchHashSha_1(QString sha1);
+
+    static QString searchHashSha_256(QString sha256);
+
 
     // 'FILE' tablosundan örnek sorgu çalıştırır.
     static void executeSampleQuery();
@@ -30,4 +34,4 @@ public:
     static void closeConnection(const QString &connectionName = QSqlDatabase::defaultConnection);
 };
 
-#endif DbManager_H
+#endif //DbManager_H

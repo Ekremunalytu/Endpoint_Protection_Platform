@@ -1,78 +1,146 @@
 #include "../Headers/UserInterface.h"
-#include <QVBoxLayout>  // Layout düzeni için
+#include "../Headers/HashCalculation.h"
+#include "../Headers/DbManager.h"
 
-// Yapıcı fonksiyon: Arayüz elemanları oluşturulur ve yapılandırılır.
+#include <QAction>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QStatusBar>
+#include <QVBoxLayout>
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    // UI bileşenlerini oluştur ve yapılandır
-    initializeUI();
+    // Adım 1: Aksiyonları oluştur
+    createActions();
+    // Adım 2: Menüleri oluştur
+    createMenus();
+    // Adım 3: Araç çubuklarını oluştur
+    createToolBars();
+    // Adım 4: Status bar (durum çubuğu) oluştur
+    createStatusBar();
 
-    // Butonlar ve diğer etkileşimli elemanlar için sinyal-slot bağlantılarını kur.
-    connectSignals();
+    // Ana pencerenin merkezine basit bir widget yerleştiriyoruz
+    QWidget *widget = new QWidget;
+    setCentralWidget(widget);
+
+    // Bu widget içinde bir dikey layout
+    QVBoxLayout *layout = new QVBoxLayout(widget);
+
+    // Durum etiketini layout’a ekleyelim
+    statusLabel = new QLabel(tr("Durum: Hazır"), this);
+    layout->addWidget(statusLabel);
+
+    // Pencere başlığı
+    setWindowTitle(tr("Antivirüs Programı - Windows 11"));
+
+    // Tam ekran açmak isterseniz:
+    // showFullScreen();
+    // veya sadece maksimum boyutta açmak isterseniz:
+    // showMaximized();
 }
 
-// Yıkıcı fonksiyon: Qt'de parent-child ilişkisi sayesinde çoğu widget otomatik temizlenir.
-// Eğer özel dinamik bellek yönetimi yapıyorsanız burada ilave temizleme kodları eklenebilir.
-MainWindow::~MainWindow() {
-    // Gerekirse manuel kaynak temizliği yapılır.
+MainWindow::~MainWindow()
+{
 }
 
-// initializeUI() fonksiyonu, tüm arayüz elemanlarını oluşturur ve layout düzenine yerleştirir.
-void MainWindow::initializeUI() {
-    // Ana pencerenin merkezi widget'ını oluştur
-    centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
+// -- Aksiyonları oluşturma --
+void MainWindow::createActions()
+{
+    // Tarama Yap
+    scanAction = new QAction(tr("Tarama Yap"), this);
+    connect(scanAction, &QAction::triggered, this, &MainWindow::onScanButtonClicked);
 
-    // Ana düzen (layout) oluştur ve merkezi widget'a uygula
-    mainLayout = new QVBoxLayout(centralWidget);
+    // Güncelle
+    updateAction = new QAction(tr("Güncelle"), this);
+    connect(updateAction, &QAction::triggered, this, &MainWindow::onUpdateButtonClicked);
 
-    // Durum etiketini oluştur; başlangıçta "Durum: Hazır" mesajı gösterilir.
-    statusLabel = new QLabel("Durum: Hazır", this);
-    mainLayout->addWidget(statusLabel);
-
-    // Tarama başlatma butonunu oluştur ve layout'a ekle.
-    scanButton = new QPushButton("Tarama Yap", this);
-    mainLayout->addWidget(scanButton);
-
-    // Güncelleme butonunu oluştur ve layout'a ekle.
-    updateButton = new QPushButton("Güncelle", this);
-    mainLayout->addWidget(updateButton);
-
-    // Pencere başlığını ve başlangıç boyutlarını ayarla.
-    setWindowTitle("Antivirüs Programı - Windows 11");
-    resize(400, 300);
+    // Virustotal Scan
+    virusTotalAction = new QAction(tr("Virustotal scan"), this);
+    connect(virusTotalAction, &QAction::triggered, this, &MainWindow::onsendVirusTotalButtonClicked);
 }
 
-// connectSignals() fonksiyonu, UI elemanlarının sinyal ve slot bağlantılarını gerçekleştirir.
-void MainWindow::connectSignals() {
-    // Tarama butonuna tıklama sinyalini onScanButtonClicked slotuna bağla.
-    connect(scanButton, &QPushButton::clicked, this, &MainWindow::onScanButtonClicked);
+// -- Menüleri oluşturma --
+void MainWindow::createMenus()
+{
+    // Ana menü çubuğu (QMainWindow::menuBar() ile otomatik oluşturulur)
+    // "Özellikler" menüsü ekleyelim
+    featureMenu = menuBar()->addMenu(tr("Özellikler"));
 
-    // Güncelle butonuna tıklama sinyalini onUpdateButtonClicked slotuna bağla.
-    connect(updateButton, &QPushButton::clicked, this, &MainWindow::onUpdateButtonClicked);
+    // Menüye aksiyonları ekliyoruz
+    featureMenu->addAction(scanAction);
+    featureMenu->addAction(updateAction);
+    featureMenu->addAction(virusTotalAction);
 }
 
-// onScanButtonClicked() slotu, tarama işlemi başlatıldığında çağrılır.
-void MainWindow::onScanButtonClicked() {
-    // Durum etiketini güncelle: Tarama işlemi başladı.
-    statusLabel->setText("Tarama yapılıyor...");
-
-    // TODO: Buraya antivirüs tarama işlemlerinizin kodlarını ekleyin.
-    // Örneğin, dosya tarama, virüs kontrolü gibi işlemler burada gerçekleşebilir.
-
-    // İşlem tamamlandığında durumu güncelle.
-    statusLabel->setText("Tarama tamamlandı!");
+// -- Araç çubuklarını (toolbars) oluşturma --
+void MainWindow::createToolBars()
+{
+    // "Özellikler" araç çubuğu ekleyelim
+    featureToolBar = addToolBar(tr("Özellikler"));
+    featureToolBar->addAction(scanAction);
+    featureToolBar->addAction(updateAction);
+    featureToolBar->addAction(virusTotalAction);
 }
 
-// onUpdateButtonClicked() slotu, güncelleme işlemi başlatıldığında çağrılır.
-void MainWindow::onUpdateButtonClicked() {
-    // Durum etiketini güncelle: Güncelleme işlemi başladı.
+// -- Status bar oluşturma --
+void MainWindow::createStatusBar()
+{
+    // QMainWindow’un kendi statusBar() fonksiyonu ile erişebiliriz
+    statusBar()->showMessage(tr("Hazır"));
+}
+
+// -- Tarama Yap butonu tıklandığında --
+void MainWindow::onScanButtonClicked()
+{
+    // Dosya seçme diyaloğu
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Dosya Seç"), QString(), tr("Tüm Dosyalar (*.*)"));
+    if (filePath.isEmpty()) {
+        statusLabel->setText("Dosya seçilmedi.");
+        return;
+    }
+    statusLabel->setText("Dosya seçildi. Hash hesaplamaları yapılıyor...");
+
+    // Hash hesaplamaları
+    QString md5Hash   = HashCalculation::Md5Hashing(filePath);
+    QString sha1Hash  = HashCalculation::Sha1Hashing(filePath);
+    QString sha256Hash= HashCalculation::Sha256Hashing(filePath);
+
+    // Veritabanı aramaları
+    QString md5Result    = DbManager::searchHashmMd5(md5Hash);
+    QString sha1Result   = DbManager::searchHashSha_1(sha1Hash);
+    QString sha256Result = DbManager::searchHashSha_256(sha256Hash);
+
+    // Sonuçları derle
+    QString resultText = QString("MD5: %1\nSHA1: %2\nSHA256: %3")
+            .arg(md5Result.isEmpty() ? "Temiz" : md5Result)
+            .arg(sha1Result.isEmpty() ? "Temiz" : sha1Result)
+            .arg(sha256Result.isEmpty() ? "Temiz" : sha256Result);
+
+    // Üç hash de veritabanında bulunamadıysa temizdir
+    if (md5Result.isEmpty() && sha1Result.isEmpty() && sha256Result.isEmpty()) {
+        resultText = "Tehdit algılanmadı. Dosya temiz.";
+    }
+
+    statusLabel->setText("Tarama tamamlandı.");
+    QMessageBox::information(this, tr("Tarama Sonucu"), resultText);
+}
+
+// -- Güncelle butonu tıklandığında --
+void MainWindow::onUpdateButtonClicked()
+{
     statusLabel->setText("Virüs tanımları güncelleniyor...");
-
-    // TODO: Buraya antivirüs güncelleme işlemlerinizin kodlarını ekleyin.
-    // Örneğin, sunucudan güncel virüs tanımları çekme işlemi burada yapılabilir.
-
-    // İşlem tamamlandığında durumu güncelle.
+    // Burada güncelleme işlemleri yapılabilir
     statusLabel->setText("Güncelleme tamamlandı!");
+}
+
+// -- Virustotal Scan butonu tıklandığında --
+void MainWindow::onsendVirusTotalButtonClicked()
+{
+    statusLabel->setText("Sending file to virustotal...");
+    // Burada Virustotal entegrasyonu yapılabilir
+    statusLabel->setText("File has been sent to virustotal!!");
 }

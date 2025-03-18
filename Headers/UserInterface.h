@@ -2,53 +2,43 @@
 #define USERINTERFACE_H
 
 #include <QMainWindow>
-#include <QPushButton>
 #include <QLabel>
-#include <QVBoxLayout>
-#include <QWidget>
 
-// MainWindow sınıfı, QMainWindow sınıfından türetilmiştir.
-// Bu sınıf, antivirüs programınızın ana arayüzünü oluşturur.
-class MainWindow : public QMainWindow {
-    Q_OBJECT  // Qt'nin sinyal-slot mekanizmasını kullanabilmek için gerekli makro
+// İleri deklarasyonlar
+class QAction;
+class QMenu;
+class QToolBar;
+
+// MainWindow sınıfı
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
 
 public:
-    // Yapıcı fonksiyon; parent parametresi ile isteğe bağlı üst widget tanımlanır.
     explicit MainWindow(QWidget *parent = nullptr);
-
-    // Yıkıcı fonksiyon; dinamik olarak ayrılmış kaynakların temizlenmesi için.
     ~MainWindow();
 
     private slots:
-        // Kullanıcı "Tarama Yap" butonuna bastığında çalışacak slot.
         void onScanButtonClicked();
-
-    // Kullanıcı "Güncelle" butonuna bastığında çalışacak slot.
     void onUpdateButtonClicked();
+    void onsendVirusTotalButtonClicked();
 
 private:
-    // Arayüz elemanlarını ve layout düzenini tanımlayan özel üye değişkenler.
+    // Menü, araç çubuğu ve aksiyonları oluşturmak için yardımcı fonksiyonlar
+    void createActions();
+    void createMenus();
+    void createToolBars();
+    void createStatusBar();
 
-    // Merkezi widget; ana pencerenin içerisine yerleştirilen temel widget.
-    QWidget *centralWidget;
+    // Arayüz bileşenleri
+    QLabel *statusLabel;      // Durum etiketimiz
+    QMenu *featureMenu;       // "Özellikler" menüsü
+    QToolBar *featureToolBar; // "Özellikler" araç çubuğu
 
-    // Ana düzen (layout) nesnesi; widget'ların dikey olarak sıralanmasını sağlar.
-    QVBoxLayout *mainLayout;
-
-    // Durum bilgilerini göstermek için etiket.
-    QLabel *statusLabel;
-
-    // Tarama işlemini başlatan buton.
-    QPushButton *scanButton;
-
-    // Virüs tanımları güncelleme işlemini başlatan buton.
-    QPushButton *updateButton;
-
-    // UI bileşenlerinin oluşturulması için yardımcı fonksiyon.
-    void initializeUI();
-
-    // Sinyal ve slot bağlantılarının kurulması için yardımcı fonksiyon.
-    void connectSignals();
+    // Aksiyonlar (menü maddeleri / butonlar)
+    QAction *scanAction;          // "Tarama Yap"
+    QAction *updateAction;        // "Güncelle"
+    QAction *virusTotalAction;    // "Virustotal scan"
 };
 
-#endif USERINTERFACE_H
+#endif // USERINTERFACE_H

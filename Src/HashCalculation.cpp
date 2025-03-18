@@ -20,6 +20,24 @@ QString HashCalculation::Md5Hashing(const QString &filePathMd5) {
     }
     return hashResult;
 }
+QString HashCalculation::Sha1Hashing(const QString &filePathSha1) {
+    QString hashResult;
+    try {
+        QFile file(filePathSha1);
+        if (!file.open(QIODevice::ReadOnly)) {
+            throw QString("File does not exist!!");
+        }
+        QCryptographicHash Sha1Hash(QCryptographicHash::Sha1);
+        if (!Sha1Hash.addData(&file)) {
+            throw QString("Hash calculation failed!");
+        }
+        hashResult = Sha1Hash.result().toHex();
+    } catch (QString error) {
+        qDebug() << "Error: " << error;
+        return "";
+    }
+    return hashResult;
+}
 
 QString HashCalculation::Sha256Hashing(const QString &filePathSha256) {
     QString hashResult;
