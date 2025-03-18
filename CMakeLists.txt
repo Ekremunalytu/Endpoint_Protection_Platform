@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
-project(Endpoint_Protection_Platform)
+project(WindowsAv)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
@@ -17,7 +17,7 @@ link_directories("/Volumes/Crucial/QT/6.10.0/macos/lib")
 # Qt bileşenlerini bul
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql)
 
-add_executable(Endpoint_Protection_Platform
+add_executable(WindowsAv
         main.cpp
         Headers/HashCalculation.h
         Src/HashCalculation.cpp
@@ -27,7 +27,7 @@ add_executable(Endpoint_Protection_Platform
         Src/DbManager.cpp
 )
 
-target_link_libraries(Endpoint_Protection_Platform
+target_link_libraries(WindowsAv
         PRIVATE
         Qt6::Core
         Qt6::Gui

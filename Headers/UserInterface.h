@@ -3,13 +3,12 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QPlainTextEdit>
 
-// İleri deklarasyonlar
 class QAction;
 class QMenu;
 class QToolBar;
 
-// MainWindow sınıfı
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -24,21 +23,22 @@ public:
     void onsendVirusTotalButtonClicked();
 
 private:
-    // Menü, araç çubuğu ve aksiyonları oluşturmak için yardımcı fonksiyonlar
     void createActions();
     void createMenus();
     void createToolBars();
     void createStatusBar();
+    void createCentralWidgets();
 
-    // Arayüz bileşenleri
-    QLabel *statusLabel;      // Durum etiketimiz
-    QMenu *featureMenu;       // "Özellikler" menüsü
-    QToolBar *featureToolBar; // "Özellikler" araç çubuğu
+    // Menü, araç çubuğu ve aksiyonlar
+    QMenu      *featureMenu;
+    QToolBar   *featureToolBar;
+    QAction    *scanAction;
+    QAction    *updateAction;
+    QAction    *virusTotalAction;
 
-    // Aksiyonlar (menü maddeleri / butonlar)
-    QAction *scanAction;          // "Tarama Yap"
-    QAction *updateAction;        // "Güncelle"
-    QAction *virusTotalAction;    // "Virustotal scan"
+    // Ana ekranda göstereceğimiz bileşenler
+    QLabel         *statusLabel;      // Altta kısa mesajlar için
+    QPlainTextEdit *resultTextEdit;   // Hash sonuçlarını göstermek için
 };
 
 #endif // USERINTERFACE_H
