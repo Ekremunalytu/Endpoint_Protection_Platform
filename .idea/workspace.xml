@@ -28,107 +28,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8825cb19-f84d-4555-864f-09c734374719" name="Changes" comment="minor changes">
-      <change afterPath="$PROJECT_DIR$/.idea/Endpoint_Protection_Platform.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MalwareHashes/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MalwareHashes/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MalwareHashes/identifier.sqlite" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TestFiles/test.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/QtSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/editor.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/testzone.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/Headers/DbManager.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/Headers/HashCalculation.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/Headers/UserInterface.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/MalwareHashes/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/MalwareHashes/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/MalwareHashes/identifier.sqlite" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/Src/DbManager.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/Src/HashCalculation.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/Src/UserInterface.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/TestFiles/test.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/query/cache-v2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/query/codemodel-v2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/query/toolchains-v1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/cache-v2-eff5649dc51634a94699.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-82ee4856e829d81330fd.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-da0308b1bce32520ed5d.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/index-2025-03-16T16-41-59-0178.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/target-WindowsAv-Debug-613a2b987ea6ca7eb5db.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/target-WindowsAv_autogen-Debug-e295062039214f9c9770.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/target-WindowsAv_autogen_timestamp_deps-Debug-8192e6a13d17724f7d0d.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-2f427dcd6919a7ef66e5.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.qt/QtDeploySupport.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/.qt/QtDeployTargets.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeCache.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CMakeCCompiler.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CMakeDetermineCompilerABI_C.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CMakeDetermineCompilerABI_CXX.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CMakeSystem.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CompilerIdC/CMakeCCompilerId.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CompilerIdC/CMakeCCompilerId.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CompilerIdCXX/CMakeCXXCompilerId.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/3.30.5/CompilerIdCXX/CMakeCXXCompilerId.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/CMakeConfigureLog.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv.dir/Src/DbManager.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv.dir/Src/HashCalculation.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv.dir/Src/UserInterface.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv.dir/WindowsAv_autogen/mocs_compilation.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv.dir/main.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv_autogen.dir/AutogenInfo.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv_autogen.dir/AutogenUsed.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/WindowsAv_autogen.dir/ParseCache.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/clean_additional.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/clion-environment.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/cmake.check_cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/rules.ninja" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/testzone.dir/main.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/testzone.dir/testzone_autogen/mocs_compilation.cpp.o" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/testzone_autogen.dir/AutogenInfo.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/testzone_autogen.dir/AutogenUsed.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/CMakeFiles/testzone_autogen.dir/ParseCache.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv_autogen/D2MWKIZDYH/moc_UserInterface.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv_autogen/D2MWKIZDYH/moc_UserInterface.cpp.d" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv_autogen/deps" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv_autogen/moc_predefs.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv_autogen/mocs_compilation.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/WindowsAv_autogen/timestamp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/build.ninja" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/cmake_install.cmake" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/testzone" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/testzone_autogen/deps" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/testzone_autogen/moc_predefs.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/testzone_autogen/mocs_compilation.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/cmake-build-debug/testzone_autogen/timestamp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testzone/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Headers/DbManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/Headers/DbManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Headers/HashCalculation.h" beforeDir="false" afterPath="$PROJECT_DIR$/Headers/HashCalculation.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Headers/UserInterface.h" beforeDir="false" afterPath="$PROJECT_DIR$/Headers/UserInterface.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/DbManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Src/DbManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/HashCalculation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Src/HashCalculation.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/UserInterface.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Src/UserInterface.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="8825cb19-f84d-4555-864f-09c734374719" name="Changes" comment="minor changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -162,6 +62,10 @@
     <setting file="file://$PROJECT_DIR$/Headers/UserInterface.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Src/HashCalculation.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Src/UserInterface.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/main.cpp" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -178,35 +82,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;CMake Application.Endpoint_Protection_Platform.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.jetbrains.cidr.cpp.cmake.workspace.CMakeCacheInvalidator.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Volumes/Crucial/Endpoint_Protection_Platform&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "C/C++ File.main.cpp (1).executor": "Profiler",
+    "C/C++ File.main.cpp.executor": "Run",
+    "CMake Application.Endpoint_Protection_Platform.executor": "Run",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.west.config.association.type.startup.service": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.jetbrains.cidr.cpp.cmake.workspace.CMakeCacheInvalidator.marker": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Volumes/Crucial/Endpoint_Protection_Platform",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "CPPToolchains",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;sqlite&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -216,12 +122,22 @@
       <recent name="$PROJECT_DIR$/Headers" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration name="Endpoint_Protection_Platform" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" RUN_PATH="$PROJECT_DIR$/main.cpp" EXPLICIT_BUILD_TARGET_NAME="all">
+  <component name="RunDashboard">
+    <option name="openRunningConfigInTab" value="true" />
+  </component>
+  <component name="RunManager" selected="CMake Application.Endpoint_Protection_Platform">
+    <configuration name="CMakeLists.txt" type="CMakeListConfigurationType" factoryName="CMakeListConfigurationFactory" focusToolWindowBeforeRun="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="Endpoint_Protection_Platform" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" RUN_PATH="$PROJECT_DIR$/cmake-build-debug/WindowsAv" EXPLICIT_BUILD_TARGET_NAME="all">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="CMake Application.Endpoint_Protection_Platform" />
+      <item itemvalue="CMake Debug.CMakeLists.txt" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -267,6 +183,7 @@
       <workItem from="1742233207112" duration="9000" />
       <workItem from="1742243214968" duration="159000" />
       <workItem from="1742243377496" duration="36000" />
+      <workItem from="1742243416023" duration="3170000" />
     </task>
     <task id="LOCAL-00001" summary="Project start">
       <option name="closed" value="true" />

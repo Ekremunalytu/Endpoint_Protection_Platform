@@ -15,7 +15,8 @@ include_directories("/Volumes/Crucial/QT/6.10.0/macos/include")
 link_directories("/Volumes/Crucial/QT/6.10.0/macos/lib")
 
 # Qt bileşenlerini bul
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql Network)
+find_package(CURL REQUIRED)
 
 add_executable(WindowsAv
         main.cpp
@@ -25,6 +26,8 @@ add_executable(WindowsAv
         Src/UserInterface.cpp
         Headers/DbManager.h
         Src/DbManager.cpp
+        Headers/ApiManager.h
+        Src/ApiManager.cpp
 )
 
 target_link_libraries(WindowsAv
@@ -33,4 +36,6 @@ target_link_libraries(WindowsAv
         Qt6::Gui
         Qt6::Widgets
         Qt6::Sql
+        Qt6::Network
+        CURL::libcurl
 )
