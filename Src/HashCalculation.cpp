@@ -20,6 +20,7 @@ QString HashCalculation::Md5Hashing(const QString &filePathMd5) {
     }
     return hashResult;
 }
+
 QString HashCalculation::Sha1Hashing(const QString &filePathSha1) {
     QString hashResult;
     try {
@@ -29,10 +30,11 @@ QString HashCalculation::Sha1Hashing(const QString &filePathSha1) {
         }
         QCryptographicHash Sha1Hash(QCryptographicHash::Sha1);
         if (!Sha1Hash.addData(&file)) {
-            throw QString("Hash calculation failed!");
+            throw QString("Hash calculation is failed! inline");
         }
         hashResult = Sha1Hash.result().toHex();
-    } catch (QString error) {
+    }
+    catch (QString error) {
         qDebug() << "Error: " << error;
         return "";
     }

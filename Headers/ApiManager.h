@@ -2,67 +2,79 @@
 #define APIMANAGER_H
 
 #include <QObject>
-#include <QString>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QUrl>
+#include <QNetworkRequest>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include "ConfigManager.h"
+#include <QDebug>
 
-/**
- * @brief ApiManager, VirusTotal API entegrasyonunu yönetmek için kullanılacak sınıftır.
- *
- * Bu header dosyası, dosya, URL ve hash gönderimi işlemleri için temel fonksiyon prototiplerini tanımlar.
- * Fonksiyon implementasyonları ayrı bir kaynak dosyasında yapılacaktır.
- */
-class ApiManager : public QObject
-{
+class ApiManager : public QObject {
     Q_OBJECT
 
 private:
-     std::string m_apiKey;
+    QNetworkAccessManager* networkManager;
+    ConfigManager* configManager;
+    QString baseUrl;
+
+    ApiManager(QObject* parent = nullptr) : QObject(parent) {
+        networkManager = new QNetworkAccessManager(this);
+        configManager = ConfigManager::getInstance();
+        baseUrl = "https://www.virustotal.com/api/v3"; // VirusTotal API v3 endpoint
+    }
+
 public:
-    explicit ApiManager(QObject *parent = nullptr);
-    ~ApiManager();
+    static ApiManager* getInstance(QObject* parent = nullptr) {
+        static ApiManager* instance = new ApiManager(parent);
+        return instance;
+    }
 
-    std::string getApiKey() const;
-    /**
-     * @brief Belirtilen dosyayı VirusTotal API'ye gönderir.
-     * @param filePath Gönderilecek dosyanın yolu.
-     * @param apiResponse API'den alınan cevabı içerir.
-     * @return İşlem başarılı ise true, aksi halde false.
-     */
+    void setApiKey(const QString& key) {
+        configManager->setApiKey(key);
+    }
 
+    QString getApiKey() {
+        return configManager->getApiKey();
+    }
 
-    bool sendFileToVirusTotal();
+    bool hasApiKey() {
+        return configManager->hasApiKey();
+    }
 
-    /**
-     * @brief Belirtilen URL'i VirusTotal API'ye gönderir.
-     * @param url Kontrol edilecek URL.
-     * @param apiResponse API'den alınan cevabı içerir.
-     * @return İşlem başarılı ise true, aksi halde false.
-     */
-    bool sendUrlToVirusTotal(const QString &url, QString &apiResponse);
+    void makeApiRequest(const QString& endpoint, const QJsonObject& data = QJsonObject()) {
+        if (!hasApiKey()) {
+            emit error("API key not set");
+            return;
+        }
 
-    /**
-     * @brief Belirtilen hash değerini VirusTotal API'ye gönderir.
-     * @param hash Kontrol edilecek hash değeri.
-     * @param apiResponse API'den alınan cevabı içerir.
-     * @return İşlem başarılı ise true, aksi halde false.
-     */
-    bool sendHashToVirusTotal(const QString &hash, QString &apiResponse);
+        QNetworkRequest request;
+        request.setUrl(QUrl(baseUrl + endpoint));
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        request.setRawHeader("x-apikey", configManager->getApiKey().toUtf8());
 
-    /**
-     * @brief VirusTotal API için GET isteği gönderir.
-     * @param url İstek gönderilecek URL.
-     * @return QNetworkReply nesnesi; istek tamamlandığında işlenmek üzere.
-     */
-    QNetworkReply* sendGetRequest(const QUrl &url);
+        QNetworkReply* reply;
+        if (data.isEmpty()) {
+            reply = networkManager->get(request);
+        } else {
+            reply = networkManager->post(request, QJsonDocument(data).toJson());
+        }
 
-    /**
-     * @brief VirusTotal API için POST isteği gönderir.
-     * @param url İstek gönderilecek URL.
-     * @param data Gönderilecek POST verileri.
-     * @return QNetworkReply nesnesi; istek tamamlandığında işlenmek üzere.
-     */
-    QNetworkReply* sendPostRequest(const QUrl &url, const QByteArray &data);
+        connect(reply, &QNetworkReply::finished, [this, reply]() {
+            if (reply->error() == QNetworkReply::NoError) {
+                QJsonDocument response = QJsonDocument::fromJson(reply->readAll());
+                emit responseReceived(response.object());
+            } else {
+                emit error(QString("Network Error: %1").arg(reply->errorString()));
+                qDebug() << "Error Response:" << reply->readAll();
+            }
+            reply->deleteLater();
+        });
+    }
+
+signals:
+    void responseReceived(const QJsonObject& response);
+    void error(const QString& errorMessage);
 };
 
 #endif // APIMANAGER_H

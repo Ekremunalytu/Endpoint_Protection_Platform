@@ -34,4 +34,4 @@ public:
     static void closeConnection(const QString &connectionName = QSqlDatabase::defaultConnection);
 };
 
-#endif //DbManager_H
+#endif // DbManager_H

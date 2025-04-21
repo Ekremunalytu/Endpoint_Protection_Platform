@@ -1,0 +1,10 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.generator": "Unix Makefiles",
+    "cmake.installPrefix": "${workspaceFolder}/build",
+    "cmake.configureSettings": {
+        "CMAKE_PREFIX_PATH": "/Volumes/Crucial/QT/6.10.0/macos"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+} 

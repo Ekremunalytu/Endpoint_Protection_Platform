@@ -12,6 +12,7 @@ public:
     static QString Sha1Hashing(const QString &filePathSha1);
     static QString Sha256Hashing(const QString &filePathSha256);
     static QString Sha512Hashing(const QString &filePathSha512);
+
 };
 
-#endif // HASHCALCULATION_H
+#endif //HASHCALCULATION_H

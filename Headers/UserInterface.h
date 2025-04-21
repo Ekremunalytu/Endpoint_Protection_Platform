@@ -4,23 +4,43 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QLineEdit>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QToolButton>
+#include "ApiManager.h"
+#include <QJsonObject>
 
 class QAction;
 class QMenu;
 class QToolBar;
+
+class ApiKeyDialog : public QDialog {
+    Q_OBJECT
+public:
+    explicit ApiKeyDialog(QWidget *parent = nullptr);
+    QString getApiKey() const { return apiKeyLineEdit->text(); }
+
+private:
+    QLineEdit *apiKeyLineEdit;
+};
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    private slots:
-        void onScanButtonClicked();
-    void onUpdateButtonClicked();
+private slots:
+    void onScanButtonClicked();
     void onsendVirusTotalButtonClicked();
+    void onApiKeyButtonClicked();
+    void onApiResponseReceived(const QJsonObject& response);
+    void onApiError(const QString& errorMessage);
+    void onApiRequestSent(const QString& endpoint);
 
 private:
     void createActions();
@@ -28,17 +48,25 @@ private:
     void createToolBars();
     void createStatusBar();
     void createCentralWidgets();
+    void setupTextEditStyle(QPlainTextEdit* textEdit);
+    void showApiKeyDialog();
+    void updateStatus(const QString& message);
+    void appendResult(const QString& engine, const QString& result);
+    void showNormalResults(const QJsonObject& response);
+    void showDetailedResults(const QJsonObject& response);
 
-    // Menü, araç çubuğu ve aksiyonlar
-    QMenu      *featureMenu;
-    QToolBar   *featureToolBar;
+    // Menü ve aksiyonlar
+    QAction    *menuAction;
     QAction    *scanAction;
-    QAction    *updateAction;
     QAction    *virusTotalAction;
+    QAction    *apiKeyAction;
 
     // Ana ekranda göstereceğimiz bileşenler
     QLabel         *statusLabel;      // Altta kısa mesajlar için
-    QPlainTextEdit *resultTextEdit;   // Hash sonuçlarını göstermek için
+    QPlainTextEdit *resultTextEdit;   // Normal görünüm için
+    QPlainTextEdit *detailedResultTextEdit; // Detaylı görünüm için
+    QPlainTextEdit *apiLogTextEdit;        // API iletişimi için
+    ApiManager     *apiManager;       // API yöneticisi
 };
 
 #endif // USERINTERFACE_H
