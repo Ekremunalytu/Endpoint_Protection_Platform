@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include "ApiManager.h"
+#include "YaraRuleManager.h"
 #include <QJsonObject>
 
 class QAction;
@@ -67,6 +68,7 @@ private:
     QPlainTextEdit *detailedResultTextEdit; // Detaylı görünüm için
     QPlainTextEdit *apiLogTextEdit;        // API iletişimi için
     ApiManager     *apiManager;       // API yöneticisi
+    YaraRuleManager *yaraManager;     // YARA yöneticisi (dinamik tarama için)
 };
 
 #endif // USERINTERFACE_H

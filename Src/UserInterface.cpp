@@ -2,6 +2,7 @@
 #include "../Headers/DbManager.h"
 #include "../Headers/HashCalculation.h"
 #include "../Headers/ApiManager.h"
+#include "../Headers/YaraRuleManager.h"
 
 #include <QMainWindow>
 #include <QString>
@@ -116,9 +117,12 @@ MainWindow::MainWindow(QWidget *parent)
       apiKeyAction(nullptr),
       statusLabel(nullptr),
       resultTextEdit(nullptr),
-      apiManager(nullptr)
+      apiManager(nullptr),
+      yaraManager(nullptr)
 {
     apiManager = ApiManager::getInstance(this);
+    yaraManager = new YaraRuleManager();
+    yaraManager->initialize(); // YARA altyapısını başlat
     connect(apiManager, &ApiManager::responseReceived, this, &MainWindow::onApiResponseReceived);
     connect(apiManager, &ApiManager::error, this, &MainWindow::onApiError);
 
@@ -153,6 +157,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if (yaraManager) delete yaraManager;
 }
 
 void MainWindow::createActions()
@@ -749,6 +754,40 @@ void MainWindow::onScanButtonClicked()
         resultTextEdit->appendPlainText("\nTehdit algılanmadı. Dosya temiz.");
     }
 
+    // --- Dinamik YARA Tarama Adımı ---
+    resultTextEdit->appendPlainText("\n--- Dinamik YARA Tarama Başlatılıyor ---");
+    statusLabel->setText("YARA kuralları yükleniyor...");
+    std::string yaraRulePath = "Rules/test.yar"; // Test kural dosyası
+    std::error_code yaraErr = yaraManager->loadRules(yaraRulePath);
+    if (yaraErr) {
+        resultTextEdit->appendPlainText(QString("YARA kural dosyası yüklenemedi: %1").arg(QString::fromStdString(yaraErr.message())));
+        statusLabel->setText("YARA kuralı yüklenemedi");
+        return;
+    }
+    // Kural derleme adımı eklendi
+    std::error_code compileErr = yaraManager->compileRules();
+    if (compileErr) {
+        resultTextEdit->appendPlainText(QString("YARA kural derleme hatası: %1").arg(QString::fromStdString(compileErr.message())));
+        statusLabel->setText("YARA kural derleme hatası");
+        return;
+    }
+    resultTextEdit->appendPlainText("YARA kuralları başarıyla yüklendi. Dosya taranıyor...");
+    statusLabel->setText("YARA ile dosya taranıyor...");
+    std::vector<std::string> yaraMatches;
+    std::error_code scanErr = yaraManager->scanFile(filePath.toStdString(), yaraMatches);
+    if (scanErr) {
+        resultTextEdit->appendPlainText(QString("YARA tarama hatası: %1").arg(QString::fromStdString(scanErr.message())));
+        statusLabel->setText("YARA tarama hatası");
+        return;
+    }
+    if (yaraMatches.empty()) {
+        resultTextEdit->appendPlainText("YARA: Herhangi bir tehdit tespit edilmedi.");
+    } else {
+        resultTextEdit->appendPlainText("YARA: Tehdit tespit edildi!");
+        for (const auto& match : yaraMatches) {
+            resultTextEdit->appendPlainText(QString("- %1").arg(QString::fromStdString(match)));
+        }
+    }
     statusLabel->setText("Tarama tamamlandı.");
 }
 

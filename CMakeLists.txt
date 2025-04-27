@@ -31,6 +31,8 @@ add_executable(Endpoint_Protection_Platform
     Headers/ApiManager.h
     Headers/ConfigManager.h
     Src/ConfigManager.cpp
+    Headers/YaraRuleManager.h
+    Src/YaraRuleManager.cpp
 )
 
 target_link_libraries(Endpoint_Protection_Platform
@@ -47,3 +49,18 @@ target_include_directories(Endpoint_Protection_Platform PRIVATE
     ${CMAKE_SOURCE_DIR}
     "/Volumes/Crucial/QT/6.10.0/macos/include"
 )
+
+find_path(YARA_INCLUDE_DIR
+    NAMES yara.h
+    HINTS /opt/homebrew/include /usr/local/include
+)
+find_library(YARA_LIBRARY
+    NAMES yara
+    HINTS /opt/homebrew/lib /usr/local/lib
+)
+if (YARA_INCLUDE_DIR AND YARA_LIBRARY)
+    target_include_directories(Endpoint_Protection_Platform PRIVATE ${YARA_INCLUDE_DIR})
+    target_link_libraries(Endpoint_Protection_Platform PRIVATE ${YARA_LIBRARY})
+else()
+    message(FATAL_ERROR "Could not find YARA (headers or library)")
+endif()

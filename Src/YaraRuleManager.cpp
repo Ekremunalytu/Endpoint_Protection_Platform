@@ -1,5 +1,3 @@
-
-
 #include "Headers/YaraRuleManager.h"
 #include <fstream>
 #include <cstdio>
@@ -19,9 +17,9 @@ static int yara_callback(
 {
     auto* manager = reinterpret_cast<YaraRuleManager*>(user_data);
     // CALLBACK_MSG_RULE_MATCHING, YARA eşleşme mesajı
-    if (message == CALLBACK_MSG_RULE_MATCHING && manager && manager->callback) {
+    if (message == CALLBACK_MSG_RULE_MATCHING && manager && manager->getCallback()) {
         YR_RULE* rule = static_cast<YR_RULE*>(message_data);
-        manager->callback(rule->identifier);
+        manager->getCallback()(rule->identifier);
     }
     return CALLBACK_CONTINUE;
 }

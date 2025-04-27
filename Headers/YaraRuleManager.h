@@ -70,7 +70,7 @@ public:
     YaraRuleManager(YaraRuleManager&&) noexcept = delete;
     YaraRuleManager& operator=(YaraRuleManager&&) noexcept = delete;
 
-    std::error_code initailize() noexcept;
+    std::error_code initialize() noexcept;
     std::error_code finalize() noexcept;
 
     std::error_code loadRules(const std::string& rulesFilePath) noexcept;
@@ -80,15 +80,17 @@ public:
     std::error_code scanFile(const std::string& filePath, std::vector<std::string>& matches) noexcept;
     std::error_code scanMemory(const uint8_t* data, size_t size, std::vector<std::string>& matches) noexcept;
     void setCallback(std::function<void(const std::string&)> callback) noexcept;
+    // Callback'a erişim için getter
+    std::function<void(const std::string&)>& getCallback() { return callback; }
 
 private:
-    bool initalized = false;
+    bool initialized = false;
 
     struct compilerDeleter {void operator()(YR_COMPILER* p) const noexcept { if (p) yr_compiler_destroy(p);}};
     struct rulesDeleter {void operator()(YR_RULES* p) const noexcept { if (p) yr_rules_destroy(p);}};
 
     std::unique_ptr<YR_COMPILER, compilerDeleter> compiler;
-    std::unique_ptr<YR_RULESD, rulesDeleter> rules;
+    std::unique_ptr<YR_RULES, rulesDeleter> rules;
 
     std::function<void(const std::string&)> callback;
 
