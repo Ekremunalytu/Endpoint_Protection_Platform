@@ -18,7 +18,7 @@ include_directories(
 )
 
 # Qt bileşenlerini bul
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql Network Concurrent)
 
 add_executable(Endpoint_Protection_Platform
     main.cpp
@@ -42,6 +42,7 @@ target_link_libraries(Endpoint_Protection_Platform
     Qt6::Widgets
     Qt6::Sql
     Qt6::Network
+    Qt6::Concurrent
 )
 
 # Derleme sırasında Qt başlık dosyalarını bulabilmesi için

@@ -6,16 +6,13 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    
-    // Yeni proje database dizini
-    QString dbPath = "/Volumes/Crucial/Endpoint_Protection_Platform/MalwareHashes/identifier.sqlite";
-    if (!DbManager::connectToDatabase(dbPath)) {
-        return -1;
-    }
-
-    MainWindow mainWindow;
-    // mainWindow.showFullScreen(); // Zaten ctor'da showFullScreen() var ise gerek yok
-    mainWindow.show(); // Eğer constructor içinde tam ekran açıyorsanız, show() da ekleyebilirsiniz
-
+    DbManager::asyncConnectToDatabase([&](bool success) {
+        if (!success) {
+            app.exit(-1);
+            return;
+        }
+        MainWindow* mainWindow = new MainWindow();
+        mainWindow->show();
+    });
     return app.exec();
 }

@@ -1,6 +1,9 @@
+#include <QCoreApplication>
+#include <QDir>
 #include "../Headers/DbManager.h"
 
-bool DbManager::connectToDatabase(const QString &dbPath) {
+bool DbManager::connectToDatabase() {
+    QString dbPath = QCoreApplication::applicationDirPath() + "/MalwareHashes/identifier.sqlite";
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dbPath);
     if (!db.open()) {
@@ -88,4 +91,16 @@ void DbManager::closeConnection(const QString &connectionName) {
     // Bağlantıyı havuzdan kaldırıyoruz.
     QSqlDatabase::removeDatabase(connectionName);
     qDebug() << "Database connection closed and removed.";
+}
+
+void DbManager::asyncConnectToDatabase(std::function<void(bool)> callback) {
+    QFuture<bool> future = QtConcurrent::run([]() {
+        return connectToDatabase();
+    });
+    QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
+    QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, future, callback]() mutable {
+        callback(future.result());
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
 }

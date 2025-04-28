@@ -9,13 +9,15 @@
 #include <QFile>
 #include <QDebug>
 #include <QMessageBox>
+#include <QtConcurrent>
+#include <QFutureWatcher>
 
 // DatabaseManager sınıfı, veritabanı bağlantısı, şema oluşturma, tablo listeleme,
 // örnek sorgu çalıştırma ve bağlantı kapatma işlemlerini yöneten static metodları içerir.
 class DbManager {
 public:
     // SQLite veritabanına bağlanır.
-    static bool connectToDatabase(const QString &dbPath);
+    static bool connectToDatabase();
 
     // Veritabanındaki tabloları listeler.
     static void listTables();
@@ -32,6 +34,9 @@ public:
 
     // Veritabanı bağlantısını kapatır ve bağlantıyı havuzdan kaldırır.
     static void closeConnection(const QString &connectionName = QSqlDatabase::defaultConnection);
+
+    // Asenkron veritabanı bağlantısı (threaded)
+    static void asyncConnectToDatabase(std::function<void(bool)> callback);
 };
 
 #endif // DbManager_H
