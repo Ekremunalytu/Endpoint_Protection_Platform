@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Endpoint_Protection_Platform",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Endpoint_Protection_Platform::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Endpoint_Protection_Platform-Debug-0467a2a5d240ab81af0f.json",
+					"name" : "Endpoint_Protection_Platform",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Endpoint_Protection_Platform_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Endpoint_Protection_Platform_autogen-Debug-7cb0015108f4e32c3bb8.json",
+					"name" : "Endpoint_Protection_Platform_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Endpoint_Protection_Platform_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Endpoint_Protection_Platform_autogen_timestamp_deps-Debug-a75999a1773bbb259cb7.json",
+					"name" : "Endpoint_Protection_Platform_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Volumes/Crucial/Endpoint_Protection_Platform/build",
+		"source" : "/Volumes/Crucial/Endpoint_Protection_Platform"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

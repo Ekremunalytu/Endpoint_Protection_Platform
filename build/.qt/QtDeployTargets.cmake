@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_Endpoint_Protection_Platform_FILE /Volumes/Crucial/Endpoint_Protection_Platform/build/Endpoint_Protection_Platform)
+set(__QT_DEPLOY_TARGET_Endpoint_Protection_Platform_TYPE EXECUTABLE)

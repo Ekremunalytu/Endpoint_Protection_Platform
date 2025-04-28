@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

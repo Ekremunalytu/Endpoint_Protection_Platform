@@ -1,17 +1,29 @@
-.DS_Store
-.idea/editor.xml
-.idea/Endpoint_Protection_Platform.iml
-.idea/misc.xml
-/.idea
-/MalwareHashes
-/.idea
-.idea/workspace.xml
-/build
-/WindowsAv_autogen
-ara proje rapor 1 v1
-ara proje rapor 1 v3
-ara proje rapor 1 v4
-ara proje rapor 1v2
-/.idea
-/.idea
-*.png
+build/
+cmake-build-debug/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+compile_commands.json
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.user
+*.DS_Store
+*.swp
+*.swo
+*.log
+*.tmp
+*.bak
+*.old
+*.out
+*.pyc
+__pycache__/
+Testing/
+build/MalwareHashes/identifier.sqlite
+MalwareHashes

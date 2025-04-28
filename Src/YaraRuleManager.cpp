@@ -1,4 +1,4 @@
-#include "Headers/YaraRuleManager.h"
+#include "../Headers/YaraRuleManager.h"
 #include <fstream>
 #include <cstdio>
 #include <iostream>

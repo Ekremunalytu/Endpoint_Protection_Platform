@@ -18,59 +18,15 @@ private:
     ConfigManager* configManager;
     QString baseUrl;
 
-    ApiManager(QObject* parent = nullptr) : QObject(parent) {
-        networkManager = new QNetworkAccessManager(this);
-        configManager = ConfigManager::getInstance();
-        baseUrl = "https://www.virustotal.com/api/v3"; // VirusTotal API v3 endpoint
-    }
+    explicit ApiManager(QObject* parent = nullptr);
 
 public:
-    static ApiManager* getInstance(QObject* parent = nullptr) {
-        static ApiManager* instance = new ApiManager(parent);
-        return instance;
-    }
+    static ApiManager* getInstance(QObject* parent = nullptr);
 
-    void setApiKey(const QString& key) {
-        configManager->setApiKey(key);
-    }
-
-    QString getApiKey() {
-        return configManager->getApiKey();
-    }
-
-    bool hasApiKey() {
-        return configManager->hasApiKey();
-    }
-
-    void makeApiRequest(const QString& endpoint, const QJsonObject& data = QJsonObject()) {
-        if (!hasApiKey()) {
-            emit error("API key not set");
-            return;
-        }
-
-        QNetworkRequest request;
-        request.setUrl(QUrl(baseUrl + endpoint));
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-        request.setRawHeader("x-apikey", configManager->getApiKey().toUtf8());
-
-        QNetworkReply* reply;
-        if (data.isEmpty()) {
-            reply = networkManager->get(request);
-        } else {
-            reply = networkManager->post(request, QJsonDocument(data).toJson());
-        }
-
-        connect(reply, &QNetworkReply::finished, [this, reply]() {
-            if (reply->error() == QNetworkReply::NoError) {
-                QJsonDocument response = QJsonDocument::fromJson(reply->readAll());
-                emit responseReceived(response.object());
-            } else {
-                emit error(QString("Network Error: %1").arg(reply->errorString()));
-                qDebug() << "Error Response:" << reply->readAll();
-            }
-            reply->deleteLater();
-        });
-    }
+    void setApiKey(const QString& key);
+    QString getApiKey();
+    bool hasApiKey();
+    void makeApiRequest(const QString& endpoint, const QJsonObject& data = QJsonObject());
 
 signals:
     void responseReceived(const QJsonObject& response);

@@ -1,0 +1,5 @@
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/edit_cache.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/rebuild_cache.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform_autogen_timestamp_deps.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform_autogen.dir
