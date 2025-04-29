@@ -113,3 +113,12 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/MalwareHashes)
             $<TARGET_FILE_DIR:${PROJECT_NAME}>/MalwareHashes
     )
 endif()
+
+# Post-build: Rules dizinini çalıştırılabilirle aynı yere kopyala
+if(EXISTS ${CMAKE_SOURCE_DIR}/Rules)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/Rules
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/Rules
+    )
+endif()

@@ -1,30 +1,87 @@
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileInfo>
+#include <QThread>
 #include "../Headers/DbManager.h"
 
+// Thread local veritabanı bağlantı adını oluştur
+QString getConnectionNameForThread() {
+    return QString("connection_%1").arg((quintptr)QThread::currentThreadId());
+}
+
 bool DbManager::connectToDatabase() {
-    // Dosya yollarını platform-bağımsız şekilde oluşturalım
-    QString dbPath = QCoreApplication::applicationDirPath();
-    dbPath = QDir::toNativeSeparators(dbPath + "/MalwareHashes/identifier.sqlite");
+    // 1. Önce çalıştırılabilir dosya dizininde arayalım (build dizini)
+    QString exePath = QCoreApplication::applicationDirPath();
+    QString dbPath = QDir::toNativeSeparators(exePath + "/MalwareHashes/identifier.sqlite");
     
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    // Dosya varlığını kontrol et
+    QFileInfo checkFile(dbPath);
+    if (!checkFile.exists() || !checkFile.isFile()) {
+        // 2. Eğer bulamazsak, proje kök dizinine göre arayalım
+        QString projectPath = QDir(exePath).absolutePath();
+        
+        // Windows'ta build/Release/.. veya Mac'te build/.. şeklinde olabilir, üst dizinleri kontrol edelim
+        if (projectPath.contains("build")) {
+            QDir dir(projectPath);
+            // Build dizininden üst dizine çıkalım
+            dir.cdUp();
+            
+            // Release dizini varsa bir üst dizine daha çıkalım (Windows için)
+            if (projectPath.contains("Release")) {
+                dir.cdUp();
+            }
+            
+            // Şimdi proje kök dizinindeyiz, MalwareHashes klasörüne bakalım
+            dbPath = QDir::toNativeSeparators(dir.absolutePath() + "/MalwareHashes/identifier.sqlite");
+            checkFile.setFile(dbPath);
+            
+            if (!checkFile.exists() || !checkFile.isFile()) {
+                qDebug() << "Veritabanı dosyası bulunamadı:" << dbPath;
+                return false;
+            }
+        }
+    }
+    
+    qDebug() << "Using database at:" << dbPath;
+    
+    // Thread için benzersiz bir bağlantı adı oluşturuyoruz
+    QString connectionName = getConnectionNameForThread();
+    
+    // Eğer bu thread için zaten bir bağlantı varsa, onu kapatıp yeniden açalım
+    if (QSqlDatabase::contains(connectionName)) {
+        QSqlDatabase::removeDatabase(connectionName);
+    }
+    
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
     db.setDatabaseName(dbPath);
     if (!db.open()) {
         qDebug() << "Database connection failed:" << db.lastError().text();
         return false;
     }
-    qDebug() << "Connected to SQLite database successfully with Qt!";
+    qDebug() << "Connected to SQLite database successfully with Qt! Connection:" << connectionName;
     return true;
 }
 
 void DbManager::listTables() {
-    QSqlDatabase db = QSqlDatabase::database();
+    QSqlDatabase db = QSqlDatabase::database(getConnectionNameForThread());
+    if (!db.isOpen()) {
+        qDebug() << "Database not open for listing tables";
+        return;
+    }
     QStringList tables = db.tables();
     qDebug() << "Tables in the database:" << tables;
 }
 
 QString DbManager::searchHashmMd5(const QString &md5Hash) {
-    QSqlQuery query;
+    QString connectionName = getConnectionNameForThread();
+    if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
+        if (!connectToDatabase()) {
+            return QString("Database connection failed");
+        }
+    }
+    
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
     query.prepare("SELECT md5 FROM md5_hashes WHERE md5 = :md5_hash");
     query.bindValue(":md5_hash", md5Hash);
 
@@ -41,7 +98,15 @@ QString DbManager::searchHashmMd5(const QString &md5Hash) {
 }
 
 QString DbManager::searchHashSha_1(QString sha1) {
-    QSqlQuery query;
+    QString connectionName = getConnectionNameForThread();
+    if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
+        if (!connectToDatabase()) {
+            return QString("Database connection failed");
+        }
+    }
+    
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
     query.prepare("SELECT sha1 FROM sha1_hashes WHERE sha1 = :sha1_hash");
     query.bindValue(":sha1_hash", sha1);
 
@@ -58,7 +123,15 @@ QString DbManager::searchHashSha_1(QString sha1) {
 }
 
 QString DbManager::searchHashSha_256(QString sha256) {
-    QSqlQuery query;
+    QString connectionName = getConnectionNameForThread();
+    if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
+        if (!connectToDatabase()) {
+            return QString("Database connection failed");
+        }
+    }
+    
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
     query.prepare("SELECT sha256 FROM sha256_hashes WHERE sha256 = :sha256_hash");
     query.bindValue(":sha256_hash", sha256);
 
@@ -75,7 +148,16 @@ QString DbManager::searchHashSha_256(QString sha256) {
 }
 
 void DbManager::executeSampleQuery() {
-    QSqlQuery query;
+    QString connectionName = getConnectionNameForThread();
+    if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
+        if (!connectToDatabase()) {
+            qDebug() << "Database connection failed";
+            return;
+        }
+    }
+    
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
     if (!query.exec("SELECT * FROM md5_hashes LIMIT 10;")) {
         qDebug() << "Query failed:" << query.lastError().text();
         return;
@@ -87,13 +169,17 @@ void DbManager::executeSampleQuery() {
 }
 
 void DbManager::closeConnection(const QString &connectionName) {
-    QSqlDatabase db = QSqlDatabase::database(connectionName);
-    if (db.isOpen()) {
-        db.close();
+    QString connName = connectionName.isEmpty() ? getConnectionNameForThread() : connectionName;
+    
+    if (QSqlDatabase::contains(connName)) {
+        QSqlDatabase db = QSqlDatabase::database(connName);
+        if (db.isOpen()) {
+            db.close();
+        }
+        // Bağlantıyı havuzdan kaldırıyoruz.
+        QSqlDatabase::removeDatabase(connName);
+        qDebug() << "Database connection closed and removed:" << connName;
     }
-    // Bağlantıyı havuzdan kaldırıyoruz.
-    QSqlDatabase::removeDatabase(connectionName);
-    qDebug() << "Database connection closed and removed.";
 }
 
 void DbManager::asyncConnectToDatabase(std::function<void(bool)> callback) {

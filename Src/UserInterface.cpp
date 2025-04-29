@@ -764,13 +764,10 @@ void MainWindow::onScanButtonClicked()
         statusLabel->setText("YARA kuralı yüklenemedi");
         return;
     }
-    // Kural derleme adımı eklendi
-    std::error_code compileErr = yaraManager->compileRules();
-    if (compileErr) {
-        resultTextEdit->appendPlainText(QString("YARA kural derleme hatası: %1").arg(QString::fromStdString(compileErr.message())));
-        statusLabel->setText("YARA kural derleme hatası");
-        return;
-    }
+
+    
+    // Not: compileRules() fonksiyonu zaten loadRules() içinde çağrılıyor, tekrar çağırmaya gerek yok
+    
     resultTextEdit->appendPlainText("YARA kuralları başarıyla yüklendi. Dosya taranıyor...");
     statusLabel->setText("YARA ile dosya taranıyor...");
     std::vector<std::string> yaraMatches;
