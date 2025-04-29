@@ -11,6 +11,7 @@
 #include <vector>
 #include <functional>
 #include <system_error>
+#include <memory> // std::unique_ptr için bu başlık dosyası gerekli
 
 // burada hata kodları tanımanmıştır.
 enum class  YaraErrorCodes {

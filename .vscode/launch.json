@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "build Epp",
+            "name": "Debug (macOS)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Endpoint_Protection_Platform",
@@ -13,6 +13,18 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "CMake Build"
+        },
+        {
+            "name": "Debug (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Release/Endpoint_Protection_Platform.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "preLaunchTask": "Run Windows Build"
         }
     ]
-} 
+}

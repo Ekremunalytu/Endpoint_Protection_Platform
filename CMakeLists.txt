@@ -9,15 +9,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Platform-specific Qt paths  # <<< Değiştirilmiş: tek QT_ROOT yerine direkt Qt6_DIR kullanımı ve CMAKE_PREFIX_PATH ayarı
+# Platform-specific Qt paths
 if(WIN32)
-    # Windows için Qt dizinleri
-    set(Qt6_DIR "C:/Qt/6.10.0/msvc2022_arm64/lib/cmake/Qt6")  # güncellendi
-    set(CMAKE_PREFIX_PATH "${Qt6_DIR}")                       # güncellendi
+    # Windows için Qt dizinleri - ters eğik çizgiler düzeltildi
+    set(Qt6_DIR "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6")
+    set(CMAKE_PREFIX_PATH "${Qt6_DIR}")
 elseif(APPLE)
     # macOS için Qt dizinleri
-    set(Qt6_DIR "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6")  # güncellendi
-    set(CMAKE_PREFIX_PATH "${Qt6_DIR}")                              # güncellendi
+    set(Qt6_DIR "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6")
+    set(CMAKE_PREFIX_PATH "${Qt6_DIR}")
 endif()
 
 # Qt bileşenlerini bul
@@ -60,18 +60,18 @@ target_link_libraries(${PROJECT_NAME}
         Qt6::Concurrent
 )
 
-# Include dizinleri (proje ve Başlık klasörü)  # <<< Değiştirilmiş: include_directories -> target_include_directories ve Headers klasörü eklendi
+# Include dizinleri (proje ve Başlık klasörü)
 if(WIN32)
     target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}                  # eklendi
-        ${CMAKE_SOURCE_DIR}/Headers         # eklendi
-        "C:/Qt/6.6.0/msvc2019_64/include"
-        "C:/Qt/6.6.0/msvc2019_64/lib"
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/Headers
+        "C:/Qt/6.10.0/msvc2022_64/include"
+        "C:/Qt/6.10.0/msvc2022_64/lib"
     )
 elseif(APPLE)
     target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}                  # eklendi
-        ${CMAKE_SOURCE_DIR}/Headers         # eklendi
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/Headers
         "/Volumes/Crucial/QT/6.10.0/macos/include"
         "/Volumes/Crucial/QT/6.10.0/macos/lib"
     )
@@ -81,11 +81,11 @@ endif()
 if(WIN32)
     find_path(YARA_INCLUDE_DIR
         NAMES yara.h
-        HINTS C:/Yara/include "C:/Program Files/Yara/include"
+        HINTS "C:/Yara/include" "C:/vcpkg/packages/yara_x64-windows/include"
     )
     find_library(YARA_LIBRARY
-        NAMES yara
-        HINTS C:/Yara/lib "C:/Program Files/Yara/lib"
+        NAMES yara libyara
+        HINTS "C:/Yara/lib" "C:/vcpkg/packages/yara_x64-windows/lib"
     )
 elseif(APPLE)
     find_path(YARA_INCLUDE_DIR
@@ -106,8 +106,10 @@ else()
 endif()
 
 # Post-build: MalwareHashes dizinini çalıştırılabilirle aynı yere kopyala
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/MalwareHashes
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/MalwareHashes
-)
+if(EXISTS ${CMAKE_SOURCE_DIR}/MalwareHashes)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/MalwareHashes
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/MalwareHashes
+    )
+endif()

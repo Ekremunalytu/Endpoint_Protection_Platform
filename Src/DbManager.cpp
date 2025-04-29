@@ -3,7 +3,10 @@
 #include "../Headers/DbManager.h"
 
 bool DbManager::connectToDatabase() {
-    QString dbPath = QCoreApplication::applicationDirPath() + "/MalwareHashes/identifier.sqlite";
+    // Dosya yollarını platform-bağımsız şekilde oluşturalım
+    QString dbPath = QCoreApplication::applicationDirPath();
+    dbPath = QDir::toNativeSeparators(dbPath + "/MalwareHashes/identifier.sqlite");
+    
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dbPath);
     if (!db.open()) {

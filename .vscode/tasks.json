@@ -9,7 +9,60 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "command": "echo Bu görev Windows'ta çalışmaz, lütfen 'Run Windows Build' görevini kullanın"
+            }
+        },
+        {
+            "label": "CMake Build (Windows)",
+            "type": "shell",
+            "command": "if not exist build mkdir build && cd build && cmake -G \"Visual Studio 17 2022\" .. && cmake --build . --config Release",
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/c"]
+                }
+            }
+        },
+        {
+            "label": "CMake Clean (Windows)",
+            "type": "shell",
+            "command": "if exist build rd /s /q build",
+            "group": "build",
+            "problemMatcher": [],
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/c"]
+                }
+            }
+        },
+        {
+            "label": "Run Windows Build",
+            "type": "shell",
+            "command": "${workspaceFolder}/windows_build.bat",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": ["$msCompile"],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/c"]
+                }
+            }
         }
     ]
 }
