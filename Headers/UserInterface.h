@@ -61,6 +61,8 @@ private:
     QAction    *menuAction;
     QAction    *scanAction;
     QAction    *virusTotalAction;
+    QAction    *cdrAction;        // CDR (Content Disarm and Reconstruction) aksiyonu
+    QAction    *sandboxAction;    // Sandbox aksiyonu
     QAction    *apiKeyAction;
 
     // Ana ekranda göstereceğimiz bileşenler

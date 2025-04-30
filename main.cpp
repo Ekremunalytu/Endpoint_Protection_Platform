@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
         }
         MainWindow* mainWindow = new MainWindow();
         mainWindow->show();
+        mainWindow->setWindowState(Qt::WindowMaximized);
+        mainWindow->setWindowTitle("Windows Antivirus");
     });
     return app.exec();
 }

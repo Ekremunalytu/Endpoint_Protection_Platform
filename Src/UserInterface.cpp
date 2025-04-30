@@ -201,6 +201,20 @@ void MainWindow::createActions()
     virusTotalAction = new QAction(tr("VirusTotal Tarama"), this);
     virusTotalAction->setIcon(QIcon::fromTheme("network-transmit"));
     connect(virusTotalAction, &QAction::triggered, this, &MainWindow::onsendVirusTotalButtonClicked);
+    
+    // Yeni CDR aksiyonu
+    cdrAction = new QAction(tr("CDR Tarama"), this);
+    cdrAction->setIcon(QIcon::fromTheme("document-edit"));
+    connect(cdrAction, &QAction::triggered, [this](){
+        QMessageBox::information(this, tr("CDR"), tr("Content Disarm and Reconstruction taraması henüz hazır değil."));
+    });
+    
+    // Yeni Sandbox aksiyonu
+    sandboxAction = new QAction(tr("Sandbox Analizi"), this);
+    sandboxAction->setIcon(QIcon::fromTheme("system-run"));
+    connect(sandboxAction, &QAction::triggered, [this](){
+        QMessageBox::information(this, tr("Sandbox"), tr("Sandbox analiz işlemi henüz hazır değil."));
+    });
 
     apiKeyAction = new QAction(tr("API Key Ayarla"), this);
     apiKeyAction->setIcon(QIcon::fromTheme("dialog-password"));
@@ -258,6 +272,8 @@ void MainWindow::createMenus()
 
     menu->addAction(scanAction);
     menu->addAction(virusTotalAction);
+    menu->addAction(cdrAction);        // CDR butonunu ekledim
+    menu->addAction(sandboxAction);    // Sandbox butonunu ekledim
     menu->addSeparator();
     menu->addAction(apiKeyAction);
 
@@ -342,18 +358,47 @@ void MainWindow::createModernCentralWidgets()
     sidebarLayout->setContentsMargins(0, 20, 0, 20);
 
     // Sidebar butonları (menü öğeleri)
-    auto createSidebarButton = [this, sidebarLayout](const QString &text, bool checked = false) {
+    auto createSidebarButton = [this, sidebarLayout](const QString &text, bool checked = false, const QString &bgColor = "") {
         QPushButton *btn = new QPushButton(text, this);
         btn->setCheckable(true);
         btn->setChecked(checked);
         btn->setIconSize(QSize(20, 20));
+        
+        // Butonun renkli olması için özel stil
+        if (!bgColor.isEmpty()) {
+            btn->setStyleSheet(QString(
+                "QPushButton {"
+                "    text-align: left;"
+                "    padding: 12px 20px;"
+                "    border: none;"
+                "    border-radius: 0;"
+                "    background-color: %1;"
+                "    color: white;"
+                "    font-size: 14px;"
+                "    font-weight: bold;"
+                "}"
+                "QPushButton:hover {"
+                "    background-color: #333333;"
+                "    color: white;"
+                "}"
+                "QPushButton:checked {"
+                "    background-color: #222222;"
+                "    color: #ffffff;"
+                "    font-weight: bold;"
+                "    border-left: 4px solid #0078d7;"
+                "}"
+            ).arg(bgColor));
+        }
+        
         sidebarLayout->addWidget(btn);
         return btn;
     };
 
-    // Sidebar butonları
-    QPushButton *offlineScanBtn = createSidebarButton(tr("Offline Taraması"), true);
-    QPushButton *virusScanBtn = createSidebarButton(tr("Virüs Taraması"));
+    // Sidebar butonları - renkli ve yeni isimlerle güncellendi
+    QPushButton *offlineScanBtn = createSidebarButton(tr("Offline Scan"), true, "#1e88e5");  // Mavi renk
+    QPushButton *virusScanBtn = createSidebarButton(tr("Online Scan"), false, "#43a047");   // Yeşil renk
+    QPushButton *cdrScanBtn = createSidebarButton(tr("CDR Scan"), false, "#ff9800");        // Turuncu renk
+    QPushButton *sandboxBtn = createSidebarButton(tr("Sandbox"), false, "#9c27b0");         // Mor renk
 
     // Sidebar'ın alt kısmına ayarlar butonu ekle
     sidebarLayout->addStretch();
@@ -564,16 +609,22 @@ void MainWindow::createModernCentralWidgets()
         "QScrollArea {"
         "    background-color: transparent;"
         "    border: none;"
+        "    min-width: 800px;"
         "}"
     );
     
+    // Scroll area'nın boyutunu genişletmek için minimum yükseklik ve genişlik ata
+    resultScrollArea->setMinimumHeight(500);
+    resultScrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    
     QWidget *resultContainer = new QWidget(resultScrollArea);
     QVBoxLayout *resultContainerLayout = new QVBoxLayout(resultContainer);
+    resultContainerLayout->setContentsMargins(10, 15, 10, 15); // İçerik kenar boşlukları
     
     resultTextEdit = new QPlainTextEdit();
     resultTextEdit->setReadOnly(true);
     setupTextEditStyle(resultTextEdit);
-    resultTextEdit->setMinimumHeight(800);
+    resultTextEdit->setMinimumHeight(1600); // 800'den 1600'e yükseltildi
     resultContainerLayout->addWidget(resultTextEdit);
     
     resultScrollArea->setWidget(resultContainer);
@@ -587,16 +638,22 @@ void MainWindow::createModernCentralWidgets()
         "QScrollArea {"
         "    background-color: transparent;"
         "    border: none;"
+        "    min-width: 800px;"  // Minimum genişlik eklendi
         "}"
     );
     
+    // Detaylı scroll area'ya da normal scroll area ile aynı boyut politikalarını uygula
+    detailedResultScrollArea->setMinimumHeight(500);
+    detailedResultScrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    
     QWidget *detailedResultContainer = new QWidget(detailedResultScrollArea);
     QVBoxLayout *detailedResultContainerLayout = new QVBoxLayout(detailedResultContainer);
+    detailedResultContainerLayout->setContentsMargins(10, 15, 10, 15); // İçerik kenar boşlukları artırıldı
     
     detailedResultTextEdit = new QPlainTextEdit();
     detailedResultTextEdit->setReadOnly(true);
     setupTextEditStyle(detailedResultTextEdit);
-    detailedResultTextEdit->setMinimumHeight(800);
+    detailedResultTextEdit->setMinimumHeight(1600); // 800'den 1600'e yükseltildi
     detailedResultContainerLayout->addWidget(detailedResultTextEdit);
     
     detailedResultScrollArea->setWidget(detailedResultContainer);
@@ -629,7 +686,7 @@ void MainWindow::createModernCentralWidgets()
     apiLogTextEdit = new QPlainTextEdit();
     apiLogTextEdit->setReadOnly(true);
     setupTextEditStyle(apiLogTextEdit);
-    apiLogTextEdit->setMinimumHeight(200);
+    apiLogTextEdit->setMinimumHeight(50); // 100'den 50'ye düşürüldü (daha da küçüldü)
     apiLayout->addWidget(apiLogTextEdit);
     
     // Bu widget'lar başlangıçta gizli kalacak ve gerektiğinde gösterilecek
@@ -660,6 +717,28 @@ void MainWindow::createModernCentralWidgets()
         this->onsendVirusTotalButtonClicked();
     });
     
+    // CDR taraması butonu için bağlantı
+    connect(cdrScanBtn, &QPushButton::clicked, [this, resultsWidget, apiGroup, detailedResultScrollArea, resultScrollArea]() {
+        resultsWidget->setVisible(true);
+        apiGroup->setVisible(true);
+        detailedResultScrollArea->setVisible(false);
+        resultScrollArea->setVisible(true);
+        
+        // CDR işlemini başlat (şu an için sadece bilgi mesajı göster)
+        QMessageBox::information(this, tr("CDR"), tr("Content Disarm and Reconstruction taraması henüz hazır değil."));
+    });
+    
+    // Sandbox butonu için bağlantı
+    connect(sandboxBtn, &QPushButton::clicked, [this, resultsWidget, apiGroup, detailedResultScrollArea, resultScrollArea]() {
+        resultsWidget->setVisible(true);
+        apiGroup->setVisible(true);
+        detailedResultScrollArea->setVisible(false);
+        resultScrollArea->setVisible(true);
+        
+        // Sandbox analiz işlemini başlat (şu an için sadece bilgi mesajı göster)
+        QMessageBox::information(this, tr("Sandbox"), tr("Sandbox analiz işlemi henüz hazır değil."));
+    });
+
     // Detaylı görünüm butonu tıklandığında
     connect(detailedViewButton, &QPushButton::clicked, [this, resultScrollArea, detailedResultScrollArea]() {
         bool isDetailedVisible = detailedResultScrollArea->isVisible();
@@ -904,7 +983,7 @@ void MainWindow::showDetailedResults(const QJsonObject& response) {
             }
         }
     }
-
+    
     // İmza bilgileri 
     if (attributes.contains("signature_info") && !attributes["signature_info"].isNull()) {
         detailedResultTextEdit->appendPlainText("\n🔏 İMZA BİLGİLERİ");
@@ -936,7 +1015,7 @@ void MainWindow::showDetailedResults(const QJsonObject& response) {
             if (isVerified) {
                 detailedResultTextEdit->appendPlainText("✅ İmza Doğrulandı");
             } else {
-                detailedResultTextEdit->appendPlainText("❌ İmza Doğrulanamadı");
+                detailedResultTextEdit->appendPlainText("❌ İmza Doğrulamadı");
             }
         }
         
@@ -1000,7 +1079,7 @@ void MainWindow::showDetailedResults(const QJsonObject& response) {
                 
                 QJsonObject classification = sandbox["malware_classification"].toObject();
                 
-                // Tespit edilen davranışlar
+                //
                 if (classification.contains("detected_behaviors") && classification["detected_behaviors"].isArray()) {
                     QJsonArray behaviors = classification["detected_behaviors"].toArray();
                     if (!behaviors.isEmpty()) {
@@ -1500,10 +1579,12 @@ void MainWindow::setupTextEditStyle(QPlainTextEdit* textEdit) {
         "    font-size: 12pt;"
         "    line-height: 1.5;"
         "    padding: 15px;"
+        "    padding: 15px;"
         "    background-color: #181818;"
         "    color: #cccccc;"
         "    border: none;"
         "    border-radius: 5px;"
+        "    min-width: 600px;"  // Minimum genişlik eklendi
         "}"
         "QScrollBar:vertical {"
         "    background-color: #111111;"
