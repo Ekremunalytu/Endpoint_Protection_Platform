@@ -4,433 +4,309 @@ events:
   -
     kind: "message-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineSystem.cmake:205 (message)"
       - "CMakeLists.txt:2 (project)"
     message: |
-      The system is: Windows - 10.0.26100 - AMD64
+      The system is: Darwin - 24.4.0 - arm64
   -
     kind: "message-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
-      Compiler:  
+      Compiler: /usr/bin/c++ 
       Build flags: 
       Id flags:  
       
       The output was:
       0
-      .NET Framework i├ğin MSBuild s├╝r├╝m 17.13.19+0d9f5a35a
-      Olu┼şturma ba┼şlat─▒ld─▒: 29.04.2025 16:33:44.
-      
-      1 d├╝─ş├╝m├╝nde "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.vcxproj" projesi (varsay─▒lan hedefler).
-      PrepareForBuild:
-        "Debug\\" dizini olu┼şturuluyor.
-        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-        "Debug\\CompilerIdCXX.tlog\\" dizini olu┼şturuluyor.
-      InitializeBuildStatus:
-        "AlwaysCreate" belirtildi─şi i├ğin "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" olu┼şturuluyor.
-        "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" ├Â─şesine eri┼şiliyor.
-      VcpkgTripletSelection:
-        Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
-        Using normalized configuration "Release"
-      ClCompile:
-        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
-        CMakeCXXCompilerId.cpp
-      Link:
-        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib "C:\\vcpkg\\installed\\x64-windows\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
-        CompilerIdCXX.vcxproj -> C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.exe
-      AppLocalFromInstalled:
-        pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.write.1u.tlog" "Debug\\vcpkg.applocal.log"
-        'pwsh.exe' is not recognized as an internal or external command,
-        operable program or batch file.
-        "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.write.1u.tlog" "Debug\\vcpkg.applocal.log"" komutundan 9009 koduyla ├ğ─▒k─▒ld─▒.
-        "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.write.1u.tlog" "Debug\\vcpkg.applocal.log"
-      PostBuildEvent:
-        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
-        :VCEnd
-        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\Hostx64\\x64\\cl.exe
-      FinalizeBuildStatus:
-        "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" dosyas─▒ siliniyor.
-        "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate" ├Â─şesine eri┼şiliyor.
-      "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.vcxproj" Projesini Olu┼şturma ─░┼şlemi Tamamland─▒ (varsay─▒lan hedefler).
-      
-      Olu┼şturma ba┼şar─▒l─▒ oldu.
-          0 Uyar─▒
-          0 Hata
-      
-      Ge├ğen S├╝re 00:00:01.86
       
       
-      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
       
-      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
-      
-      The CXX compiler identification is MSVC, found in:
-        C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/4.0.1/CompilerIdCXX/CompilerIdCXX.exe
+      The CXX compiler identification is AppleClang, found in:
+        /Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/4.0.0/CompilerIdCXX/a.out
       
   -
     kind: "try_compile-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
       - "CMakeLists.txt:2 (project)"
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-q8oir1"
-      binary: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-q8oir1"
+      source: "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd"
+      binary: "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
-      CMAKE_CXX_FLAGS_DEBUG: "/Ob0 /Od /RTC1"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
       CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
-      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
     buildResult:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-q8oir1'
+        Change Dir: '/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_125e2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
-        .NET Framework i├ğin MSBuild s├╝r├╝m 17.13.19+0d9f5a35a
-        Olu┼şturma ba┼şlat─▒ld─▒: 29.04.2025 16:33:46.
-        
-        1 d├╝─ş├╝m├╝nde "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\cmTC_125e2.vcxproj" projesi (varsay─▒lan hedefler).
-        PrepareForBuild:
-          "cmTC_125e2.dir\\Debug\\" dizini olu┼şturuluyor.
-          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\Debug\\" dizini olu┼şturuluyor.
-          "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\" dizini olu┼şturuluyor.
-        InitializeBuildStatus:
-          "AlwaysCreate" belirtildi─şi i├ğin "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\unsuccessfulbuild" olu┼şturuluyor.
-          "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\unsuccessfulbuild" ├Â─şesine eri┼şiliyor.
-        VcpkgTripletSelection:
-          Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
-          Using normalized configuration "Debug"
-        ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_125e2.dir\\Debug\\\\" /Fd"cmTC_125e2.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
-          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
-          Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_125e2.dir\\Debug\\\\" /Fd"cmTC_125e2.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
-          CMakeCXXCompilerABI.cpp
-        Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\Debug\\cmTC_125e2.exe" /INCREMENTAL /ILK:"cmTC_125e2.dir\\Debug\\cmTC_125e2.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-q8oir1/Debug/cmTC_125e2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-q8oir1/Debug/cmTC_125e2.lib" /MACHINE:X64  /machine:x64 cmTC_125e2.dir\\Debug\\CMakeCXXCompilerABI.obj
-          cmTC_125e2.vcxproj -> C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\Debug\\cmTC_125e2.exe
-        AppLocalFromInstalled:
-          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\Debug\\cmTC_125e2.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\cmTC_125e2.write.1u.tlog" "cmTC_125e2.dir\\Debug\\vcpkg.applocal.log"
-          'pwsh.exe' is not recognized as an internal or external command,
-          operable program or batch file.
-          "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\Debug\\cmTC_125e2.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\cmTC_125e2.write.1u.tlog" "cmTC_125e2.dir\\Debug\\vcpkg.applocal.log"" komutundan 9009 koduyla ├ğ─▒k─▒ld─▒.
-          "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\Debug\\cmTC_125e2.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\cmTC_125e2.write.1u.tlog" "cmTC_125e2.dir\\Debug\\vcpkg.applocal.log"
-        FinalizeBuildStatus:
-          "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\unsuccessfulbuild" dosyas─▒ siliniyor.
-          "cmTC_125e2.dir\\Debug\\cmTC_125e2.tlog\\cmTC_125e2.lastbuildstate" ├Â─şesine eri┼şiliyor.
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-q8oir1\\cmTC_125e2.vcxproj" Projesini Olu┼şturma ─░┼şlemi Tamamland─▒ (varsay─▒lan hedefler).
-        
-        Olu┼şturma ba┼şar─▒l─▒ oldu.
-            0 Uyar─▒
-            0 Hata
-        
-        Ge├ğen S├╝re 00:00:01.76
+        Run Build Command(s): /Applications/CMake.app/Contents/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c955e/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_c955e.dir/build.make CMakeFiles/cmTC_c955e.dir/build
+        Building CXX object CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -c /Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeCXXCompilerABI.cpp
+        Apple clang version 17.0.0 (clang-1700.0.13.3)
+        Target: arm64-apple-darwin24.4.0
+        Thread model: posix
+        InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+        clang++: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
+        ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.4 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd -target-linker-version 1167.4.1 -v -fcoverage-compilation-dir=/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -x c++ /Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeCXXCompilerABI.cpp
+        clang -cc1 version 17.0.0 (clang-1700.0.13.3) default target arm64-apple-darwin24.4.0
+        ignoring nonexistent directory "/usr/local/include"
+        ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include"
+        ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks"
+        ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1
+         /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include
+         /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include
+         /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
+         /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)
+        End of search list.
+        Linking CXX executable cmTC_c955e
+        /Applications/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c955e.dir/link.txt --verbose=1
+        Apple clang version 17.0.0 (clang-1700.0.13.3)
+        Target: arm64-apple-darwin24.4.0
+        Thread model: posix
+        InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.4 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_c955e -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
+        @(#)PROGRAM:ld PROJECT:ld-1167.4.1
+        BUILD 20:00:10 Mar 12 2025
+        configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+        will use ld-classic for: armv6 armv7 armv7s i386 armv6m armv7k armv7m armv7em
+        LTO support using: LLVM version 17.0.0 (static support for 29, runtime is 29)
+        TAPI support using: Apple TAPI version 17.0.0 (tapi-1700.0.3.4)
+        Library search paths:
+        	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
+        	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift
+        Framework search paths:
+        	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_c955e
         
       exitCode: 0
   -
     kind: "message-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:227 (message)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:122 (message)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
       - "CMakeLists.txt:2 (project)"
     message: |
-      Parsed CXX implicit link information:
-        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
-        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
-        linker tool for 'CXX': C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/bin/HostX64/x64/link.exe
-        implicit libs: []
-        implicit objs: []
-        implicit dirs: []
-        implicit fwks: []
+      Effective list of requested architectures (possibly empty)  : ""
+      Effective list of architectures found in the ABI info binary: "arm64"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:191 (message)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1]
+          add: [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include]
+          add: [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include]
+          add: [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+        end of search list found
+        collapse include dir [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1] ==> [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1]
+        collapse include dir [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include] ==> [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include]
+        collapse include dir [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include] ==> [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include]
+        collapse include dir [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include] ==> [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+        implicit include dirs: [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1;/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include;/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
       
       
   -
     kind: "message-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CMakeDetermineLinkerId.cmake:36 (message)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:264 (cmake_determine_linker_id)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:227 (message)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
       - "CMakeLists.txt:2 (project)"
     message: |
-      Running the CXX compiler's linker: "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/bin/HostX64/x64/link.exe" "-v"
-      Microsoft (R) Incremental Linker Version 14.43.34810.0
-      Copyright (C) Microsoft Corporation.  All rights reserved.
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd']
+        ignore line: []
+        ignore line: [Run Build Command(s): /Applications/CMake.app/Contents/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c955e/fast]
+        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_c955e.dir/build.make CMakeFiles/cmTC_c955e.dir/build]
+        ignore line: [Building CXX object CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -c /Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.3)]
+        ignore line: [Target: arm64-apple-darwin24.4.0]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
+        ignore line: [clang++: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
+        ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"]
+        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.4 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd -target-linker-version 1167.4.1 -v -fcoverage-compilation-dir=/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-d6NfMd -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -x c++ /Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [clang -cc1 version 17.0.0 (clang-1700.0.13.3) default target arm64-apple-darwin24.4.0]
+        ignore line: [ignoring nonexistent directory "/usr/local/include"]
+        ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include"]
+        ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks"]
+        ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1]
+        ignore line: [ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include]
+        ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include]
+        ignore line: [ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+        ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)]
+        ignore line: [End of search list.]
+        ignore line: [Linking CXX executable cmTC_c955e]
+        ignore line: [/Applications/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c955e.dir/link.txt --verbose=1]
+        ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.3)]
+        ignore line: [Target: arm64-apple-darwin24.4.0]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
+        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.4 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_c955e -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
+          arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld] ==> ignore
+          arg [-demangle] ==> ignore
+          arg [-lto_library] ==> ignore, skip following value
+          arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib] ==> skip value of -lto_library
+          arg [-dynamic] ==> ignore
+          arg [-arch] ==> ignore
+          arg [arm64] ==> ignore
+          arg [-platform_version] ==> ignore
+          arg [macos] ==> ignore
+          arg [15.0.0] ==> ignore
+          arg [15.4] ==> ignore
+          arg [-syslibroot] ==> ignore
+          arg [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk] ==> ignore
+          arg [-mllvm] ==> ignore
+          arg [-enable-linkonceodr-outlining] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_c955e] ==> ignore
+          arg [-L/usr/local/lib] ==> dir [/usr/local/lib]
+          arg [-search_paths_first] ==> ignore
+          arg [-headerpad_max_install_names] ==> ignore
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_c955e.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [-lc++] ==> lib [c++]
+          arg [-lSystem] ==> lib [System]
+          arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a] ==> lib [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
+        linker tool for 'CXX': /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+        Library search paths: [;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift]
+        Framework search paths: [;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks]
+        remove lib [System]
+        remove lib [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
+        collapse library dir [/usr/local/lib] ==> [/usr/local/lib]
+        collapse library dir [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib] ==> [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib]
+        collapse library dir [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift] ==> [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift]
+        collapse framework dir [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks] ==> [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks]
+        implicit libs: [c++]
+        implicit objs: []
+        implicit dirs: [/usr/local/lib;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift]
+        implicit fwks: [/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/Internal/CMakeDetermineLinkerId.cmake:36 (message)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:264 (cmake_determine_linker_id)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the CXX compiler's linker: "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" "-v"
+      @(#)PROGRAM:ld PROJECT:ld-1167.4.1
+      BUILD 20:00:10 Mar 12 2025
+      configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+      will use ld-classic for: armv6 armv7 armv7s i386 armv6m armv7k armv7m armv7em
+      LTO support using: LLVM version 17.0.0 (static support for 29, runtime is 29)
+      TAPI support using: Apple TAPI version 17.0.0 (tapi-1700.0.3.4)
   -
     kind: "try_compile-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:99 (check_cxx_source_compiles)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:163 (_threads_check_libc)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Dependencies.cmake:34 (_qt_internal_find_third_party_dependencies)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Config.cmake:161 (include)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/FindThreads.cmake:99 (check_cxx_source_compiles)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/Qt6Dependencies.cmake:34 (_qt_internal_find_third_party_dependencies)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:161 (include)"
       - "CMakeLists.txt:24 (find_package)"
     checks:
       - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
     directories:
-      source: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-mv2ivr"
-      binary: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-mv2ivr"
+      source: "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-vj5bAG"
+      binary: "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-vj5bAG"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
-      CMAKE_CXX_FLAGS_DEBUG: "/Ob0 /Od /RTC1"
-      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
-      CMAKE_MODULE_PATH: "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/kwin"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6;/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/3rdparty/kwin"
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
     buildResult:
       variable: "CMAKE_HAVE_LIBC_PTHREAD"
       cached: true
       stdout: |
-        Change Dir: 'C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-mv2ivr'
+        Change Dir: '/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-vj5bAG'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_081de.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
-        .NET Framework i├ğin MSBuild s├╝r├╝m 17.13.19+0d9f5a35a
-        Olu┼şturma ba┼şlat─▒ld─▒: 29.04.2025 16:33:48.
+        Run Build Command(s): /Applications/CMake.app/Contents/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_b440b/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_b440b.dir/build.make CMakeFiles/cmTC_b440b.dir/build
+        Building CXX object CMakeFiles/cmTC_b440b.dir/src.cxx.o
+        /usr/bin/c++ -DCMAKE_HAVE_LIBC_PTHREAD  -std=gnu++20 -arch arm64 -MD -MT CMakeFiles/cmTC_b440b.dir/src.cxx.o -MF CMakeFiles/cmTC_b440b.dir/src.cxx.o.d -o CMakeFiles/cmTC_b440b.dir/src.cxx.o -c /Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-vj5bAG/src.cxx
+        Linking CXX executable cmTC_b440b
+        /Applications/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b440b.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_b440b.dir/src.cxx.o -o cmTC_b440b
         
-        1 d├╝─ş├╝m├╝nde "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\cmTC_081de.vcxproj" projesi (varsay─▒lan hedefler).
-        PrepareForBuild:
-          "cmTC_081de.dir\\Debug\\" dizini olu┼şturuluyor.
-          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\Debug\\" dizini olu┼şturuluyor.
-          "cmTC_081de.dir\\Debug\\cmTC_081de.tlog\\" dizini olu┼şturuluyor.
-        InitializeBuildStatus:
-          "AlwaysCreate" belirtildi─şi i├ğin "cmTC_081de.dir\\Debug\\cmTC_081de.tlog\\unsuccessfulbuild" olu┼şturuluyor.
-          "cmTC_081de.dir\\Debug\\cmTC_081de.tlog\\unsuccessfulbuild" ├Â─şesine eri┼şiliyor.
-        VcpkgTripletSelection:
-          Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
-          Using normalized configuration "Debug"
-        ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_081de.dir\\Debug\\\\" /Fd"cmTC_081de.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\src.cxx"
-          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
-          Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_081de.dir\\Debug\\\\" /Fd"cmTC_081de.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\src.cxx"
-          src.cxx
-        C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\src.cxx(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\cmTC_081de.vcxproj]
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\cmTC_081de.vcxproj" Projesini Olu┼şturma ─░┼şlemi Tamamland─▒ (varsay─▒lan hedefler) -- BA┼ŞARISIZ OLDU.
-        
-        Olu┼şturma BA┼ŞARISIZ OLDU.
-        
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\cmTC_081de.vcxproj" (varsay─▒lan hedef) (1) ->
-        (ClCompile hedefi) -> 
-          C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\src.cxx(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mv2ivr\\cmTC_081de.vcxproj]
-        
-            0 Uyar─▒
-            1 Hata
-        
-        Ge├ğen S├╝re 00:00:00.34
-        
-      exitCode: 1
+      exitCode: 0
   -
     kind: "try_compile-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:175 (_threads_check_lib)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Dependencies.cmake:34 (_qt_internal_find_third_party_dependencies)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Config.cmake:161 (include)"
-      - "CMakeLists.txt:24 (find_package)"
-    checks:
-      - "Looking for pthread_create in pthreads"
-    directories:
-      source: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-atqd2s"
-      binary: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-atqd2s"
-    cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
-      CMAKE_CXX_FLAGS_DEBUG: "/Ob0 /Od /RTC1"
-      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
-      CMAKE_MODULE_PATH: "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/kwin"
-    buildResult:
-      variable: "CMAKE_HAVE_PTHREADS_CREATE"
-      cached: true
-      stdout: |
-        Change Dir: 'C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-atqd2s'
-        
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_2edc6.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
-        .NET Framework i├ğin MSBuild s├╝r├╝m 17.13.19+0d9f5a35a
-        Olu┼şturma ba┼şlat─▒ld─▒: 29.04.2025 16:33:49.
-        
-        1 d├╝─ş├╝m├╝nde "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\cmTC_2edc6.vcxproj" projesi (varsay─▒lan hedefler).
-        PrepareForBuild:
-          "cmTC_2edc6.dir\\Debug\\" dizini olu┼şturuluyor.
-          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\Debug\\" dizini olu┼şturuluyor.
-          "cmTC_2edc6.dir\\Debug\\cmTC_2edc6.tlog\\" dizini olu┼şturuluyor.
-        InitializeBuildStatus:
-          "AlwaysCreate" belirtildi─şi i├ğin "cmTC_2edc6.dir\\Debug\\cmTC_2edc6.tlog\\unsuccessfulbuild" olu┼şturuluyor.
-          "cmTC_2edc6.dir\\Debug\\cmTC_2edc6.tlog\\unsuccessfulbuild" ├Â─şesine eri┼şiliyor.
-        VcpkgTripletSelection:
-          Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
-          Using normalized configuration "Debug"
-        ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_2edc6.dir\\Debug\\\\" /Fd"cmTC_2edc6.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\CheckFunctionExists.cxx"
-          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
-          Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_2edc6.dir\\Debug\\\\" /Fd"cmTC_2edc6.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\CheckFunctionExists.cxx"
-          CheckFunctionExists.cxx
-        Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\Debug\\cmTC_2edc6.exe" /INCREMENTAL /ILK:"cmTC_2edc6.dir\\Debug\\cmTC_2edc6.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-atqd2s/Debug/cmTC_2edc6.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-atqd2s/Debug/cmTC_2edc6.lib" /MACHINE:X64  /machine:x64 cmTC_2edc6.dir\\Debug\\CheckFunctionExists.obj
-        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\cmTC_2edc6.vcxproj]
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\cmTC_2edc6.vcxproj" Projesini Olu┼şturma ─░┼şlemi Tamamland─▒ (varsay─▒lan hedefler) -- BA┼ŞARISIZ OLDU.
-        
-        Olu┼şturma BA┼ŞARISIZ OLDU.
-        
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\cmTC_2edc6.vcxproj" (varsay─▒lan hedef) (1) ->
-        (Link hedefi) -> 
-          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-atqd2s\\cmTC_2edc6.vcxproj]
-        
-            0 Uyar─▒
-            1 Hata
-        
-        Ge├ğen S├╝re 00:00:00.44
-        
-      exitCode: 1
-  -
-    kind: "try_compile-v1"
-    backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:176 (_threads_check_lib)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Dependencies.cmake:34 (_qt_internal_find_third_party_dependencies)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Config.cmake:161 (include)"
-      - "CMakeLists.txt:24 (find_package)"
-    checks:
-      - "Looking for pthread_create in pthread"
-    directories:
-      source: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-rpgl36"
-      binary: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-rpgl36"
-    cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
-      CMAKE_CXX_FLAGS_DEBUG: "/Ob0 /Od /RTC1"
-      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
-      CMAKE_MODULE_PATH: "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/kwin"
-    buildResult:
-      variable: "CMAKE_HAVE_PTHREAD_CREATE"
-      cached: true
-      stdout: |
-        Change Dir: 'C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-rpgl36'
-        
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f3617.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
-        .NET Framework i├ğin MSBuild s├╝r├╝m 17.13.19+0d9f5a35a
-        Olu┼şturma ba┼şlat─▒ld─▒: 29.04.2025 16:33:50.
-        
-        1 d├╝─ş├╝m├╝nde "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\cmTC_f3617.vcxproj" projesi (varsay─▒lan hedefler).
-        PrepareForBuild:
-          "cmTC_f3617.dir\\Debug\\" dizini olu┼şturuluyor.
-          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\Debug\\" dizini olu┼şturuluyor.
-          "cmTC_f3617.dir\\Debug\\cmTC_f3617.tlog\\" dizini olu┼şturuluyor.
-        InitializeBuildStatus:
-          "AlwaysCreate" belirtildi─şi i├ğin "cmTC_f3617.dir\\Debug\\cmTC_f3617.tlog\\unsuccessfulbuild" olu┼şturuluyor.
-          "cmTC_f3617.dir\\Debug\\cmTC_f3617.tlog\\unsuccessfulbuild" ├Â─şesine eri┼şiliyor.
-        VcpkgTripletSelection:
-          Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
-          Using normalized configuration "Debug"
-        ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_f3617.dir\\Debug\\\\" /Fd"cmTC_f3617.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\CheckFunctionExists.cxx"
-          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
-          Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_f3617.dir\\Debug\\\\" /Fd"cmTC_f3617.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\CheckFunctionExists.cxx"
-          CheckFunctionExists.cxx
-        Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\Debug\\cmTC_f3617.exe" /INCREMENTAL /ILK:"cmTC_f3617.dir\\Debug\\cmTC_f3617.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-rpgl36/Debug/cmTC_f3617.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-rpgl36/Debug/cmTC_f3617.lib" /MACHINE:X64  /machine:x64 cmTC_f3617.dir\\Debug\\CheckFunctionExists.obj
-        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\cmTC_f3617.vcxproj]
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\cmTC_f3617.vcxproj" Projesini Olu┼şturma ─░┼şlemi Tamamland─▒ (varsay─▒lan hedefler) -- BA┼ŞARISIZ OLDU.
-        
-        Olu┼şturma BA┼ŞARISIZ OLDU.
-        
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\cmTC_f3617.vcxproj" (varsay─▒lan hedef) (1) ->
-        (Link hedefi) -> 
-          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rpgl36\\cmTC_f3617.vcxproj]
-        
-            0 Uyar─▒
-            1 Hata
-        
-        Ge├ğen S├╝re 00:00:00.44
-        
-      exitCode: 1
-  -
-    kind: "try_compile-v1"
-    backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/FindWrapAtomic.cmake:36 (check_cxx_source_compiles)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:42 (include)"
-      - "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/Qt6Config.cmake:206 (find_package)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/FindWrapAtomic.cmake:36 (check_cxx_source_compiles)"
+      - "/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:42 (include)"
+      - "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:206 (find_package)"
       - "CMakeLists.txt:24 (find_package)"
     checks:
       - "Performing Test HAVE_STDATOMIC"
     directories:
-      source: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-1u3vuj"
-      binary: "C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-1u3vuj"
+      source: "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-zidkMo"
+      binary: "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-zidkMo"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
-      CMAKE_CXX_FLAGS_DEBUG: "/Ob0 /Od /RTC1"
-      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
-      CMAKE_MODULE_PATH: "C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.10.0/msvc2022_64/lib/cmake/Qt6/3rdparty/kwin"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6;/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6/3rdparty/kwin"
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
     buildResult:
       variable: "HAVE_STDATOMIC"
       cached: true
       stdout: |
-        Change Dir: 'C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-1u3vuj'
+        Change Dir: '/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-zidkMo'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_03aef.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
-        .NET Framework i├ğin MSBuild s├╝r├╝m 17.13.19+0d9f5a35a
-        Olu┼şturma ba┼şlat─▒ld─▒: 29.04.2025 16:33:51.
-        
-        1 d├╝─ş├╝m├╝nde "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\cmTC_03aef.vcxproj" projesi (varsay─▒lan hedefler).
-        PrepareForBuild:
-          "cmTC_03aef.dir\\Debug\\" dizini olu┼şturuluyor.
-          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\Debug\\" dizini olu┼şturuluyor.
-          "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\" dizini olu┼şturuluyor.
-        InitializeBuildStatus:
-          "AlwaysCreate" belirtildi─şi i├ğin "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\unsuccessfulbuild" olu┼şturuluyor.
-          "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\unsuccessfulbuild" ├Â─şesine eri┼şiliyor.
-        VcpkgTripletSelection:
-          Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
-          Using normalized configuration "Debug"
-        ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_STDATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_03aef.dir\\Debug\\\\" /Fd"cmTC_03aef.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\src.cxx"
-          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
-          Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_STDATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /Fo"cmTC_03aef.dir\\Debug\\\\" /Fd"cmTC_03aef.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\src.cxx"
-          src.cxx
-        Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\Debug\\cmTC_03aef.exe" /INCREMENTAL /ILK:"cmTC_03aef.dir\\Debug\\cmTC_03aef.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-1u3vuj/Debug/cmTC_03aef.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Ekrem├£NAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-1u3vuj/Debug/cmTC_03aef.lib" /MACHINE:X64  /machine:x64 cmTC_03aef.dir\\Debug\\src.obj
-          cmTC_03aef.vcxproj -> C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\Debug\\cmTC_03aef.exe
-        AppLocalFromInstalled:
-          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\Debug\\cmTC_03aef.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\cmTC_03aef.write.1u.tlog" "cmTC_03aef.dir\\Debug\\vcpkg.applocal.log"
-          'pwsh.exe' is not recognized as an internal or external command,
-          operable program or batch file.
-          "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\Debug\\cmTC_03aef.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\cmTC_03aef.write.1u.tlog" "cmTC_03aef.dir\\Debug\\vcpkg.applocal.log"" komutundan 9009 koduyla ├ğ─▒k─▒ld─▒.
-          "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\Debug\\cmTC_03aef.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\cmTC_03aef.write.1u.tlog" "cmTC_03aef.dir\\Debug\\vcpkg.applocal.log"
-        FinalizeBuildStatus:
-          "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\unsuccessfulbuild" dosyas─▒ siliniyor.
-          "cmTC_03aef.dir\\Debug\\cmTC_03aef.tlog\\cmTC_03aef.lastbuildstate" ├Â─şesine eri┼şiliyor.
-        "C:\\Users\\Ekrem├£NAL\\Desktop\\WindowsAV\\Endpoint_Protection_Platform\\build\\CMakeFiles\\CMakeScratch\\TryCompile-1u3vuj\\cmTC_03aef.vcxproj" Projesini Olu┼şturma ─░┼şlemi Tamamland─▒ (varsay─▒lan hedefler).
-        
-        Olu┼şturma ba┼şar─▒l─▒ oldu.
-            0 Uyar─▒
-            0 Hata
-        
-        Ge├ğen S├╝re 00:00:01.88
+        Run Build Command(s): /Applications/CMake.app/Contents/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_0fe89/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_0fe89.dir/build.make CMakeFiles/cmTC_0fe89.dir/build
+        Building CXX object CMakeFiles/cmTC_0fe89.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_STDATOMIC  -std=gnu++20 -arch arm64 -MD -MT CMakeFiles/cmTC_0fe89.dir/src.cxx.o -MF CMakeFiles/cmTC_0fe89.dir/src.cxx.o.d -o CMakeFiles/cmTC_0fe89.dir/src.cxx.o -c /Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/CMakeScratch/TryCompile-zidkMo/src.cxx
+        Linking CXX executable cmTC_0fe89
+        /Applications/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0fe89.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_0fe89.dir/src.cxx.o -o cmTC_0fe89
         
       exitCode: 0
 ...

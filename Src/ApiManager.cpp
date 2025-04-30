@@ -35,6 +35,9 @@ void ApiManager::makeApiRequest(const QString& endpoint, const QJsonObject& data
     qDebug() << "[ApiManager] x-apikey header:" << apiKey;
     qDebug() << "[ApiManager] URL:" << url.toString();
 
+    // Sinyal tetikle - isteğin gönderildiğini bildir
+    emit requestSent(endpoint);
+
     QNetworkReply* reply = nullptr;
     if (data.isEmpty()) {
         reply = networkManager->get(request);

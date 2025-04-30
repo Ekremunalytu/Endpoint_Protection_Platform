@@ -1,3 +1,5 @@
-C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform.dir
-C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/EkremÜNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/CMakeFiles/ZERO_CHECK.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/edit_cache.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/rebuild_cache.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform_autogen_timestamp_deps.dir
+/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform_autogen.dir

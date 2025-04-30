@@ -31,6 +31,7 @@ public:
 signals:
     void responseReceived(const QJsonObject& response);
     void error(const QString& errorMessage);
+    void requestSent(const QString& endpoint); // Yeni eklenen sinyal
 };
 
 #endif // APIMANAGER_H

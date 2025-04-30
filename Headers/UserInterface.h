@@ -49,6 +49,7 @@ private:
     void createToolBars();
     void createStatusBar();
     void createCentralWidgets();
+    void createModernCentralWidgets(); // Modern arayüz fonksiyonu
     void setupTextEditStyle(QPlainTextEdit* textEdit);
     void showApiKeyDialog();
     void updateStatus(const QString& message);

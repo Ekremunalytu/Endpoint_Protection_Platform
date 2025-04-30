@@ -1,7 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/Users/Ekrem\u00dcNAL/Desktop/WindowsAV/Endpoint_Protection_Platform/build/cmake_install.cmake"
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/cmake_install.cmake"
 	],
 	"Parallel" : false
 }
