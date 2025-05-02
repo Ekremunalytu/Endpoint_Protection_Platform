@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include "ConfigManager.h"
 #include <QDebug>
+#include <QHttpMultiPart>
 
 class ApiManager : public QObject {
     Q_OBJECT
@@ -27,11 +28,13 @@ public:
     QString getApiKey();
     bool hasApiKey();
     void makeApiRequest(const QString& endpoint, const QJsonObject& data = QJsonObject());
+    
+    void uploadFileToVirusTotal(const QString& filePath, const QString& fileName, const QByteArray& fileData);
 
 signals:
     void responseReceived(const QJsonObject& response);
     void error(const QString& errorMessage);
-    void requestSent(const QString& endpoint); // Yeni eklenen sinyal
+    void requestSent(const QString& endpoint);
 };
 
 #endif // APIMANAGER_H

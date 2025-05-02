@@ -31,6 +31,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8825cb19-f84d-4555-864f-09c734374719" name="Changes" comment="minor changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,6 +131,11 @@
     <option name="openRunningConfigInTab" value="true" />
   </component>
   <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CMakeLists.txt" type="CMakeListConfigurationType" factoryName="CMakeListConfigurationFactory" focusToolWindowBeforeRun="true">
       <method v="2" />
     </configuration>
@@ -191,6 +197,7 @@
       <workItem from="1745830967789" duration="163000" />
       <workItem from="1745831845937" duration="357000" />
       <workItem from="1745832223954" duration="597000" />
+      <workItem from="1746033148055" duration="576000" />
     </task>
     <task id="LOCAL-00001" summary="Project start">
       <option name="closed" value="true" />

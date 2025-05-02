@@ -9,14 +9,18 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QToolButton>
+#include <QTableWidget>
 #include "ApiManager.h"
-#include "YaraRuleManager.h"
+#include "ScanManager.h"
+#include "ResultsView.h"
+#include "DockerUIManager.h"
 #include <QJsonObject>
 
 class QAction;
 class QMenu;
 class QToolBar;
 
+// API anahtarı iletişim penceresi sınıfı
 class ApiKeyDialog : public QDialog {
     Q_OBJECT
 public:
@@ -39,39 +43,41 @@ private slots:
     void onScanButtonClicked();
     void onsendVirusTotalButtonClicked();
     void onApiKeyButtonClicked();
+    void onCdrButtonClicked();
+    void onSandboxButtonClicked();
     void onApiResponseReceived(const QJsonObject& response);
     void onApiError(const QString& errorMessage);
     void onApiRequestSent(const QString& endpoint);
+    void showContainerDetails();
 
 private:
     void createActions();
     void createMenus();
     void createToolBars();
     void createStatusBar();
-    void createCentralWidgets();
     void createModernCentralWidgets(); // Modern arayüz fonksiyonu
-    void setupTextEditStyle(QPlainTextEdit* textEdit);
-    void showApiKeyDialog();
-    void updateStatus(const QString& message);
-    void appendResult(const QString& engine, const QString& result);
-    void showNormalResults(const QJsonObject& response);
-    void showDetailedResults(const QJsonObject& response);
 
     // Menü ve aksiyonlar
     QAction    *menuAction;
     QAction    *scanAction;
     QAction    *virusTotalAction;
-    QAction    *cdrAction;        // CDR (Content Disarm and Reconstruction) aksiyonu
-    QAction    *sandboxAction;    // Sandbox aksiyonu
+    QAction    *cdrAction;
+    QAction    *sandboxAction;
+    QAction    *dockerAction;
     QAction    *apiKeyAction;
 
     // Ana ekranda göstereceğimiz bileşenler
-    QLabel         *statusLabel;      // Altta kısa mesajlar için
-    QPlainTextEdit *resultTextEdit;   // Normal görünüm için
-    QPlainTextEdit *detailedResultTextEdit; // Detaylı görünüm için
-    QPlainTextEdit *apiLogTextEdit;        // API iletişimi için
-    ApiManager     *apiManager;       // API yöneticisi
-    YaraRuleManager *yaraManager;     // YARA yöneticisi (dinamik tarama için)
+    QLabel         *statusLabel;
+    QPlainTextEdit *resultTextEdit;
+    QPlainTextEdit *detailedResultTextEdit;
+    QPlainTextEdit *apiLogTextEdit;
+    QTableWidget   *containerTableWidget;
+
+    // Yönetici sınıflar
+    ApiManager     *apiManager;
+    ScanManager    *scanManager;
+    ResultsView    *resultsView;
+    DockerUIManager *dockerUIManager;
 };
 
 #endif // USERINTERFACE_H

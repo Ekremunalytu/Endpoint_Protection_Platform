@@ -492,6 +492,12 @@
 			null
 		],
 		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/CdrManager.h",
+			"MU",
+			"D2MWKIZDYH/moc_CdrManager.cpp",
+			null
+		],
+		[
 			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ConfigManager.h",
 			"MU",
 			"D2MWKIZDYH/moc_ConfigManager.cpp",
@@ -504,9 +510,39 @@
 			null
 		],
 		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/DockerManager.h",
+			"MU",
+			"D2MWKIZDYH/moc_DockerManager.cpp",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/DockerUIManager.h",
+			"MU",
+			"D2MWKIZDYH/moc_DockerUIManager.cpp",
+			null
+		],
+		[
 			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/HashCalculation.h",
 			"MU",
 			"D2MWKIZDYH/moc_HashCalculation.cpp",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ResultsView.h",
+			"MU",
+			"D2MWKIZDYH/moc_ResultsView.cpp",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/SandboxManager.h",
+			"MU",
+			"D2MWKIZDYH/moc_SandboxManager.cpp",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ScanManager.h",
+			"MU",
+			"D2MWKIZDYH/moc_ScanManager.cpp",
 			null
 		],
 		[
@@ -605,6 +641,11 @@
 			null
 		],
 		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/CdrManager.cpp",
+			"MU",
+			null
+		],
+		[
 			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ConfigManager.cpp",
 			"MU",
 			null
@@ -615,7 +656,32 @@
 			null
 		],
 		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/DockerManager.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/DockerUIManager.cpp",
+			"MU",
+			null
+		],
+		[
 			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/HashCalculation.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ResultsView.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/SandboxManager.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ScanManager.cpp",
 			"MU",
 			null
 		],

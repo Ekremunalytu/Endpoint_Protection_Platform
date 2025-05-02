@@ -6,5 +6,8 @@
     "cmake.configureSettings": {
         "CMAKE_PREFIX_PATH": "/Volumes/Crucial/QT/6.10.0/macos"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "files.associations": {
+        "typeinfo": "cpp"
+    }
 } 

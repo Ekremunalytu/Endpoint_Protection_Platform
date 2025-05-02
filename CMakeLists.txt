@@ -32,6 +32,12 @@ set(SOURCE_FILES
     Src/ConfigManager.cpp
     Src/YaraRuleManager.cpp
     Src/ApiManager.cpp
+    Src/DockerManager.cpp
+    Src/CdrManager.cpp
+    Src/SandboxManager.cpp
+    Src/ScanManager.cpp      # Yeni eklendi
+    Src/ResultsView.cpp      # Yeni eklendi
+    Src/DockerUIManager.cpp  # Yeni eklendi
 )
 
 set(HEADER_FILES
@@ -41,6 +47,12 @@ set(HEADER_FILES
     Headers/ApiManager.h
     Headers/ConfigManager.h
     Headers/YaraRuleManager.h
+    Headers/DockerManager.h
+    Headers/CdrManager.h
+    Headers/SandboxManager.h
+    Headers/ScanManager.h      # Yeni eklendi
+    Headers/ResultsView.h      # Yeni eklendi
+    Headers/DockerUIManager.h  # Yeni eklendi
 )
 
 # Yürütülebilir oluştur
