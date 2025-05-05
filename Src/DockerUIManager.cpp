@@ -42,9 +42,12 @@ void DockerUIManager::showContainerDetails()
     // Docker konteyner detaylarını gösteren bir dialog oluştur
     QDialog *containerDialog = new QDialog();
     containerDialog->setWindowTitle("Docker Konteyner Detayları");
-    containerDialog->setMinimumSize(800, 400);
+    containerDialog->setMinimumSize(800, 600); // Boyutu artırıldı
+    containerDialog->resize(1000, 700); // Varsayılan boyutu büyültüldü
     
     QVBoxLayout *layout = new QVBoxLayout(containerDialog);
+    layout->setSpacing(10);
+    layout->setContentsMargins(15, 15, 15, 15);
     
     // Konteyner tablosu
     QTableWidget *containerTableWidget = new QTableWidget(containerDialog);
@@ -124,25 +127,11 @@ void DockerUIManager::showContainerDetails()
     QObject::connect(refreshButton, &QPushButton::clicked, this, &DockerUIManager::updateContainerList);
     QObject::connect(closeButton, &QPushButton::clicked, containerDialog, &QDialog::accept);
     
-    // Mevcut Docker durumunu kontrol et
+    // Mevcut Docker durumunu kontrol et - Sadece log ekle, durum bilgisini gösterme (Service Status sayfasına özel)
     if (m_dockerManager->isDockerAvailable() && m_logTextEdit) {
         // Docker durumunu log kısmına ekle
         m_logTextEdit->appendPlainText(QString("\n🔍 %1 | Docker durumu kontrol edildi: Mevcut")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
-            
-        // Docker konteyner bilgilerini al
-        QJsonArray containers = m_dockerManager->listContainers();
-        
-        // Eğer aktif konteyner varsa bilgilerini göster
-        for (int i = 0; i < containers.size(); ++i) {
-            QJsonObject container = containers[i].toObject();
-            if (container["current"].toBool()) {
-                m_logTextEdit->appendPlainText(QString("📦 Aktif konteyner: %1 (%2)\n   Durum: %3")
-                    .arg(container["name"].toString())
-                    .arg(container["image"].toString())
-                    .arg(container["status"].toString()));
-            }
-        }
     } else if (m_logTextEdit) {
         m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Docker mevcut değil veya çalışmıyor!")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
@@ -192,4 +181,55 @@ void DockerUIManager::updateContainerList()
             }
         }
     }
+}
+
+QJsonArray DockerUIManager::getDockerContainers()
+{
+    // DockerManager sınıfı üzerinden konteynerleri listele
+    if (!m_dockerManager || !m_dockerManager->isDockerAvailable()) {
+        return QJsonArray(); // Docker çalışmıyorsa boş liste döndür
+    }
+    
+    return m_dockerManager->listContainers(true); // Tüm konteynerleri listele (çalışan ve durmuş)
+}
+
+QJsonArray DockerUIManager::getDockerImages()
+{
+    // DockerManager sınıfı üzerinden imajları listele
+    if (!m_dockerManager || !m_dockerManager->isDockerAvailable()) {
+        return QJsonArray(); // Docker çalışmıyorsa boş liste döndür
+    }
+    
+    // DockerManager'dan imaj listesini al
+    QProcess dockerProcess;
+    dockerProcess.start("docker", QStringList() << "images" << "--format" << "{{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}");
+    dockerProcess.waitForFinished();
+    
+    if (dockerProcess.exitCode() != 0) {
+        return QJsonArray();
+    }
+
+    QString output = dockerProcess.readAllStandardOutput().trimmed();
+    QStringList images = output.split("\n");
+    QJsonArray imageArray;
+    
+    for (const QString &image : images) {
+        if (image.trimmed().isEmpty()) continue;
+        
+        QStringList parts = image.split("\t");
+        QJsonObject imageObj;
+        
+        if (parts.size() >= 4) {
+            imageObj["id"] = parts[0];
+            imageObj["repository"] = parts[1];
+            imageObj["tag"] = parts[2];
+            imageObj["size"] = parts[3];
+        }
+        
+        if (!imageObj.isEmpty()) {
+            imageArray.append(imageObj);
+        }
+    }
+    
+    return imageArray;
 }

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTableWidget>
 #include <QPlainTextEdit>
+#include <QJsonArray>
 
 class DockerManager;
 
@@ -23,6 +24,10 @@ public:
     void showContainerDetails();
     void updateContainerList();
     bool isDockerAvailable() const;
+    
+    // Container ve imaj bilgilerini getir
+    QJsonArray getDockerContainers();
+    QJsonArray getDockerImages();
     
 private:
     QTableWidget* m_containerTableWidget;

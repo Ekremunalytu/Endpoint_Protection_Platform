@@ -11,10 +11,10 @@
 #include <vector>
 #include <string>
 
-class ApiManager;
-class YaraRuleManager;
-class CdrManager;
-class SandboxManager;
+#include "ApiManager.h"
+#include "YaraRuleManager.h"
+#include "CdrManager.h"
+#include "SandboxManager.h"
 
 class ScanManager : public QObject
 {
@@ -32,8 +32,44 @@ public:
     // Tarama işlemleri
     void performOfflineScan(const QString& filePath);
     void performOnlineScan(const QString& filePath);
-    void performCdrScan(const QString& filePath);
-    void performSandboxScan(const QString& filePath);
+    bool performCdrScan(const QString& filePath);
+    bool performSandboxScan(const QString& filePath);
+    
+    // Servis durum kontrolleri
+    bool isCdrInitialized() const;
+    bool isSandboxInitialized() const;
+
+    // Docker imaj ayarları
+    void setCdrImageName(const QString& imageName) {
+        if (m_cdrManager) {
+            m_cdrManager->setCdrImageName(imageName);
+        }
+    }
+    
+    void setSandboxImageName(const QString& imageName) {
+        if (m_sandboxManager) {
+            m_sandboxManager->setSandboxImageName(imageName);
+        }
+    }
+    
+    QString getCurrentCdrImageName() const {
+        return m_cdrManager ? m_cdrManager->getCurrentImageName() : QString();
+    }
+    
+    QString getCurrentSandboxImageName() const {
+        return m_sandboxManager ? m_sandboxManager->getCurrentImageName() : QString();
+    }
+    
+    QStringList getAvailableCdrImages() const {
+        return m_cdrManager ? m_cdrManager->getAvailableCdrImages() : QStringList();
+    }
+    
+    QStringList getAvailableSandboxImages() const {
+        return m_sandboxManager ? m_sandboxManager->getAvailableSandboxImages() : QStringList();
+    }
+
+signals:
+    void dockerImageSelectionRequired(const QString &serviceType);
 
 private slots:
     // API response handlers

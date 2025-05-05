@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QJsonObject>
+#include <QStringList>
 #include "DockerManager.h"
 
 class CdrManager : public QObject {
@@ -16,6 +17,11 @@ public:
     bool processFile(const QString& filePath);
     QString getCleanedFilePath(const QString& originalFilePath);
     QString generateOutputFilename(const QString& inputFilePath);
+    
+    // Yeni eklenen metotlar
+    void setCdrImageName(const QString& imageName);
+    QString getCurrentImageName() const;
+    QStringList getAvailableCdrImages() const;
 
 private:
     DockerManager *dockerManager;

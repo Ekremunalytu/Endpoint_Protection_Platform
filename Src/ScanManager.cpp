@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QApplication>  // Add this line to include QApplication
 
 ScanManager::ScanManager(QObject *parent)
     : QObject(parent),
@@ -78,8 +79,33 @@ void ScanManager::setStatusBar(QStatusBar* statusBar)
 
 void ScanManager::performOfflineScan(const QString& filePath)
 {
-    if (!m_resultTextEdit || !m_statusBar || !m_logTextEdit)
+    if (!m_resultTextEdit || !m_statusBar || !m_logTextEdit) {
+        qDebug() << "UI components not initialized for offline scan";
         return;
+    }
+    
+    // YaraRuleManager'ın null olup olmadığını kontrol et
+    if (!m_yaraManager) {
+        qDebug() << "YARA manager is null, creating a new instance";
+        m_yaraManager = new YaraRuleManager();
+        
+        // YARA başlatma ve kuralları yükleme
+        std::error_code error = m_yaraManager->initialize();
+        if (error) {
+            m_resultTextEdit->appendPlainText(tr("❌ YARA başlatma hatası: %1").arg(QString::fromStdString(error.message())));
+            m_statusBar->showMessage(tr("Tarama başarısız: YARA başlatılamadı"));
+            return;
+        }
+        
+        // Kuralları yükle
+        QString rulePath = QCoreApplication::applicationDirPath() + "/Rules/test.yar";
+        error = m_yaraManager->loadRules(rulePath.toStdString());
+        if (error) {
+            m_resultTextEdit->appendPlainText(tr("❌ YARA kuralları yüklenirken hata oluştu: %1").arg(QString::fromStdString(error.message())));
+            m_statusBar->showMessage(tr("Tarama başarısız: YARA kuralları yüklenemedi"));
+            return;
+        }
+    }
     
     // Durum mesajını güncelle
     m_statusBar->showMessage(tr("Dosya taranıyor: %1").arg(filePath));
@@ -94,34 +120,53 @@ void ScanManager::performOfflineScan(const QString& filePath)
     m_resultTextEdit->appendPlainText(tr("Dosya taranıyor: %1\n").arg(filePath));
     m_resultTextEdit->appendPlainText(tr("Offline tarama için YARA kuralları kullanılıyor...\n"));
     
-    // YARA motoru ile offline tarama yap
-    std::vector<std::string> matchesVector;
-    std::error_code error = m_yaraManager->scanFile(filePath.toStdString(), matchesVector);
-    
-    // Convert std::vector<std::string> to QStringList
-    QStringList matches;
-    for (const auto& match : matchesVector) {
-        matches.append(QString::fromStdString(match));
+    // Dosya var mı kontrol et
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists() || !fileInfo.isFile() || !fileInfo.isReadable()) {
+        m_resultTextEdit->appendPlainText(tr("❌ Dosya bulunamadı veya okunamıyor: %1").arg(filePath));
+        m_statusBar->showMessage(tr("Tarama başarısız: Dosya bulunamadı"));
+        return;
     }
     
-    if (error) {
-        m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında hata oluştu: %1").arg(QString::fromStdString(error.message())));
-    } else if (matches.isEmpty()) {
-        m_resultTextEdit->appendPlainText(tr("✅ Dosyada hiçbir tehdit tespit edilmedi."));
-    } else {
-        m_resultTextEdit->appendPlainText(tr("⚠️ Dosyada potansiyel tehditler tespit edildi!\n"));
-        m_resultTextEdit->appendPlainText(tr("Eşleşen YARA kuralları:"));
+    // YARA motoru ile offline tarama yap
+    try {
+        std::vector<std::string> matchesVector;
+        std::error_code error = m_yaraManager->scanFile(filePath.toStdString(), matchesVector);
         
-        for (const QString &match : matches) {
-            m_resultTextEdit->appendPlainText(tr("- %1").arg(match));
+        // Convert std::vector<std::string> to QStringList
+        QStringList matches;
+        for (const auto& match : matchesVector) {
+            matches.append(QString::fromStdString(match));
         }
         
-        m_resultTextEdit->appendPlainText(tr("\n⚠️ Bu dosya zararlı olabilir. Dikkatli olun!"));
-    }
-    
-    // İsteğe bağlı olarak, daha fazla analiz için VirusTotal'e yönlendirebiliriz
-    if (!matches.isEmpty()) {
-        m_resultTextEdit->appendPlainText(tr("\nDaha detaylı analiz için 'VirusTotal Tarama' özelliğini kullanabilirsiniz."));
+        if (error) {
+            m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında hata oluştu: %1").arg(QString::fromStdString(error.message())));
+        } else if (matches.isEmpty()) {
+            m_resultTextEdit->appendPlainText(tr("✅ Dosyada hiçbir tehdit tespit edilmedi."));
+        } else {
+            m_resultTextEdit->appendPlainText(tr("⚠️ Dosyada potansiyel tehditler tespit edildi!\n"));
+            m_resultTextEdit->appendPlainText(tr("Eşleşen YARA kuralları:"));
+            
+            for (const QString &match : matches) {
+                m_resultTextEdit->appendPlainText(tr("- %1").arg(match));
+            }
+            
+            m_resultTextEdit->appendPlainText(tr("\n⚠️ Bu dosya zararlı olabilir. Dikkatli olun!"));
+        }
+        
+        // İsteğe bağlı olarak, daha fazla analiz için VirusTotal'e yönlendirebiliriz
+        if (!matches.isEmpty()) {
+            m_resultTextEdit->appendPlainText(tr("\nDaha detaylı analiz için 'VirusTotal Tarama' özelliğini kullanabilirsiniz."));
+        }
+    } catch (const std::exception& e) {
+        m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında beklenmeyen bir hata oluştu: %1").arg(e.what()));
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Tarama hatası: %2")
+            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+            .arg(e.what()));
+    } catch (...) {
+        m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında bilinmeyen bir hata oluştu."));
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Tarama hatası: Bilinmeyen hata")
+            .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
     }
     
     // Durum çubuğunu güncelle
@@ -182,83 +227,135 @@ void ScanManager::performOnlineScan(const QString& filePath)
         .arg(filePath));
 }
 
-void ScanManager::performCdrScan(const QString& filePath)
-{
-    if (!m_resultTextEdit || !m_statusBar || !m_logTextEdit || !m_cdrManager)
-        return;
-    
-    // Docker kontrolü
-    if (!m_cdrManager->initialize()) {
-        m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Docker kullanılamıyor - CDR işlemi yapılamadı")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
-        QMessageBox::warning(nullptr, tr("Docker Gerekli"), 
-                           tr("CDR işlemi için Docker gerekli. Lütfen Docker'ın çalıştığından emin olun."));
-        return;
+bool ScanManager::performCdrScan(const QString& filePath) {
+    if (!m_cdrManager) {
+        qDebug() << "CDR manager is not initialized";
+        if (m_resultTextEdit) {
+            m_resultTextEdit->clear();
+            m_resultTextEdit->appendPlainText("⚠️ CDR yöneticisi başlatılamadı! Docker kurulumu kontrol edilmeli.");
+        }
+        return false;
     }
     
-    // Durum mesajını güncelle
-    m_statusBar->showMessage(tr("CDR işlemi başlatılıyor: %1").arg(filePath));
+    // İmaj seçilmiş mi kontrol et, seçilmemişse kullanıcıya imaj seçtir
+    if (m_cdrManager->getCurrentImageName().isEmpty()) {
+        if (m_resultTextEdit) {
+            m_resultTextEdit->clear();
+            m_resultTextEdit->appendPlainText("⚠️ CDR işlemi için Docker imajı seçilmemiş!");
+            m_resultTextEdit->appendPlainText("\nLütfen aşağıdaki imajlardan birini seçin:");
+            
+            QStringList availableImages = m_cdrManager->getAvailableCdrImages();
+            for (int i = 0; i < availableImages.size(); ++i) {
+                m_resultTextEdit->appendPlainText(QString("  %1. %2").arg(i+1).arg(availableImages[i]));
+            }
+            
+            m_resultTextEdit->appendPlainText("\nİşlemi tekrar başlatmadan önce Ayarlar > Docker Yapılandırması menüsünden imaj seçimi yapın.");
+        }
+        
+        // Make sure this signal is actually connected to a slot that shows the selection UI
+        // Docker imaj seçimi isteyen sinyal emisyonu
+        emit dockerImageSelectionRequired("CDR");
+        
+        // Add a log for debugging
+        qDebug() << "Emitted dockerImageSelectionRequired signal for CDR";
+        
+        // Ensure the user interface is updated before returning
+        QApplication::processEvents();
+        return false;
+    }
     
-    // Temizle ve bilgi mesajı göster
-    m_resultTextEdit->clear();
-    m_resultTextEdit->appendPlainText(tr("Dosya içeriği temizleniyor: %1").arg(filePath));
-    m_resultTextEdit->appendPlainText(tr("CDR (Content Disarm and Reconstruction) işlemi başlatıldı..."));
-    m_resultTextEdit->appendPlainText(tr("Dosya analiz ediliyor ve zararlı içerikler temizleniyor."));
+    if (m_resultTextEdit) {
+        m_resultTextEdit->clear();
+        m_resultTextEdit->appendPlainText("🔍 CDR taraması başlatılıyor...");
+        m_resultTextEdit->appendPlainText("📄 Dosya: " + filePath);
+        m_resultTextEdit->appendPlainText("🐳 Docker İmajı: " + m_cdrManager->getCurrentImageName());
+        m_resultTextEdit->appendPlainText("\nİşlem devam ediyor, lütfen bekleyin...\n");
+    }
     
-    // CDR işlemini başlat
+    // CDR taraması işlemi
     bool success = m_cdrManager->processFile(filePath);
-    QString outputPath = success ? m_cdrManager->getCleanedFilePath(filePath) : "";
     
-    if (outputPath.isEmpty()) {
-        m_resultTextEdit->appendPlainText(tr("\n❌ CDR işlemi başarısız oldu."));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | CDR işlemi başarısız: %2")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-            .arg(filePath));
-    } else {
-        m_resultTextEdit->appendPlainText(tr("\n✅ CDR işlemi başarıyla tamamlandı."));
-        m_resultTextEdit->appendPlainText(tr("Temizlenmiş dosya kaydedildi: %1").arg(outputPath));
-        m_logTextEdit->appendPlainText(QString("\n✅ %1 | CDR işlemi başarılı: %2 -> %3")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-            .arg(filePath)
-            .arg(outputPath));
+    if (success) {
+        QString cleanedFilePath = m_cdrManager->getCleanedFilePath(filePath);
+        
+        if (m_resultTextEdit) {
+            m_resultTextEdit->appendPlainText("\n✅ CDR taraması tamamlandı!");
+            m_resultTextEdit->appendPlainText("🔒 Temizlenmiş dosya: " + cleanedFilePath);
+        }
+        
+        if (m_statusBar) {
+            m_statusBar->showMessage("CDR taraması tamamlandı: " + cleanedFilePath);
+        }
+    }
+    else {
+        if (m_resultTextEdit) {
+            m_resultTextEdit->appendPlainText("\n❌ CDR taraması başarısız oldu!");
+            m_resultTextEdit->appendPlainText("Dosya işlenirken bir hata oluştu.");
+        }
+        
+        if (m_statusBar) {
+            m_statusBar->showMessage("CDR taraması başarısız oldu!");
+        }
     }
     
-    // Durum çubuğunu güncelle
-    m_statusBar->showMessage(tr("CDR işlemi tamamlandı"));
+    return success;
 }
 
-void ScanManager::performSandboxScan(const QString& filePath)
-{
-    if (!m_resultTextEdit || !m_statusBar || !m_logTextEdit || !m_sandboxManager)
-        return;
-    
-    // Docker kontrolü
-    if (!m_sandboxManager->initialize()) {
-        m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Docker kullanılamıyor - Sandbox analizi yapılamadı")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
-        QMessageBox::warning(nullptr, tr("Docker Gerekli"), 
-                           tr("Sandbox analizi için Docker gerekli. Lütfen Docker'ın çalıştığından emin olun."));
-        return;
+bool ScanManager::performSandboxScan(const QString& filePath) {
+    if (!m_sandboxManager) {
+        qDebug() << "Sandbox manager is not initialized";
+        if (m_resultTextEdit) {
+            m_resultTextEdit->clear();
+            m_resultTextEdit->appendPlainText("⚠️ Sandbox yöneticisi başlatılamadı! Docker kurulumu kontrol edilmeli.");
+        }
+        return false;
     }
     
-    // Durum mesajını güncelle
-    m_statusBar->showMessage(tr("Sandbox analizi başlatılıyor: %1").arg(filePath));
+    // İmaj seçilmiş mi kontrol et, seçilmemişse kullanıcıya imaj seçtir
+    if (m_sandboxManager->getCurrentImageName().isEmpty()) {
+        if (m_resultTextEdit) {
+            m_resultTextEdit->clear();
+            m_resultTextEdit->appendPlainText("⚠️ Sandbox işlemi için Docker imajı seçilmemiş!");
+            m_resultTextEdit->appendPlainText("\nLütfen aşağıdaki imajlardan birini seçin:");
+            
+            QStringList availableImages = m_sandboxManager->getAvailableSandboxImages();
+            for (int i = 0; i < availableImages.size(); ++i) {
+                m_resultTextEdit->appendPlainText(QString("  %1. %2").arg(i+1).arg(availableImages[i]));
+            }
+            
+            m_resultTextEdit->appendPlainText("\nİşlemi tekrar başlatmadan önce Ayarlar > Docker Yapılandırması menüsünden imaj seçimi yapın.");
+        }
+        
+        // Make sure this signal is actually connected to a slot that shows the selection UI
+        // İmaj seçimi isteyen sinyal emisyonu
+        emit dockerImageSelectionRequired("Sandbox");
+        
+        // Add a log for debugging
+        qDebug() << "Emitted dockerImageSelectionRequired signal for Sandbox";
+        
+        // Ensure the user interface is updated before returning
+        QApplication::processEvents();
+        return false;
+    }
     
-    // Temizle ve bilgi mesajı göster
-    m_resultTextEdit->clear();
-    m_resultTextEdit->appendPlainText(tr("Dosya güvenli bir ortamda analiz ediliyor: %1").arg(filePath));
-    m_resultTextEdit->appendPlainText(tr("Sandbox analizi başlatıldı..."));
-    m_resultTextEdit->appendPlainText(tr("Bu işlem dosya türüne bağlı olarak birkaç dakika sürebilir."));
-    
-    // Sandbox analizi başlat
-    bool success = m_sandboxManager->analyzeFile(filePath);
+    if (m_resultTextEdit) {
+        m_resultTextEdit->clear();
+        m_resultTextEdit->appendPlainText("🧪 Sandbox analizi başlatılıyor...");
+        m_resultTextEdit->appendPlainText("📄 Dosya: " + filePath);
+        m_resultTextEdit->appendPlainText("🐳 Docker İmajı: " + m_sandboxManager->getCurrentImageName());
+        m_resultTextEdit->appendPlainText("\nAnaliz devam ediyor, lütfen bekleyin...\n");
+    }
+
+    // Sandbox analizi başlat ve sonuç objesini al
+    QJsonObject analysisResult = m_sandboxManager->analyzeFile(filePath);
+    bool success = analysisResult.value("success").toBool();
     
     if (success) {
         QJsonObject results = m_sandboxManager->getAnalysisResults();
-        QString analysisResult = QJsonDocument(results).toJson(QJsonDocument::Indented);
+        QString analysisResultJson = QString::fromUtf8(QJsonDocument(results).toJson(QJsonDocument::Indented));
         m_resultTextEdit->appendPlainText(tr("\n✅ Sandbox analizi tamamlandı."));
         m_resultTextEdit->appendPlainText(tr("\nANALİZ SONUÇLARI:"));
-        m_resultTextEdit->appendPlainText(analysisResult);
+        m_resultTextEdit->appendPlainText(analysisResultJson);
         
         m_logTextEdit->appendPlainText(QString("\n✅ %1 | Sandbox analizi tamamlandı: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
@@ -272,6 +369,8 @@ void ScanManager::performSandboxScan(const QString& filePath)
     
     // Durum çubuğunu güncelle
     m_statusBar->showMessage(tr("Sandbox analizi tamamlandı"));
+    
+    return success;
 }
 
 void ScanManager::handleApiResponse(const QJsonObject& response)
@@ -315,8 +414,43 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                     // Update UI to show waiting status if results are empty
                     if (attributes.contains("results") && attributes["results"].toObject().isEmpty()) {
                         if (!status.isEmpty()) {
-                            m_resultTextEdit->appendPlainText(tr("\n⏳ Analiz durumu: %1").arg(status));
-                            m_resultTextEdit->appendPlainText(tr("Sonuçlar henüz hazır değil. Otomatik olarak yenilenecek..."));
+                            // Only update the UI if the number of attempts is within limits or at milestone attempts
+                            if (m_refreshAttempts == 0 || m_refreshAttempts % 3 == 0 || m_refreshAttempts == MAX_REFRESH_ATTEMPTS - 1) {
+                                m_resultTextEdit->appendPlainText(tr("\n⏳ Analiz durumu: %1 (Deneme %2/%3)")
+                                    .arg(status)
+                                    .arg(m_refreshAttempts + 1)
+                                    .arg(MAX_REFRESH_ATTEMPTS));
+                                m_resultTextEdit->appendPlainText(tr("Sonuçlar henüz hazır değil. Otomatik olarak yenilenecek..."));
+                            }
+                            
+                            // Check if we've reached the maximum number of attempts
+                            if (m_refreshAttempts >= MAX_REFRESH_ATTEMPTS - 1) {
+                                // Stop the timer to prevent further attempts
+                                m_refreshTimer->stop();
+                                m_resultTextEdit->appendPlainText(tr("\n⚠️ Analiz sonuçları için maksimum bekleme süresi aşıldı."));
+                                m_resultTextEdit->appendPlainText(tr("Analiz hala devam ediyor olabilir. Daha sonra tekrar deneyebilir veya aşağıdaki bağlantıyı kullanabilirsiniz:"));
+                                
+                                // Add link to VirusTotal
+                                if (data.contains("links") && data["links"].toObject().contains("self")) {
+                                    QString selfLink = data["links"].toObject()["self"].toString();
+                                    QString vtGuiLink = selfLink.replace("api/v3/", "gui/");
+                                    m_resultTextEdit->appendPlainText(vtGuiLink);
+                                } else {
+                                    m_resultTextEdit->appendPlainText(tr("https://www.virustotal.com/gui/analyses/%1").arg(m_currentAnalysisId));
+                                }
+                                
+                                // Log the maximum attempts reached
+                                if (m_logTextEdit) {
+                                    m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Maksimum bekleme süresi aşıldı (%2 deneme), analiz sonuçları alınamadı")
+                                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                                        .arg(MAX_REFRESH_ATTEMPTS));
+                                }
+                                
+                                // Clear the current analysis ID to prevent further lookups
+                                m_currentAnalysisId.clear();
+                                m_refreshAttempts = 0;
+                            }
+                            
                             m_statusBar->showMessage(tr("VirusTotal analizi devam ediyor (%1)...").arg(status));
                         }
                     }
@@ -705,4 +839,20 @@ void ScanManager::checkAnalysisStatus()
     // API isteği yap
     QString endpoint = QString("analyses/%1").arg(m_currentAnalysisId);
     m_apiManager->makeApiRequest(endpoint);
+}
+
+bool ScanManager::isCdrInitialized() const
+{
+    if (!m_cdrManager)
+        return false;
+    
+    return m_cdrManager->initialize();
+}
+
+bool ScanManager::isSandboxInitialized() const
+{
+    if (!m_sandboxManager)
+        return false;
+    
+    return m_sandboxManager->initialize();
 }

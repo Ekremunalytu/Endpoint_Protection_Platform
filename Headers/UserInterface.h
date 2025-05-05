@@ -15,10 +15,36 @@
 #include "ResultsView.h"
 #include "DockerUIManager.h"
 #include <QJsonObject>
+#include <QComboBox>
 
-class QAction;
-class QMenu;
-class QToolBar;
+/**
+ * @brief Docker imaj seçim dialog'u
+ */
+class DockerImageSelectionDialog : public QDialog {
+    Q_OBJECT
+    
+public:
+    /**
+     * @brief DockerImageSelectionDialog nesnesi oluşturur
+     * @param availableImages Seçilebilecek imaj listesi
+     * @param currentImage Mevcut seçili imaj
+     * @param serviceType Servis tipi ("CDR" veya "Sandbox")
+     * @param parent Üst widget
+     */
+    DockerImageSelectionDialog(const QStringList& availableImages, 
+                              const QString& currentImage,
+                              const QString& serviceType,
+                              QWidget *parent = nullptr);
+    
+    /**
+     * @brief Kullanıcının seçtiği imaj adını döndürür
+     * @return Seçilen imaj adı
+     */
+    QString getSelectedImage() const;
+    
+private:
+    QComboBox* imageComboBox;
+};
 
 // API anahtarı iletişim penceresi sınıfı
 class ApiKeyDialog : public QDialog {
@@ -49,6 +75,7 @@ private slots:
     void onApiError(const QString& errorMessage);
     void onApiRequestSent(const QString& endpoint);
     void showContainerDetails();
+    void onServiceStatusButtonClicked(); // Yeni Service Status dialogu için slot
 
 private:
     void createActions();
@@ -65,6 +92,7 @@ private:
     QAction    *sandboxAction;
     QAction    *dockerAction;
     QAction    *apiKeyAction;
+    QAction    *serviceStatusAction; // Yeni Service Status aksiyonu
 
     // Ana ekranda göstereceğimiz bileşenler
     QLabel         *statusLabel;

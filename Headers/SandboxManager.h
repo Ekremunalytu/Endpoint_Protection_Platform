@@ -14,15 +14,21 @@ public:
     ~SandboxManager();
 
     bool initialize();
-    bool analyzeFile(const QString& filePath);
+    QJsonObject analyzeFile(const QString& filePath);
     QJsonObject getAnalysisResults();
     QJsonObject parseFileSystemActivity();
+    
+    // Yeni eklenen metotlar
+    void setSandboxImageName(const QString& imageName);
+    QString getCurrentImageName() const;
+    QStringList getAvailableSandboxImages() const;
 
 private:
     DockerManager *dockerManager;
     QString sandboxImageName;
     int analysisTimeout;
     QStringList monitoredBehaviors;
+    QString resultsDir;
     
     QJsonObject parseNetworkActivity();
     QJsonObject parseProcessActivity();

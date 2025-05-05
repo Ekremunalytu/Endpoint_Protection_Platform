@@ -9,7 +9,7 @@
 
 CdrManager::CdrManager(QObject *parent) : QObject(parent) {
     dockerManager = new DockerManager(this);
-    cdrImageName = "opendxl/opendxl-file-transfer-service:latest"; // Örnek bir CDR Docker imajı
+    cdrImageName = ""; // Boş başlatılıyor, kullanıcı seçecek
     outputDir = QDir::tempPath() + "/cdr_output";
     
     // Çıktı dizininin var olduğundan emin olalım
@@ -26,12 +26,13 @@ bool CdrManager::initialize() {
         return false;
     }
     
-    qDebug() << "Initializing CDR manager with image:" << cdrImageName;
+    // İmaj seçilmemişse CDR başlatılamaz
+    if (cdrImageName.isEmpty()) {
+        qDebug() << "CDR image not selected, please choose an image first";
+        return false;
+    }
     
-    // CDR için uygun bir Docker imajı kullanın
-    // Örnek imaj: dannybeckett/disarm - Bu bir açık kaynaklı CDR uygulamasıdır
-    // Gerçek uygulamada, kendi CDR imajınızı veya güvenilir bir imaj kullanabilirsiniz
-    cdrImageName = "dannybeckett/disarm:latest";
+    qDebug() << "Initializing CDR manager with image:" << cdrImageName;
     
     // Geçici dizini oluştur
     outputDir = QDir::tempPath() + "/cdr_output";
@@ -43,7 +44,39 @@ bool CdrManager::initialize() {
     return true;
 }
 
+void CdrManager::setCdrImageName(const QString& imageName) {
+    if (imageName.isEmpty()) {
+        qDebug() << "Empty image name provided, cannot set";
+        return;
+    }
+    
+    cdrImageName = imageName;
+    qDebug() << "CDR image set to:" << cdrImageName;
+}
+
+QString CdrManager::getCurrentImageName() const {
+    return cdrImageName;
+}
+
+QStringList CdrManager::getAvailableCdrImages() const {
+    // Önerilen CDR imajları listesi - bu imajlar gerçek dünyada test edilmeli
+    QStringList images;
+    images << "dannybeckett/disarm:latest"         // DisARM CDR aracı
+          << "opendxl/opendxl-file-transfer-service:latest"  // OpenDXL dosya transfer servisi
+          << "mintplaintext/pdf-redact-tools:latest" // PDF Redaction araçları
+          << "pdfcpu/pdfcpu:latest"                // PDF işleme aracı
+          << "custom/cdr:latest";                  // Örnek özel imaj
+    
+    return images;
+}
+
 bool CdrManager::processFile(const QString& filePath) {
+    // İmaj seçilmemişse işlem yapılamaz
+    if (cdrImageName.isEmpty()) {
+        qDebug() << "CDR image not selected, please choose an image first";
+        return false;
+    }
+
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || !fileInfo.isFile()) {
         qDebug() << "File does not exist: " << filePath;
