@@ -58,6 +58,27 @@ private:
     QLineEdit *apiKeyLineEdit;
 };
 
+// Geçmiş kayıtları göstermek için dialog sınıfı
+class HistoryDialog : public QDialog {
+    Q_OBJECT
+public:
+    explicit HistoryDialog(QWidget *parent = nullptr);
+    
+private:
+    void createUI();
+    void loadHistory();
+    void setupConnections();
+    
+    QTabWidget* tabWidget;
+    QTableWidget* scanHistoryTable;
+    QTableWidget* vtHistoryTable;
+    QTableWidget* cdrHistoryTable;
+    QTableWidget* sandboxHistoryTable;
+    QPushButton* clearHistoryButton;
+    QPushButton* exportHistoryButton;
+    QPushButton* closeButton;
+};
+
 // Yeni Service Status Dialog sınıfı
 class ServiceStatusDialog : public QDialog {
     Q_OBJECT
@@ -105,6 +126,7 @@ private slots:
     void onApiRequestSent(const QString& endpoint);
     void showContainerDetails();
     void onServiceStatusButtonClicked(); // Yeni Service Status dialogu için slot
+    void onHistoryButtonClicked(); // Yeni History dialogu için slot
 
 private:
     void createActions();
