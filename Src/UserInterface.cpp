@@ -790,7 +790,8 @@ void MainWindow::createModernCentralWidgets()
     // Service Status butonu için bağlantı
     connect(serviceStatusBtn, &QPushButton::clicked, [this]() {
         // Service Status diyalogunu göster
-        this->onServiceStatusButtonClicked();
+        ServiceStatusDialog dialog(apiManager, scanManager, dockerUIManager, this);
+        dialog.exec();
     });
 
     // Detaylı görünüm butonu tıklandığında
@@ -930,473 +931,19 @@ void MainWindow::onSandboxButtonClicked() {
     scanManager->performSandboxScan(filePath);
 }
 
+// Service Status butonuna tıklandığında yeni modal dialog gösterme yaklaşımı
 void MainWindow::onServiceStatusButtonClicked() {
-    // Mevcut içerik alanındaki widget'ları görünür veya gizli hale getir
-    if (resultTextEdit && resultTextEdit->parentWidget()) {
-        QScrollArea* resultScrollArea = qobject_cast<QScrollArea*>(resultTextEdit->parentWidget()->parentWidget());
-        if (resultScrollArea) {
-            resultScrollArea->setVisible(false);
-        }
+    try {
+        // Modal dialog oluştur ve göster
+        ServiceStatusDialog dialog(apiManager, scanManager, dockerUIManager, this);
+        dialog.exec(); // Modal olarak göster
+    } catch (const std::exception& e) {
+        qDebug() << "onServiceStatusButtonClicked'de istisna yakalandı:" << e.what();
+        QMessageBox::warning(this, tr("Hata"), tr("Servis durumları gösterilirken bir hata oluştu:\n%1").arg(e.what()));
+    } catch (...) {
+        qDebug() << "onServiceStatusButtonClicked'de bilinmeyen bir istisna yakalandı";
+        QMessageBox::warning(this, tr("Hata"), tr("Servis durumları gösterilirken bilinmeyen bir hata oluştu."));
     }
-    
-    if (detailedResultTextEdit && detailedResultTextEdit->parentWidget()) {
-        QScrollArea* detailedResultScrollArea = qobject_cast<QScrollArea*>(detailedResultTextEdit->parentWidget()->parentWidget());
-        if (detailedResultScrollArea) {
-            detailedResultScrollArea->setVisible(false);
-        }
-    }
-    
-    // Eğer API grubu gösteriliyorsa gizle
-    QList<QGroupBox*> apiGroups = findChildren<QGroupBox*>();
-    for (QGroupBox* apiGroup : apiGroups) {
-        if (apiGroup->title() == tr("Low-Level Communication")) {
-            apiGroup->setVisible(false);
-            break;
-        }
-    }
-    
-    // Sonuçlar widget'ını bul ve görünür yap
-    QList<QWidget*> resultsWidgets = findChildren<QWidget*>();
-    QWidget* resultsWidget = nullptr;
-    
-    for (QWidget* widget : resultsWidgets) {
-        if (widget->styleSheet().contains("border-radius: 12px") && 
-            widget->styleSheet().contains("background-color: #14141a")) {
-            resultsWidget = widget;
-            resultsWidget->setVisible(true);
-            break;
-        }
-    }
-    
-    if (!resultsWidget) {
-        qDebug() << "Sonuçlar widget'ı bulunamadı!";
-        return;
-    }
-    
-    // Sonuçlar widget'ını temizle
-    QLayout* resultsLayout = nullptr;
-    QList<QLayout*> layouts = resultsWidget->findChildren<QLayout*>();
-    for (QLayout* layout : layouts) {
-        if (QVBoxLayout* vLayout = qobject_cast<QVBoxLayout*>(layout)) {
-            if (vLayout->parentWidget() == resultsWidget) {
-                resultsLayout = vLayout;
-                break;
-            }
-        }
-    }
-    
-    if (!resultsLayout) {
-        qDebug() << "Sonuçlar layout'u bulunamadı!";
-        return;
-    }
-    
-    // Mevcut başlık düzenini koru, diğer içeriği temizle
-    QLayoutItem* titleItem = nullptr;
-    if (resultsLayout->count() > 0) {
-        titleItem = resultsLayout->takeAt(0);
-    }
-    
-    // Kalan tüm öğeleri temizle
-    QLayoutItem* child;
-    while ((child = resultsLayout->takeAt(0)) != nullptr) {
-        if (child->widget()) {
-            child->widget()->setVisible(false);
-            child->widget()->deleteLater();
-        }
-        delete child;
-    }
-    
-    // Başlık düzenini tekrar ekle
-    if (titleItem) {
-        resultsLayout->addItem(titleItem);
-    }
-    
-    // Başlık metni güncelle - QLayout içindeki QLabel'ı bul ve güncelle
-    QList<QLabel*> labels = resultsWidget->findChildren<QLabel*>();
-    for (QLabel* label : labels) {
-        if (label->styleSheet().contains("font-size: 20px") && 
-            label->styleSheet().contains("font-weight: bold")) {
-            label->setText(tr("Sistem Servisleri ve Konteyner Durumu"));
-            break;
-        }
-    }
-    
-    // Tab Widget oluştur
-    QTabWidget* tabWidget = new QTabWidget(resultsWidget);
-    tabWidget->setStyleSheet(
-        "QTabWidget::pane {"
-        "    border: 1px solid #3f3f46;"
-        "    background-color: #252526;"
-        "    border-radius: 3px;"
-        "}"
-        "QTabBar::tab {"
-        "    background-color: #2d2d30;"
-        "    color: #cccccc;"
-        "    padding: 8px 15px;"
-        "    border-top-left-radius: 4px;"
-        "    border-top-right-radius: 4px;"
-        "}"
-        "QTabBar::tab:selected {"
-        "    background-color: #0078d7;"
-        "    color: white;"
-        "}"
-        "QTabBar::tab:hover:!selected {"
-        "    background-color: #3e3e42;"
-        "}"
-    );
-    resultsLayout->addWidget(tabWidget);
-    
-    // Servis Durumları Tab'ı
-    QWidget* serviceStatusTab = new QWidget();
-    QVBoxLayout* serviceLayout = new QVBoxLayout(serviceStatusTab);
-    
-    // Servislerin durumunu göstermek için tablo
-    QTableWidget* statusTable = new QTableWidget(serviceStatusTab);
-    statusTable->setColumnCount(3);
-    statusTable->setHorizontalHeaderLabels({tr("Servis"), tr("Durum"), tr("Detay")});
-    statusTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    statusTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    statusTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    statusTable->setAlternatingRowColors(true);
-    statusTable->verticalHeader()->setVisible(false);
-    statusTable->setStyleSheet(
-        "QTableWidget {"
-        "   background-color: #2d2d30;"
-        "   color: #ffffff;"
-        "   gridline-color: #3f3f46;"
-        "   border: 1px solid #3f3f46;"
-        "}"
-        "QTableWidget::item {"
-        "   padding: 10px;"
-        "}"
-        "QTableWidget::item:selected {"
-        "   background-color: #0078d7;"
-        "}"
-        "QHeaderView::section {"
-        "   background-color: #252526;"
-        "   color: #ffffff;"
-        "   font-weight: bold;"
-        "   border: 1px solid #3f3f46;"
-        "   padding: 4px;"
-        "}"
-    );
-    serviceLayout->addWidget(statusTable);
-    
-    // Docker Konteynerler Tab'ı
-    QWidget* dockerContainersTab = new QWidget();
-    QVBoxLayout* containersLayout = new QVBoxLayout(dockerContainersTab);
-    
-    // Docker konteyner tablosu
-    QTableWidget* containerTable = new QTableWidget(dockerContainersTab);
-    containerTable->setColumnCount(5);
-    containerTable->setHorizontalHeaderLabels({tr("ID"), tr("İsim"), tr("İmaj"), tr("Durum"), tr("Portlar")});
-    containerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    containerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    containerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    containerTable->setAlternatingRowColors(true);
-    containerTable->verticalHeader()->setVisible(false);
-    containerTable->setStyleSheet(statusTable->styleSheet()); // Aynı stil
-    containersLayout->addWidget(containerTable);
-    
-    // Tab'ları ekle
-    tabWidget->addTab(serviceStatusTab, tr("Servis Durumu"));
-    tabWidget->addTab(dockerContainersTab, tr("Docker Konteynerler"));
-    
-    // Docker imaj ve konteyner istatistikleri için widget
-    QGroupBox* dockerStatsGroup = new QGroupBox(tr("Docker İstatistikleri"), dockerContainersTab);
-    dockerStatsGroup->setStyleSheet(
-        "QGroupBox {"
-        "    font-size: 14px;"
-        "    font-weight: bold;"
-        "    border: 1px solid #333333;"
-        "    border-radius: 8px;"
-        "    margin-top: 1ex;"
-        "    padding: 10px;"
-        "    background-color: #1e1e1e;"
-        "    color: #cccccc;"
-        "}"
-        "QGroupBox::title {"
-        "    subcontrol-origin: margin;"
-        "    subcontrol-position: top left;"
-        "    padding: 0 10px;"
-        "    color: #cccccc;"
-        "    background-color: #1e1e1e;"
-        "}"
-    );
-    
-    QHBoxLayout* statsLayout = new QHBoxLayout(dockerStatsGroup);
-    
-    // Çalışan konteyner sayısı
-    QLabel* runningContainerLabel = new QLabel(tr("Çalışan Konteynerler:"), dockerContainersTab);
-    QLabel* runningContainerValue = new QLabel("0", dockerContainersTab);
-    runningContainerValue->setStyleSheet("color: #4CAF50; font-weight: bold;"); // Yeşil
-    
-    // Toplam konteyner sayısı
-    QLabel* totalContainerLabel = new QLabel(tr("Toplam Konteynerler:"), dockerContainersTab);
-    QLabel* totalContainerValue = new QLabel("0", dockerContainersTab);
-    totalContainerValue->setStyleSheet("color: #2196F3; font-weight: bold;"); // Mavi
-    
-    // Docker imaj sayısı
-    QLabel* imageLabel = new QLabel(tr("Docker İmajları:"), dockerContainersTab);
-    QLabel* imageValue = new QLabel("0", dockerContainersTab);
-    imageValue->setStyleSheet("color: #FFC107; font-weight: bold;"); // Sarı
-    
-    // İstatistikleri layout'a ekle
-    QGridLayout* gridStatsLayout = new QGridLayout();
-    gridStatsLayout->addWidget(runningContainerLabel, 0, 0);
-    gridStatsLayout->addWidget(runningContainerValue, 0, 1);
-    gridStatsLayout->addWidget(totalContainerLabel, 0, 2);
-    gridStatsLayout->addWidget(totalContainerValue, 0, 3);
-    gridStatsLayout->addWidget(imageLabel, 0, 4);
-    gridStatsLayout->addWidget(imageValue, 0, 5);
-    gridStatsLayout->setColumnStretch(1, 0);
-    gridStatsLayout->setColumnStretch(3, 0);
-    gridStatsLayout->setColumnStretch(5, 0);
-    
-    statsLayout->addLayout(gridStatsLayout);
-    containersLayout->addWidget(dockerStatsGroup);
-    
-    // Yenile butonu
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    buttonLayout->addStretch();
-    
-    QPushButton* refreshButton = new QPushButton(tr("Yenile"), resultsWidget);
-    refreshButton->setStyleSheet(
-        "QPushButton {"
-        "   background-color: #0078d7;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 8px 16px;"
-        "   border-radius: 4px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #1c97ea;"
-        "}"
-    );
-    buttonLayout->addWidget(refreshButton);
-    
-    // addLayout yerine resultsLayout'a doğrudan QHBoxLayout'ı bir QWidget içinde ekle
-    QWidget* buttonWidget = new QWidget();
-    buttonWidget->setLayout(buttonLayout);
-    resultsLayout->addWidget(buttonWidget);
-    
-    // Servislerin durumlarını kontrol et ve tabloları doldur
-    auto updateServiceStatus = [statusTable, this]() {
-        statusTable->setRowCount(0);
-        
-        // 1. Docker servisi
-        bool dockerAvailable = dockerUIManager->isDockerAvailable();
-        int row = statusTable->rowCount();
-        statusTable->insertRow(row);
-        statusTable->setItem(row, 0, new QTableWidgetItem("Docker Servisi"));
-        statusTable->setItem(row, 1, new QTableWidgetItem(dockerAvailable ? tr("Çalışıyor") : tr("Devre Dışı")));
-        statusTable->setItem(row, 2, new QTableWidgetItem(dockerAvailable ? 
-            tr("Docker servisi aktif ve kullanılabilir.") : 
-            tr("Docker servisi bulunamadı. Kontrol ediniz.")));
-        
-        if (dockerAvailable) {
-            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        } else {
-            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        }
-        
-        // 2. CDR Konteyner durumu
-        bool cdrInitialized = false;
-        try {
-            cdrInitialized = scanManager->isCdrInitialized();
-        } catch (...) {
-            // Hata durumunda varsayılan olarak false kalacak
-        }
-        
-        row = statusTable->rowCount();
-        statusTable->insertRow(row);
-        statusTable->setItem(row, 0, new QTableWidgetItem("CDR Konteyner"));
-        statusTable->setItem(row, 1, new QTableWidgetItem(cdrInitialized ? tr("Hazır") : tr("Hazır Değil")));
-        statusTable->setItem(row, 2, new QTableWidgetItem(cdrInitialized ? 
-            tr("CDR servisi başlatılabilir durumda.") : 
-            tr("CDR servisi başlatılamıyor. Docker kontrol edin.")));
-        
-        if (cdrInitialized) {
-            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        } else {
-            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        }
-        
-        // 3. Sandbox Konteyner durumu
-        bool sandboxInitialized = false;
-        try {
-            sandboxInitialized = scanManager->isSandboxInitialized();
-        } catch (...) {
-            // Hata durumunda varsayılan olarak false kalacak
-        }
-        
-        row = statusTable->rowCount();
-        statusTable->insertRow(row);
-        statusTable->setItem(row, 0, new QTableWidgetItem("Sandbox Konteyner"));
-        statusTable->setItem(row, 1, new QTableWidgetItem(sandboxInitialized ? tr("Hazır") : tr("Hazır Değil")));
-        statusTable->setItem(row, 2, new QTableWidgetItem(sandboxInitialized ? 
-            tr("Sandbox servisi başlatılabilir durumda.") : 
-            tr("Sandbox servisi başlatılamıyor. Docker kontrol edin.")));
-        
-        if (sandboxInitialized) {
-            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        } else {
-            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        }
-        
-        // 4. VirusTotal API Bağlantısı
-        bool virusTotalConnected = apiManager->hasApiKey();
-        
-        row = statusTable->rowCount();
-        statusTable->insertRow(row);
-        statusTable->setItem(row, 0, new QTableWidgetItem("VirusTotal API"));
-        statusTable->setItem(row, 1, new QTableWidgetItem(virusTotalConnected ? tr("Bağlı") : tr("Bağlı Değil")));
-        statusTable->setItem(row, 2, new QTableWidgetItem(virusTotalConnected ? 
-            tr("VirusTotal API anahtarı ayarlanmış.") : 
-            tr("VirusTotal API anahtarı ayarlanmamış.")));
-        
-        if (virusTotalConnected) {
-            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        } else {
-            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        }
-        
-        // 5. Veritabanı Bağlantısı
-        bool dbConnected = false;
-        try {
-            // Veritabanı bağlantı kontrolü
-            dbConnected = true; // Bu kısmı gerçek veritabanı kontrolü ile değiştirin
-        } catch (...) {
-            dbConnected = false;
-        }
-        
-        row = statusTable->rowCount();
-        statusTable->insertRow(row);
-        statusTable->setItem(row, 0, new QTableWidgetItem("Veritabanı"));
-        statusTable->setItem(row, 1, new QTableWidgetItem(dbConnected ? tr("Bağlı") : tr("Bağlı Değil")));
-        statusTable->setItem(row, 2, new QTableWidgetItem(dbConnected ? 
-            tr("Veritabanı bağlantısı sağlandı.") : 
-            tr("Veritabanına bağlanılamıyor.")));
-        
-        if (dbConnected) {
-            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        } else {
-            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
-            statusTable->item(row, 1)->setForeground(Qt::white);
-        }
-    };
-    
-    // Docker konteynerlerini kontrol et ve tabloyu doldur
-    auto updateContainerList = [containerTable, runningContainerValue, totalContainerValue, imageValue, this]() {
-        containerTable->setRowCount(0); // Tabloyu temizle
-        
-        if (!dockerUIManager->isDockerAvailable()) {
-            // Docker çalışmıyorsa hata mesajı göster
-            int row = containerTable->rowCount();
-            containerTable->insertRow(row);
-            QTableWidgetItem *errorItem = new QTableWidgetItem(tr("Docker mevcut değil veya çalışmıyor!"));
-            containerTable->setSpan(row, 0, 1, 5);
-            containerTable->setItem(row, 0, errorItem);
-            errorItem->setTextAlignment(Qt::AlignCenter);
-            errorItem->setBackground(QColor(209, 36, 47, 100)); // Kırmızı
-            
-            // İstatistikleri sıfırla
-            runningContainerValue->setText("0");
-            totalContainerValue->setText("0");
-            imageValue->setText("0");
-            return;
-        }
-        
-        // Gerçek konteyner listesini al
-        QJsonArray containers = dockerUIManager->getDockerContainers();
-        QJsonArray images = dockerUIManager->getDockerImages();
-        
-        // İstatistikleri güncelle
-        int runningCount = 0;
-        for (int i = 0; i < containers.size(); ++i) {
-            QJsonObject container = containers[i].toObject();
-            int row = containerTable->rowCount();
-            containerTable->insertRow(row);
-            
-            // Konteyner ID'si
-            QTableWidgetItem *idItem = new QTableWidgetItem(container["id"].toString());
-            containerTable->setItem(row, 0, idItem);
-            
-            // Konteyner adı
-            QTableWidgetItem *nameItem = new QTableWidgetItem(container["name"].toString());
-            containerTable->setItem(row, 1, nameItem);
-            
-            // Konteyner imajı
-            QTableWidgetItem *imageItem = new QTableWidgetItem(container["image"].toString());
-            containerTable->setItem(row, 2, imageItem);
-            
-            // Konteyner durumu
-            QString status = container["status"].toString();
-            QTableWidgetItem *statusItem = new QTableWidgetItem(status);
-            containerTable->setItem(row, 3, statusItem);
-            
-            // Portlar
-            QTableWidgetItem *portsItem = new QTableWidgetItem(container["ports"].toString());
-            containerTable->setItem(row, 4, portsItem);
-            
-            // Durum kontrolü - eğer "Up" içeriyorsa çalışıyor olarak kabul et
-            if (status.contains("Up", Qt::CaseInsensitive)) {
-                runningCount++;
-                statusItem->setBackground(QColor(45, 164, 78, 100)); // Yeşil
-                statusItem->setForeground(Qt::white);
-            } else {
-                // Çalışmayan konteynerler için gri renkte arka plan
-                statusItem->setBackground(QColor(169, 169, 169, 100)); 
-                statusItem->setForeground(Qt::white);
-            }
-        }
-        
-        // Konteyner yoksa bilgi mesajı göster
-        if (containers.isEmpty()) {
-            int row = containerTable->rowCount();
-            containerTable->insertRow(row);
-            QTableWidgetItem *infoItem = new QTableWidgetItem(tr("Çalışan veya durdurulmuş konteyner bulunamadı"));
-            containerTable->setSpan(row, 0, 1, 5);
-            containerTable->setItem(row, 0, infoItem);
-            infoItem->setTextAlignment(Qt::AlignCenter);
-            infoItem->setBackground(QColor(52, 73, 94, 100)); // Koyu mavi
-            infoItem->setForeground(Qt::white);
-        }
-        
-        // İstatistikleri güncelle
-        runningContainerValue->setText(QString::number(runningCount));
-        totalContainerValue->setText(QString::number(containers.size()));
-        imageValue->setText(QString::number(images.size()));
-    };
-    
-    // İlk durumda servisleri kontrol et
-    updateServiceStatus();
-    updateContainerList();
-    
-    // Tab değiştirme olayını dinle
-    connect(tabWidget, &QTabWidget::currentChanged, [tabWidget, updateContainerList](int index) {
-        if (index == 1) { // Docker Konteynerler sekmesi
-            updateContainerList(); // Konteyner listesini yenile
-        }
-    });
-    
-    // Yenile butonuna basıldığında servisleri tekrar kontrol et
-    connect(refreshButton, &QPushButton::clicked, [tabWidget, updateServiceStatus, updateContainerList]() {
-        if (tabWidget->currentIndex() == 0) {
-            updateServiceStatus(); // Servis durumlarını güncelle
-        } else if (tabWidget->currentIndex() == 1) {
-            updateContainerList(); // Konteyner listesini yenile
-        }
-    });
 }
 
 // DockerImageSelectionDialog implementasyonu
@@ -1584,4 +1131,576 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
 
 QString DockerImageSelectionDialog::getSelectedImage() const {
     return imageComboBox->currentText();
+}
+
+// ServiceStatusDialog implementasyonu - Modal dialog yaklaşımı
+ServiceStatusDialog::ServiceStatusDialog(ApiManager* apiManager, ScanManager* scanManager, 
+                                      DockerUIManager* dockerUIManager, QWidget* parent)
+    : QDialog(parent), 
+      apiManager(apiManager), 
+      scanManager(scanManager), 
+      dockerUIManager(dockerUIManager),
+      tabWidget(nullptr),
+      statusTable(nullptr),
+      containerTable(nullptr),
+      runningContainerValue(nullptr),
+      totalContainerValue(nullptr),
+      imageValue(nullptr),
+      refreshButton(nullptr)
+{
+    setWindowTitle(tr("Sistem Servisleri ve Konteyner Durumu"));
+    setMinimumSize(800, 600);
+    setModal(true);
+    
+    createUI();
+    updateServiceStatus();
+    updateContainerList();
+    setupConnections();
+}
+
+void ServiceStatusDialog::createUI()
+{
+    // Ana düzen
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(20);
+    mainLayout->setContentsMargins(20, 20, 20, 20);
+    
+    // Başlık
+    QLabel* titleLabel = new QLabel(tr("Sistem Servisleri ve Konteyner Durumu"), this);
+    titleLabel->setStyleSheet(
+        "QLabel {"
+        "    font-size: 20px;"
+        "    font-weight: bold;"
+        "    color: white;"
+        "}"
+    );
+    mainLayout->addWidget(titleLabel);
+    
+    // Tab Widget oluştur
+    tabWidget = new QTabWidget(this);
+    tabWidget->setStyleSheet(
+        "QTabWidget::pane {"
+        "    border: 1px solid #3f3f46;"
+        "    background-color: #252526;"
+        "    border-radius: 3px;"
+        "}"
+        "QTabBar::tab {"
+        "    background-color: #2d2d30;"
+        "    color: #cccccc;"
+        "    padding: 8px 15px;"
+        "    border-top-left-radius: 4px;"
+        "    border-top-right-radius: 4px;"
+        "}"
+        "QTabBar::tab:selected {"
+        "    background-color: #0078d7;"
+        "    color: white;"
+        "}"
+        "QTabBar::tab:hover:!selected {"
+        "    background-color: #3e3e42;"
+        "}"
+    );
+    
+    // Servis Durumları Tab'ı
+    QWidget* serviceStatusTab = new QWidget(this);
+    QVBoxLayout* serviceLayout = new QVBoxLayout(serviceStatusTab);
+    
+    // Servislerin durumunu göstermek için tablo
+    statusTable = new QTableWidget(serviceStatusTab);
+    statusTable->setColumnCount(3);
+    statusTable->setHorizontalHeaderLabels({tr("Servis"), tr("Durum"), tr("Detay")});
+    statusTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    statusTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    statusTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    statusTable->setAlternatingRowColors(true);
+    statusTable->verticalHeader()->setVisible(false);
+    statusTable->setStyleSheet(
+        "QTableWidget {"
+        "   background-color: #2d2d30;"
+        "   color: #ffffff;"
+        "   gridline-color: #3f3f46;"
+        "   border: 1px solid #3f3f46;"
+        "}"
+        "QTableWidget::item {"
+        "   padding: 10px;"
+        "}"
+        "QTableWidget::item:selected {"
+        "   background-color: #0078d7;"
+        "}"
+        "QHeaderView::section {"
+        "   background-color: #252526;"
+        "   color: #ffffff;"
+        "   font-weight: bold;"
+        "   border: 1px solid #3f3f46;"
+        "   padding: 4px;"
+        "}"
+    );
+    serviceLayout->addWidget(statusTable);
+    
+    // Docker Konteynerler Tab'ı
+    QWidget* dockerContainersTab = new QWidget(this);
+    QVBoxLayout* containersLayout = new QVBoxLayout(dockerContainersTab);
+    
+    // Docker konteyner tablosu
+    containerTable = new QTableWidget(dockerContainersTab);
+    containerTable->setColumnCount(5);
+    containerTable->setHorizontalHeaderLabels({tr("ID"), tr("İsim"), tr("İmaj"), tr("Durum"), tr("Portlar")});
+    containerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    containerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    containerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    containerTable->setAlternatingRowColors(true);
+    containerTable->verticalHeader()->setVisible(false);
+    containerTable->setStyleSheet(
+        "QTableWidget {"
+        "   background-color: #2d2d30;"
+        "   color: #ffffff;"
+        "   gridline-color: #3f3f46;"
+        "   border: 1px solid #3f3f46;"
+        "}"
+        "QTableWidget::item {"
+        "   padding: 10px;"
+        "}"
+        "QTableWidget::item:selected {"
+        "   background-color: #0078d7;"
+        "}"
+        "QHeaderView::section {"
+        "   background-color: #252526;"
+        "   color: #ffffff;"
+        "   font-weight: bold;"
+        "   border: 1px solid #3f3f46;"
+        "   padding: 4px;"
+        "}"
+    );
+    containersLayout->addWidget(containerTable);
+    
+    // Tab'ları ekle
+    tabWidget->addTab(serviceStatusTab, tr("Servis Durumu"));
+    tabWidget->addTab(dockerContainersTab, tr("Docker Konteynerler"));
+    
+    // Docker imaj ve konteyner istatistikleri için widget
+    QGroupBox* dockerStatsGroup = new QGroupBox(tr("Docker İstatistikleri"), dockerContainersTab);
+    dockerStatsGroup->setStyleSheet(
+        "QGroupBox {"
+        "    font-size: 14px;"
+        "    font-weight: bold;"
+        "    border: 1px solid #333333;"
+        "    border-radius: 8px;"
+        "    margin-top: 1ex;"
+        "    padding: 10px;"
+        "    background-color: #1e1e1e;"
+        "    color: #cccccc;"
+        "}"
+        "QGroupBox::title {"
+        "    subcontrol-origin: margin;"
+        "    subcontrol-position: top left;"
+        "    padding: 0 10px;"
+        "    color: #cccccc;"
+        "    background-color: #1e1e1e;"
+        "}"
+    );
+    
+    QHBoxLayout* statsLayout = new QHBoxLayout(dockerStatsGroup);
+    
+    // Çalışan konteyner sayısı
+    QLabel* runningContainerLabel = new QLabel(tr("Çalışan Konteynerler:"), dockerContainersTab);
+    runningContainerValue = new QLabel("0", dockerContainersTab);
+    runningContainerValue->setStyleSheet("color: #4CAF50; font-weight: bold;"); // Yeşil
+    
+    // Toplam konteyner sayısı
+    QLabel* totalContainerLabel = new QLabel(tr("Toplam Konteynerler:"), dockerContainersTab);
+    totalContainerValue = new QLabel("0", dockerContainersTab);
+    totalContainerValue->setStyleSheet("color: #2196F3; font-weight: bold;"); // Mavi
+    
+    // Docker imaj sayısı
+    QLabel* imageLabel = new QLabel(tr("Docker İmajları:"), dockerContainersTab);
+    imageValue = new QLabel("0", dockerContainersTab);
+    imageValue->setStyleSheet("color: #FFC107; font-weight: bold;"); // Sarı
+    
+    // İstatistikleri layout'a ekle
+    QGridLayout* gridStatsLayout = new QGridLayout();
+    gridStatsLayout->addWidget(runningContainerLabel, 0, 0);
+    gridStatsLayout->addWidget(runningContainerValue, 0, 1);
+    gridStatsLayout->addWidget(totalContainerLabel, 0, 2);
+    gridStatsLayout->addWidget(totalContainerValue, 0, 3);
+    gridStatsLayout->addWidget(imageLabel, 0, 4);
+    gridStatsLayout->addWidget(imageValue, 0, 5);
+    gridStatsLayout->setColumnStretch(1, 0);
+    gridStatsLayout->setColumnStretch(3, 0);
+    gridStatsLayout->setColumnStretch(5, 0);
+    
+    statsLayout->addLayout(gridStatsLayout);
+    containersLayout->addWidget(dockerStatsGroup);
+    
+    // Ana düzene tab widget'ı ekle
+    mainLayout->addWidget(tabWidget);
+    
+    // Yenile butonu
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    
+    refreshButton = new QPushButton(tr("Yenile"), this);
+    refreshButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #0078d7;"
+        "   color: white;"
+        "   border: none;"
+        "   padding: 8px 16px;"
+        "   border-radius: 4px;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #1c97ea;"
+        "}"
+    );
+    buttonLayout->addWidget(refreshButton);
+    
+    // Kapat butonu
+    QPushButton* closeButton = new QPushButton(tr("Kapat"), this);
+    closeButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #e74c3c;"
+        "   color: white;"
+        "   border: none;"
+        "   padding: 8px 16px;"
+        "   border-radius: 4px;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #c0392b;"
+        "}"
+    );
+    buttonLayout->addWidget(closeButton);
+    
+    // Butonları ana düzene ekle
+    mainLayout->addLayout(buttonLayout);
+    
+    // Kapat butonuna tıklamayı bağla
+    connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
+}
+
+void ServiceStatusDialog::setupConnections()
+{
+    // Tab değiştiğinde otomatik güncelleştirme
+    connect(tabWidget, &QTabWidget::currentChanged, [this](int index) {
+        if (index == 0) {
+            updateServiceStatus();
+        } else if (index == 1) {
+            updateContainerList();
+        }
+    });
+    
+    // Yenile butonuna tıklama
+    connect(refreshButton, &QPushButton::clicked, [this]() {
+        int currentIndex = tabWidget->currentIndex();
+        if (currentIndex == 0) {
+            updateServiceStatus();
+        } else if (currentIndex == 1) {
+            updateContainerList();
+        }
+        
+        // Yenile butonuna basıldığını göstermek için animasyon efekti
+        QPushButton* refreshBtn = qobject_cast<QPushButton*>(sender());
+        if (refreshBtn) {
+            QString originalText = refreshBtn->text();
+            refreshBtn->setEnabled(false);
+            refreshBtn->setText(tr("Yenileniyor..."));
+            
+            // 500ms sonra butonu eski haline getir
+            QTimer::singleShot(500, [refreshBtn, originalText]() {
+                refreshBtn->setEnabled(true);
+                refreshBtn->setText(originalText);
+            });
+        }
+    });
+}
+
+void ServiceStatusDialog::updateServiceStatus()
+{
+    if (!statusTable) return;
+    
+    statusTable->setRowCount(0);
+    
+    // 1. Docker servisi
+    bool dockerAvailable = false;
+    if (dockerUIManager) {
+        try {
+            dockerAvailable = dockerUIManager->isDockerAvailable();
+        } catch (const std::exception& e) {
+            qDebug() << "Exception checking Docker status:" << e.what();
+            dockerAvailable = false;
+        } catch (...) {
+            qDebug() << "Unknown exception checking Docker status";
+            dockerAvailable = false;
+        }
+    }
+    
+    try {
+        int row = statusTable->rowCount();
+        statusTable->insertRow(row);
+        statusTable->setItem(row, 0, new QTableWidgetItem("Docker Servisi"));
+        statusTable->setItem(row, 1, new QTableWidgetItem(dockerAvailable ? tr("Çalışıyor") : tr("Devre Dışı")));
+        statusTable->setItem(row, 2, new QTableWidgetItem(dockerAvailable ? 
+            tr("Docker servisi aktif ve kullanılabilir.") : 
+            tr("Docker servisi bulunamadı. Kontrol ediniz.")));
+        
+        if (dockerAvailable) {
+            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        } else {
+            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        }
+    } catch (...) {
+        qDebug() << "Error updating Docker service status row";
+    }
+    
+    // 2. CDR Konteyner durumu
+    bool cdrInitialized = false;
+    if (scanManager) {
+        try {
+            cdrInitialized = scanManager->isCdrInitialized();
+        } catch (const std::exception& e) {
+            qDebug() << "Exception checking CDR status:" << e.what();
+            cdrInitialized = false;
+        } catch (...) {
+            qDebug() << "Unknown exception checking CDR status";
+            cdrInitialized = false;
+        }
+    }
+    
+    try {
+        int row = statusTable->rowCount();
+        statusTable->insertRow(row);
+        statusTable->setItem(row, 0, new QTableWidgetItem("CDR Konteyner"));
+        statusTable->setItem(row, 1, new QTableWidgetItem(cdrInitialized ? tr("Hazır") : tr("Hazır Değil")));
+        statusTable->setItem(row, 2, new QTableWidgetItem(cdrInitialized ? 
+            tr("CDR servisi başlatılabilir durumda.") : 
+            tr("CDR servisi başlatılamıyor. Docker kontrol edin.")));
+        
+        if (cdrInitialized) {
+            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        } else {
+            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        }
+    } catch (...) {
+        qDebug() << "Error updating CDR status row";
+    }
+    
+    // 3. Sandbox Konteyner durumu
+    bool sandboxInitialized = false;
+    if (scanManager) {
+        try {
+            sandboxInitialized = scanManager->isSandboxInitialized();
+        } catch (const std::exception& e) {
+            qDebug() << "Exception checking Sandbox status:" << e.what();
+            sandboxInitialized = false;
+        } catch (...) {
+            qDebug() << "Unknown exception checking Sandbox status";
+            sandboxInitialized = false;
+        }
+    }
+    
+    try {
+        int row = statusTable->rowCount();
+        statusTable->insertRow(row);
+        statusTable->setItem(row, 0, new QTableWidgetItem("Sandbox Konteyner"));
+        statusTable->setItem(row, 1, new QTableWidgetItem(sandboxInitialized ? tr("Hazır") : tr("Hazır Değil")));
+        statusTable->setItem(row, 2, new QTableWidgetItem(sandboxInitialized ? 
+            tr("Sandbox servisi başlatılabilir durumda.") : 
+            tr("Sandbox servisi başlatılamıyor. Docker kontrol edin.")));
+        
+        if (sandboxInitialized) {
+            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        } else {
+            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        }
+    } catch (...) {
+        qDebug() << "Error updating Sandbox status row";
+    }
+    
+    // 4. VirusTotal API Bağlantısı
+    bool virusTotalConnected = false;
+    if (apiManager) {
+        try {
+            virusTotalConnected = apiManager->hasApiKey();
+        } catch (const std::exception& e) {
+            qDebug() << "Exception checking VirusTotal API:" << e.what();
+            virusTotalConnected = false;
+        } catch (...) {
+            qDebug() << "Unknown exception checking VirusTotal API";
+            virusTotalConnected = false;
+        }
+    }
+    
+    try {
+        int row = statusTable->rowCount();
+        statusTable->insertRow(row);
+        statusTable->setItem(row, 0, new QTableWidgetItem("VirusTotal API"));
+        statusTable->setItem(row, 1, new QTableWidgetItem(virusTotalConnected ? tr("Bağlı") : tr("Bağlı Değil")));
+        statusTable->setItem(row, 2, new QTableWidgetItem(virusTotalConnected ? 
+            tr("VirusTotal API anahtarı ayarlanmış.") : 
+            tr("VirusTotal API anahtarı ayarlanmamış.")));
+        
+        if (virusTotalConnected) {
+            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        } else {
+            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        }
+    } catch (...) {
+        qDebug() << "Error updating VirusTotal API status row";
+    }
+    
+    // 5. Veritabanı Bağlantısı
+    bool dbConnected = false;
+    try {
+        // Veritabanı bağlantı kontrolü
+        dbConnected = true; // Bu kısmı gerçek veritabanı kontrolü ile değiştirin
+    } catch (const std::exception& e) {
+        qDebug() << "Exception checking database:" << e.what();
+        dbConnected = false;
+    } catch (...) {
+        qDebug() << "Unknown exception checking database";
+        dbConnected = false;
+    }
+    
+    try {
+        int row = statusTable->rowCount();
+        statusTable->insertRow(row);
+        statusTable->setItem(row, 0, new QTableWidgetItem("Veritabanı"));
+        statusTable->setItem(row, 1, new QTableWidgetItem(dbConnected ? tr("Bağlı") : tr("Bağlı Değil")));
+        statusTable->setItem(row, 2, new QTableWidgetItem(dbConnected ? 
+            tr("Veritabanı bağlantısı sağlandı.") : 
+            tr("Veritabanına bağlanılamıyor.")));
+        
+        if (dbConnected) {
+            statusTable->item(row, 1)->setBackground(QColor(45, 164, 78, 100)); // Yeşil
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        } else {
+            statusTable->item(row, 1)->setBackground(QColor(209, 36, 47, 100)); // Kırmızı  
+            statusTable->item(row, 1)->setForeground(Qt::white);
+        }
+    } catch (...) {
+        qDebug() << "Error updating database status row";
+    }
+}
+
+void ServiceStatusDialog::updateContainerList()
+{
+    if (!containerTable || !runningContainerValue || !totalContainerValue || !imageValue) return;
+
+    containerTable->setRowCount(0);
+    
+    // Docker durumu kontrolü
+    bool dockerAvailable = false;
+    if (dockerUIManager) {
+        try {
+            dockerAvailable = dockerUIManager->isDockerAvailable();
+        } catch (...) {
+            dockerAvailable = false;
+        }
+    }
+    
+    if (!dockerAvailable || !dockerUIManager) {
+        // Hata mesajı göster
+        int row = containerTable->rowCount();
+        containerTable->insertRow(row);
+        QTableWidgetItem *errorItem = new QTableWidgetItem("Docker mevcut değil veya çalışmıyor!");
+        containerTable->setSpan(row, 0, 1, 5);
+        containerTable->setItem(row, 0, errorItem);
+        errorItem->setTextAlignment(Qt::AlignCenter);
+        errorItem->setBackground(QColor(209, 36, 47, 100)); // Kırmızı
+        errorItem->setForeground(Qt::white);
+        
+        // İstatistikleri sıfırla
+        runningContainerValue->setText("0");
+        totalContainerValue->setText("0");
+        imageValue->setText("0");
+        return;
+    }
+    
+    // Docker konteyner ve imaj bilgilerini al
+    QJsonArray containers;
+    QJsonArray images;
+    try {
+        containers = dockerUIManager->getDockerContainers();
+    } catch (...) {
+        containers = QJsonArray();
+        int row = containerTable->rowCount();
+        containerTable->insertRow(row);
+        QTableWidgetItem *errorItem = new QTableWidgetItem("Konteyner bilgisi alınamadı!");
+        containerTable->setSpan(row, 0, 1, 5);
+        containerTable->setItem(row, 0, errorItem);
+        errorItem->setTextAlignment(Qt::AlignCenter);
+        errorItem->setBackground(QColor(209, 36, 47, 100)); // Kırmızı
+        errorItem->setForeground(Qt::white);
+    }
+    
+    try {
+        images = dockerUIManager->getDockerImages();
+    } catch (...) {
+        images = QJsonArray();
+    }
+    
+    // Konteyner sayaçları
+    int runningCount = 0;
+    
+    // Konteyner listesini tabloya ekle
+    for (int i = 0; i < containers.size(); ++i) {
+        try {
+            QJsonObject container = containers[i].toObject();
+            if (container.isEmpty()) continue;
+            
+            int row = containerTable->rowCount();
+            containerTable->insertRow(row);
+            
+            // ID
+            containerTable->setItem(row, 0, new QTableWidgetItem(container["id"].toString()));
+            
+            // İsim
+            containerTable->setItem(row, 1, new QTableWidgetItem(container["name"].toString()));
+            
+            // İmaj
+            containerTable->setItem(row, 2, new QTableWidgetItem(container["image"].toString()));
+            
+            // Durum
+            QString status = container["status"].toString();
+            QTableWidgetItem *statusItem = new QTableWidgetItem(status);
+            containerTable->setItem(row, 3, statusItem);
+            
+            // Portlar
+            containerTable->setItem(row, 4, new QTableWidgetItem(container["ports"].toString()));
+            
+            // Çalışıyor mu?
+            if (status.contains("Up", Qt::CaseInsensitive)) {
+                runningCount++;
+                statusItem->setBackground(QColor(45, 164, 78, 100)); // Yeşil
+                statusItem->setForeground(Qt::white);
+            } else {
+                statusItem->setBackground(QColor(169, 169, 169, 100)); // Gri
+                statusItem->setForeground(Qt::white);
+            }
+        } catch (...) {
+            qDebug() << "Error processing container at index" << i;
+        }
+    }
+    
+    // Konteyner yoksa bilgi mesajı göster
+    if (containers.isEmpty()) {
+        int row = containerTable->rowCount();
+        containerTable->insertRow(row);
+        QTableWidgetItem *infoItem = new QTableWidgetItem(tr("Çalışan veya durdurulmuş konteyner bulunamadı"));
+        containerTable->setSpan(row, 0, 1, 5);
+        containerTable->setItem(row, 0, infoItem);
+        infoItem->setTextAlignment(Qt::AlignCenter);
+        infoItem->setBackground(QColor(52, 73, 94, 100)); // Koyu mavi
+        infoItem->setForeground(Qt::white);
+    }
+    
+    // İstatistikleri güncelle
+    runningContainerValue->setText(QString::number(runningCount));
+    totalContainerValue->setText(QString::number(containers.size()));
+    imageValue->setText(QString::number(images.size()));
 }

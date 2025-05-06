@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QTableWidget>
+#include <QTabWidget>
 #include "ApiManager.h"
 #include "ScanManager.h"
 #include "ResultsView.h"
@@ -55,6 +56,34 @@ public:
 
 private:
     QLineEdit *apiKeyLineEdit;
+};
+
+// Yeni Service Status Dialog sınıfı
+class ServiceStatusDialog : public QDialog {
+    Q_OBJECT
+public:
+    explicit ServiceStatusDialog(ApiManager* apiManager, 
+                               ScanManager* scanManager, 
+                               DockerUIManager* dockerUIManager, 
+                               QWidget *parent = nullptr);
+    
+private:
+    ApiManager* apiManager;
+    ScanManager* scanManager;
+    DockerUIManager* dockerUIManager;
+    
+    QTabWidget* tabWidget;
+    QTableWidget* statusTable;
+    QTableWidget* containerTable;
+    QLabel* runningContainerValue;
+    QLabel* totalContainerValue;
+    QLabel* imageValue;
+    QPushButton* refreshButton;
+    
+    void createUI();
+    void updateServiceStatus();
+    void updateContainerList();
+    void setupConnections();
 };
 
 class MainWindow : public QMainWindow
