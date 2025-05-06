@@ -64,102 +64,90 @@ void ResultsView::showNormalResults(const QJsonObject& response)
 {
     if (!m_resultTextEdit) return;
     
-    // Null kontrol
+    // Null check
     if (response.isEmpty()) {
-        m_resultTextEdit->appendPlainText("❌ API yanıtı boş veya geçersiz.");
+        m_resultTextEdit->appendPlainText("❌ Error: API response is empty or invalid.");
         return;
     }
 
-    // Data nesnesini kontrol et
+    // Check data object
     if (!response.contains("data") || response["data"].isNull()) {
-        m_resultTextEdit->appendPlainText("❌ Üzgünüz, dosya tarama sonuçları alınamadı.");
+        m_resultTextEdit->appendPlainText("❌ Sorry, file scan results could not be retrieved.");
         return;
     }
 
     QJsonObject data = response["data"].toObject();
     
-    // Attributes nesnesini kontrol et
+    // Check attributes object
     if (!data.contains("attributes") || data["attributes"].isNull()) {
-        m_resultTextEdit->appendPlainText("❌ Dosya analiz sonuçları bulunamadı.");
+        m_resultTextEdit->appendPlainText("❌ File analysis results not found.");
         return;
     }
 
     QJsonObject attributes = data["attributes"].toObject();
     
-    // Başlık
-    m_resultTextEdit->appendPlainText("=== Dosya Güvenlik Raporu ===\n");
+    // Header
+    m_resultTextEdit->appendPlainText("=== File Security Report ===\n");
     
-    // Genel Değerlendirme - Güvenli kontrol
-    if (attributes.contains("stats") && !attributes["stats"].isNull()) {
-        QJsonObject stats = attributes["stats"].toObject();
-        int malicious = stats.contains("malicious") ? stats["malicious"].toInt() : 0;
-        int suspicious = stats.contains("suspicious") ? stats["suspicious"].toInt() : 0;
-        
-        // Güvenlik durumu
-        if (malicious > 0) {
-            m_resultTextEdit->appendPlainText("⛔ TEHLİKE DURUMU");
-            m_resultTextEdit->appendPlainText("------------------");
-            m_resultTextEdit->appendPlainText("Bu dosya zararlı yazılım içerebilir!");
-            m_resultTextEdit->appendPlainText(QString("🔴 %1 antivirüs programı bu dosyayı zararlı olarak tespit etti.").arg(malicious));
-        } else if (suspicious > 0) {
-            m_resultTextEdit->appendPlainText("⚠️ DİKKAT");
-            m_resultTextEdit->appendPlainText("------------------");
-            m_resultTextEdit->appendPlainText("Bu dosya şüpheli davranışlar gösteriyor.");
-            m_resultTextEdit->appendPlainText(QString("🟡 %1 antivirüs programı bu dosyayı şüpheli buluyor.").arg(suspicious));
-        } else {
-            m_resultTextEdit->appendPlainText("✅ GÜVENLİ");
-            m_resultTextEdit->appendPlainText("------------------");
-            m_resultTextEdit->appendPlainText("Bu dosyada herhangi bir tehdit tespit edilmedi.");
-        }
-        m_resultTextEdit->appendPlainText("");
-    }
-
-    // Dosya Bilgileri
-    m_resultTextEdit->appendPlainText("\n📄 DOSYA BİLGİLERİ");
-    m_resultTextEdit->appendPlainText("------------------");
+    // Display file information
     if (attributes.contains("meaningful_name") && !attributes["meaningful_name"].isNull()) {
-        m_resultTextEdit->appendPlainText(QString("📝 Dosya Adı: %1").arg(attributes["meaningful_name"].toString()));
+        m_resultTextEdit->appendPlainText(QString("📝 File Name: %1").arg(attributes["meaningful_name"].toString()));
     }
     if (attributes.contains("type_description") && !attributes["type_description"].isNull()) {
-        m_resultTextEdit->appendPlainText(QString("📁 Dosya Türü: %1").arg(attributes["type_description"].toString()));
+        m_resultTextEdit->appendPlainText(QString("📁 File Type: %1").arg(attributes["type_description"].toString()));
     }
     if (attributes.contains("size") && !attributes["size"].isNull()) {
         double sizeInMB = attributes["size"].toDouble() / (1024 * 1024);
-        m_resultTextEdit->appendPlainText(QString("💾 Boyut: %1 MB").arg(sizeInMB, 0, 'f', 2));
+        m_resultTextEdit->appendPlainText(QString("💾 Size: %1 MB").arg(sizeInMB, 0, 'f', 2));
     }
 
-    // Topluluk Değerlendirmesi
+    // Community Assessment
     if (attributes.contains("total_votes") && !attributes["total_votes"].isNull()) {
         QJsonObject votes = attributes["total_votes"].toObject();
         int harmlessVotes = votes.contains("harmless") ? votes["harmless"].toInt() : 0;
         int maliciousVotes = votes.contains("malicious") ? votes["malicious"].toInt() : 0;
         
         if (harmlessVotes > 0 || maliciousVotes > 0) {
-            m_resultTextEdit->appendPlainText("\n👥 TOPLULUK YORUMLARI");
+            m_resultTextEdit->appendPlainText("\n👥 COMMUNITY COMMENTS");
             m_resultTextEdit->appendPlainText("------------------");
-            m_resultTextEdit->appendPlainText(QString("👍 %1 kullanıcı bu dosyanın güvenli olduğunu düşünüyor").arg(harmlessVotes));
-            m_resultTextEdit->appendPlainText(QString("👎 %1 kullanıcı bu dosyanın zararlı olduğunu düşünüyor").arg(maliciousVotes));
+            m_resultTextEdit->appendPlainText(QString("👍 %1 users think this file is safe").arg(harmlessVotes));
+            m_resultTextEdit->appendPlainText(QString("👎 %1 users think this file is malicious").arg(maliciousVotes));
         }
     }
 
-    // Öneriler
-    m_resultTextEdit->appendPlainText("\n💡 ÖNERİLER");
+    // Recommendations
+    m_resultTextEdit->appendPlainText("\n💡 RECOMMENDATIONS");
     m_resultTextEdit->appendPlainText("------------------");
+
+    // General Assessment - Safety check
     if (attributes.contains("stats") && !attributes["stats"].isNull()) {
         QJsonObject stats = attributes["stats"].toObject();
         int malicious = stats.contains("malicious") ? stats["malicious"].toInt() : 0;
         int suspicious = stats.contains("suspicious") ? stats["suspicious"].toInt() : 0;
         
+        // Security status
         if (malicious > 0) {
-            m_resultTextEdit->appendPlainText("❗ Bu dosyayı çalıştırmanız önerilmez!");
-            m_resultTextEdit->appendPlainText("❗ Dosyayı hemen silin veya karantinaya alın.");
-            m_resultTextEdit->appendPlainText("❗ Sisteminizi tam taramadan geçirin.");
+            m_resultTextEdit->appendPlainText("⛔ DANGER STATUS");
+            m_resultTextEdit->appendPlainText("------------------");
+            m_resultTextEdit->appendPlainText("This file may contain malware!");
+            m_resultTextEdit->appendPlainText(QString("🔴 %1 antivirus programs detected this file as malicious.").arg(malicious));
+            
+            if (suspicious > 0) {
+                m_resultTextEdit->appendPlainText(QString("🟠 %1 antivirus programs found this file suspicious.").arg(suspicious));
+            }
+            
+            m_resultTextEdit->appendPlainText("❌ We recommend NOT using this file.");
+            m_resultTextEdit->appendPlainText("❌ Delete or quarantine this file immediately.");
         } else if (suspicious > 0) {
-            m_resultTextEdit->appendPlainText("⚠️ Bu dosyayı güvenilir bir kaynaktan aldıysanız kullanabilirsiniz.");
-            m_resultTextEdit->appendPlainText("⚠️ Emin değilseniz, dosyayı çalıştırmadan önce bir güvenlik uzmanına danışın.");
+            m_resultTextEdit->appendPlainText("⚠️ CAUTION STATUS");
+            m_resultTextEdit->appendPlainText("------------------");
+            m_resultTextEdit->appendPlainText("This file is flagged as suspicious!");
+            m_resultTextEdit->appendPlainText(QString("🟠 %1 antivirus programs found this file suspicious.").arg(suspicious));
+            m_resultTextEdit->appendPlainText("⚠️ If you obtained this file from a trusted source, you may use it.");
+            m_resultTextEdit->appendPlainText("⚠️ If you're not sure, consult a security expert before executing the file.");
         } else {
-            m_resultTextEdit->appendPlainText("✅ Bu dosyayı güvenle kullanabilirsiniz.");
-            m_resultTextEdit->appendPlainText("💡 Yine de her zaman güncel bir antivirüs kullanmanızı öneririz.");
+            m_resultTextEdit->appendPlainText("✅ You can use this file safely.");
+            m_resultTextEdit->appendPlainText("💡 We still recommend using an up-to-date antivirus.");
         }
     }
 }
@@ -169,40 +157,40 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
     if (!m_detailedResultTextEdit) return;
     m_detailedResultTextEdit->clear();
     
-    // Null kontrol
+    // Null check
     if (response.isEmpty()) {
-        m_detailedResultTextEdit->appendPlainText("❌ API yanıtı boş veya geçersiz.");
+        m_detailedResultTextEdit->appendPlainText("❌ Error: API response is empty or invalid.");
         return;
     }
 
-    // Data nesnesini kontrol et
+    // Check data object
     if (!response.contains("data") || response["data"].isNull()) {
-        m_detailedResultTextEdit->appendPlainText("❌ Üzgünüz, detaylı dosya tarama sonuçları alınamadı.");
+        m_detailedResultTextEdit->appendPlainText("❌ Sorry, detailed file scan results could not be retrieved.");
         return;
     }
 
     QJsonObject data = response["data"].toObject();
     QString dataType = data.contains("type") ? data["type"].toString() : "";
     
-    // Başlık ve genel bilgiler
-    m_detailedResultTextEdit->appendPlainText("=============== DETAYLI ANALİZ RAPORU ================\n");
+    // Header and general information
+    m_detailedResultTextEdit->appendPlainText("=============== DETAILED ANALYSIS REPORT ================\n");
     
-    // Attributes nesnesini kontrol et
+    // Check attributes object
     if (!data.contains("attributes") || data["attributes"].isNull()) {
-        m_detailedResultTextEdit->appendPlainText("❌ Detaylı dosya analiz sonuçları bulunamadı.");
+        m_detailedResultTextEdit->appendPlainText("❌ Detailed file analysis results not found.");
         return;
     }
 
     QJsonObject attributes = data["attributes"].toObject();
     
-    // İlk analiz ID'sini ekle
+    // Add first analysis ID
     QString analysisId = data["id"].toString();
     if (!analysisId.isEmpty()) {
-        m_detailedResultTextEdit->appendPlainText(QString("🔍 Analiz ID: %1").arg(analysisId));
+        m_detailedResultTextEdit->appendPlainText(QString("🔍 Analysis ID: %1").arg(analysisId));
         m_detailedResultTextEdit->appendPlainText("==================================\n");
     }
     
-    // META - Dosya Bilgileri
+    // META - File Information
     // File info from meta section (available in both analysis and file responses)
     QJsonObject fileInfo;
     if (response.contains("meta") && response["meta"].toObject().contains("file_info")) {
@@ -212,7 +200,7 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
     }
     
     if (!fileInfo.isEmpty()) {
-        m_detailedResultTextEdit->appendPlainText("📄 DOSYA BİLGİLERİ");
+        m_detailedResultTextEdit->appendPlainText("📄 FILE INFORMATION");
         m_detailedResultTextEdit->appendPlainText("==================================");
         
         if (fileInfo.contains("sha256"))
@@ -222,66 +210,66 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
         if (fileInfo.contains("md5"))
             m_detailedResultTextEdit->appendPlainText(QString("🔒 MD5: %1").arg(fileInfo["md5"].toString()));
         if (fileInfo.contains("size"))
-            m_detailedResultTextEdit->appendPlainText(QString("💾 Boyut: %1 byte").arg(fileInfo["size"].toInt()));
+            m_detailedResultTextEdit->appendPlainText(QString("💾 Size: %1 bytes").arg(fileInfo["size"].toInt()));
         
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    // Tarama Durumu
+    // Scan Status
     if (attributes.contains("status")) {
         QString status = attributes["status"].toString();
-        m_detailedResultTextEdit->appendPlainText("🔄 TARAMA DURUMU");
+        m_detailedResultTextEdit->appendPlainText("🔄 SCAN STATUS");
         m_detailedResultTextEdit->appendPlainText("==================================");
         
         if (status == "completed") {
-            m_detailedResultTextEdit->appendPlainText("✅ Tarama tamamlandı");
+            m_detailedResultTextEdit->appendPlainText("✅ Scan completed");
         } else if (status == "queued") {
-            m_detailedResultTextEdit->appendPlainText("⏳ Tarama sıraya alındı - sonuçlar henüz hazır değil");
-            m_detailedResultTextEdit->appendPlainText("Sistem tarama sırasını bekliyor...");
+            m_detailedResultTextEdit->appendPlainText("⏳ Scan queued - results not ready yet");
+            m_detailedResultTextEdit->appendPlainText("System is waiting for scan queue...");
         } else if (status == "in-progress") {
-            m_detailedResultTextEdit->appendPlainText("🔄 Tarama devam ediyor - lütfen bekleyin");
-            m_detailedResultTextEdit->appendPlainText("Tarama motorları dosyayı analiz ediyor...");
+            m_detailedResultTextEdit->appendPlainText("🔄 Scan in progress - please wait");
+            m_detailedResultTextEdit->appendPlainText("Scanning engines are analyzing the file...");
         } else {
-            m_detailedResultTextEdit->appendPlainText(QString("ℹ️ Tarama durumu: %1").arg(status));
+            m_detailedResultTextEdit->appendPlainText(QString("ℹ️ Scan status: %1").arg(status));
         }
         
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    // Tarih bilgisi
+    // Date information
     if (attributes.contains("date")) {
         QDateTime analysisDate = QDateTime::fromSecsSinceEpoch(attributes["date"].toInt());
-        m_detailedResultTextEdit->appendPlainText(QString("📅 Analiz Tarihi: %1").arg(
+        m_detailedResultTextEdit->appendPlainText(QString("📅 Analysis Date: %1").arg(
             analysisDate.toString("yyyy-MM-dd hh:mm:ss")
         ));
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    // Genel tarama istatistikleri
+    // General scan statistics
     if (attributes.contains("stats") && !attributes["stats"].isNull()) {
         QJsonObject stats = attributes["stats"].toObject();
         
-        m_detailedResultTextEdit->appendPlainText("📈 TARAMA İSTATİSTİKLERİ");
+        m_detailedResultTextEdit->appendPlainText("📈 SCAN STATISTICS");
         m_detailedResultTextEdit->appendPlainText("==================================");
-        m_detailedResultTextEdit->appendPlainText(QString("✅ Temiz/Zararsız: %1").arg(stats.contains("harmless") ? stats["harmless"].toInt() : 0));
-        m_detailedResultTextEdit->appendPlainText(QString("⚠️ Şüpheli: %1").arg(stats.contains("suspicious") ? stats["suspicious"].toInt() : 0));
-        m_detailedResultTextEdit->appendPlainText(QString("❌ Zararlı: %1").arg(stats.contains("malicious") ? stats["malicious"].toInt() : 0));
-        m_detailedResultTextEdit->appendPlainText(QString("❓ Tespit Edilmemiş: %1").arg(stats.contains("undetected") ? stats["undetected"].toInt() : 0));
-        m_detailedResultTextEdit->appendPlainText(QString("⏱️ Zaman Aşımı: %1").arg(stats.contains("timeout") ? stats["timeout"].toInt() : 0));
-        m_detailedResultTextEdit->appendPlainText(QString("❌ Başarısız: %1").arg(stats.contains("failure") ? stats["failure"].toInt() : 0));
+        m_detailedResultTextEdit->appendPlainText(QString("✅ Clean/Harmless: %1").arg(stats.contains("harmless") ? stats["harmless"].toInt() : 0));
+        m_detailedResultTextEdit->appendPlainText(QString("⚠️ Suspicious: %1").arg(stats.contains("suspicious") ? stats["suspicious"].toInt() : 0));
+        m_detailedResultTextEdit->appendPlainText(QString("❌ Malicious: %1").arg(stats.contains("malicious") ? stats["malicious"].toInt() : 0));
+        m_detailedResultTextEdit->appendPlainText(QString("❓ Undetected: %1").arg(stats.contains("undetected") ? stats["undetected"].toInt() : 0));
+        m_detailedResultTextEdit->appendPlainText(QString("⏱️ Timeout: %1").arg(stats.contains("timeout") ? stats["timeout"].toInt() : 0));
+        m_detailedResultTextEdit->appendPlainText(QString("❌ Failure: %1").arg(stats.contains("failure") ? stats["failure"].toInt() : 0));
         
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    // Detaylı AV motorları sonuçları (Analysis objelerinde)
+    // Detailed AV engine results (in Analysis objects)
     if (attributes.contains("results") && !attributes["results"].toObject().isEmpty()) {
         QJsonObject results = attributes["results"].toObject();
         
-        m_detailedResultTextEdit->appendPlainText("🔍 DETAYLI ANTİVİRÜS SONUÇLARI");
+        m_detailedResultTextEdit->appendPlainText("🔍 DETAILED ANTIVIRUS RESULTS");
         m_detailedResultTextEdit->appendPlainText("==================================");
         
         QStringList avNames = results.keys();
-        std::sort(avNames.begin(), avNames.end()); // Alfabetik sırala
+        std::sort(avNames.begin(), avNames.end()); // Alphabetical sorting
         
         int positiveCount = 0;
         for (const QString &avName : avNames) {
@@ -292,17 +280,17 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
             
             QString status;
             if (category == "malicious") {
-                status = "❌ ZARARLI";
+                status = "❌ MALICIOUS";
                 positiveCount++;
             } else if (category == "suspicious") {
-                status = "⚠️ ŞÜPHELİ";
+                status = "⚠️ SUSPICIOUS";
                 positiveCount++;
             } else if (category == "harmless") {
-                status = "✅ TEMİZ";
+                status = "✅ CLEAN";
             } else if (category == "undetected") {
-                status = "🟢 TEMİZ";
+                status = "🟢 CLEAN";
             } else {
-                status = "❓ BELİRSİZ";
+                status = "❓ UNKNOWN";
             }
             
             QString resultLine = QString("%1 %2").arg(avName, status);
@@ -318,20 +306,20 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
         
         if (!avNames.isEmpty()) {
             double detection_rate = (double)positiveCount / avNames.size() * 100.0;
-            m_detailedResultTextEdit->appendPlainText(QString("\nTespit Oranı: %1/%2 (%3%)").arg(positiveCount).arg(avNames.size()).arg(detection_rate, 0, 'f', 1));
+            m_detailedResultTextEdit->appendPlainText(QString("\nDetection Rate: %1/%2 (%3%)").arg(positiveCount).arg(avNames.size()).arg(detection_rate, 0, 'f', 1));
         }
         
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    // Detaylı AV motorları sonuçları (File objelerinde)
+    // Detailed AV engine results (in File objects)
     else if (dataType == "file" && attributes.contains("last_analysis_results") && !attributes["last_analysis_results"].toObject().isEmpty()) {
         QJsonObject avResults = attributes["last_analysis_results"].toObject();
-        m_detailedResultTextEdit->appendPlainText("🔍 DETAYLI ANTİVİRÜS SONUÇLARI");
+        m_detailedResultTextEdit->appendPlainText("🔍 DETAILED ANTIVIRUS RESULTS");
         m_detailedResultTextEdit->appendPlainText("==================================");
         
         QStringList avNames = avResults.keys();
-        std::sort(avNames.begin(), avNames.end());  // Alfabetik sırala
+        std::sort(avNames.begin(), avNames.end());  // Alphabetical sorting
         
         int positiveCount = 0;
         for (const QString &avName : avNames) {
@@ -342,15 +330,15 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
             
             QString statusIcon;
             if (category == "malicious") {
-                statusIcon = "❌ ZARARLI";
+                statusIcon = "❌ MALICIOUS";
                 positiveCount++;
             } else if (category == "suspicious") {
-                statusIcon = "⚠️ ŞÜPHELİ";
+                statusIcon = "⚠️ SUSPICIOUS";
                 positiveCount++;
             } else if (category == "undetected" || category == "harmless") {
-                statusIcon = "🟢 TEMİZ";
+                statusIcon = "🟢 CLEAN";
             } else {
-                statusIcon = "⚪ BELİRSİZ";
+                statusIcon = "⚪ UNKNOWN";
             }
             
             QString resultLine = QString("%1: %2").arg(avName, statusIcon);
@@ -366,29 +354,29 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
         
         if (!avNames.isEmpty()) {
             double detection_rate = (double)positiveCount / avNames.size() * 100.0;
-            m_detailedResultTextEdit->appendPlainText(QString("\nTespit Oranı: %1/%2 (%3%)").arg(positiveCount).arg(avNames.size()).arg(detection_rate, 0, 'f', 1));
+            m_detailedResultTextEdit->appendPlainText(QString("\nDetection Rate: %1/%2 (%3%)").arg(positiveCount).arg(avNames.size()).arg(detection_rate, 0, 'f', 1));
         }
         
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    // File tipi ve diğer bilgiler (file response'dan gelen bilgiler)
+    // File type and other info (from file response)
     if (dataType == "file") {
         if (attributes.contains("type_description") && !attributes["type_description"].isNull()) {
-            m_detailedResultTextEdit->appendPlainText(QString("📁 Dosya Türü: %1").arg(attributes["type_description"].toString()));
+            m_detailedResultTextEdit->appendPlainText(QString("📁 File Type: %1").arg(attributes["type_description"].toString()));
             m_detailedResultTextEdit->appendPlainText("");
         }
         
         if (attributes.contains("meaningful_name") && !attributes["meaningful_name"].isNull()) {
-            m_detailedResultTextEdit->appendPlainText(QString("📝 Anlamlı İsim: %1").arg(attributes["meaningful_name"].toString()));
+            m_detailedResultTextEdit->appendPlainText(QString("📝 Meaningful Name: %1").arg(attributes["meaningful_name"].toString()));
             m_detailedResultTextEdit->appendPlainText("");
         }
         
-        // Dosya davranışsal analiz sonuçları (sandbox)
+        // File behavioral analysis results (sandbox)
         if (attributes.contains("sandbox_verdicts") && !attributes["sandbox_verdicts"].isNull()) {
             QJsonObject sandboxResults = attributes["sandbox_verdicts"].toObject();
             
-            m_detailedResultTextEdit->appendPlainText("🧪 DAVRANIŞSAL ANALİZ SONUÇLARI");
+            m_detailedResultTextEdit->appendPlainText("🧪 BEHAVIORAL ANALYSIS RESULTS");
             m_detailedResultTextEdit->appendPlainText("==================================");
             
             QStringList sandboxNames = sandboxResults.keys();
@@ -398,13 +386,13 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
                 QString sandboxVerdict;
                 
                 if (category == "malicious") {
-                    sandboxVerdict = "❌ ZARARLI";
+                    sandboxVerdict = "❌ MALICIOUS";
                 } else if (category == "suspicious") {
-                    sandboxVerdict = "⚠️ ŞÜPHELİ";
+                    sandboxVerdict = "⚠️ SUSPICIOUS";
                 } else if (category == "harmless") {
-                    sandboxVerdict = "✅ TEMİZ";
+                    sandboxVerdict = "✅ CLEAN";
                 } else {
-                    sandboxVerdict = "❓ BELİRSİZ";
+                    sandboxVerdict = "❓ UNKNOWN";
                 }
                 
                 m_detailedResultTextEdit->appendPlainText(QString("%1: %2").arg(sandboxName, sandboxVerdict));
@@ -413,24 +401,24 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
             m_detailedResultTextEdit->appendPlainText("");
         }
         
-        // Topluluk değerlendirmesi
+        // Community assessment
         if (attributes.contains("total_votes") && !attributes["total_votes"].isNull()) {
             QJsonObject votes = attributes["total_votes"].toObject();
             int harmlessVotes = votes.contains("harmless") ? votes["harmless"].toInt() : 0;
             int maliciousVotes = votes.contains("malicious") ? votes["malicious"].toInt() : 0;
             
             if (harmlessVotes > 0 || maliciousVotes > 0) {
-                m_detailedResultTextEdit->appendPlainText("👥 TOPLULUK DEĞERLENDİRMESİ");
+                m_detailedResultTextEdit->appendPlainText("👥 COMMUNITY ASSESSMENT");
                 m_detailedResultTextEdit->appendPlainText("==================================");
-                m_detailedResultTextEdit->appendPlainText(QString("👍 Güvenli Oylar: %1").arg(harmlessVotes));
-                m_detailedResultTextEdit->appendPlainText(QString("👎 Zararlı Oylar: %1").arg(maliciousVotes));
+                m_detailedResultTextEdit->appendPlainText(QString("👍 Safe Votes: %1").arg(harmlessVotes));
+                m_detailedResultTextEdit->appendPlainText(QString("👎 Malicious Votes: %1").arg(maliciousVotes));
                 
                 int totalVotes = harmlessVotes + maliciousVotes;
                 double harmlessPercentage = (double)harmlessVotes / totalVotes * 100.0;
                 double maliciousPercentage = (double)maliciousVotes / totalVotes * 100.0;
                 
-                m_detailedResultTextEdit->appendPlainText(QString("Güvenli Oy Yüzdesi: %1%").arg(harmlessPercentage, 0, 'f', 1));
-                m_detailedResultTextEdit->appendPlainText(QString("Zararlı Oy Yüzdesi: %1%").arg(maliciousPercentage, 0, 'f', 1));
+                m_detailedResultTextEdit->appendPlainText(QString("Safe Vote Percentage: %1%").arg(harmlessPercentage, 0, 'f', 1));
+                m_detailedResultTextEdit->appendPlainText(QString("Malicious Vote Percentage: %1%").arg(maliciousPercentage, 0, 'f', 1));
                 
                 m_detailedResultTextEdit->appendPlainText("");
             }
@@ -442,11 +430,11 @@ void ResultsView::showDetailedResults(const QJsonObject& response)
         QString selfLink = data["links"].toObject()["self"].toString();
         QString vtGuiLink = selfLink.replace("api/v3/", "gui/");
         
-        m_detailedResultTextEdit->appendPlainText("\n🔍 VIRUSTOTAL WEB'DE GÖRÜNTÜLE");
+        m_detailedResultTextEdit->appendPlainText("\n🔍 VIEW ON VIRUSTOTAL WEB");
         m_detailedResultTextEdit->appendPlainText("==================================");
         m_detailedResultTextEdit->appendPlainText(vtGuiLink);
         m_detailedResultTextEdit->appendPlainText("");
     }
     
-    m_detailedResultTextEdit->appendPlainText("\n=============== RAPOR SONU ================");
+    m_detailedResultTextEdit->appendPlainText("\n=============== END OF REPORT ================");
 }

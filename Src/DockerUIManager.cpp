@@ -39,40 +39,35 @@ bool DockerUIManager::isDockerAvailable() const
 
 void DockerUIManager::showContainerDetails()
 {
-    // Docker konteyner detaylarını gösteren bir dialog oluştur
+    // Create a dialog to display Docker container details
     QDialog *containerDialog = new QDialog();
-    containerDialog->setWindowTitle("Docker Konteyner Detayları");
-    containerDialog->setMinimumSize(800, 600); // Boyutu artırıldı
-    containerDialog->resize(1000, 700); // Varsayılan boyutu büyültüldü
+    containerDialog->setWindowTitle("Docker Container Details");
+    containerDialog->setMinimumSize(800, 600); // Increased size
+    containerDialog->resize(1000, 700); // Larger default size
     
     QVBoxLayout *layout = new QVBoxLayout(containerDialog);
     layout->setSpacing(10);
     layout->setContentsMargins(15, 15, 15, 15);
     
-    // Konteyner tablosu
+    // Container table
     QTableWidget *containerTableWidget = new QTableWidget(containerDialog);
     containerTableWidget->setColumnCount(5);
-    containerTableWidget->setHorizontalHeaderLabels(QStringList() << "ID" << "İsim" << "İmaj" << "Durum" << "Portlar");
+    containerTableWidget->setHorizontalHeaderLabels(QStringList() << "ID" << "Name" << "Image" << "Status" << "Ports");
     containerTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     containerTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     containerTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    containerTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     containerTableWidget->setAlternatingRowColors(true);
     containerTableWidget->setStyleSheet(
         "QTableWidget {"
-        "   background-color: #181818;"
-        "   color: #cccccc;"
-        "   border: 1px solid #333333;"
-        "   gridline-color: #333333;"
+        "   background-color: #2d2d30;"
+        "   color: #ffffff;"
+        "   border: 1px solid #3f3f46;"
         "}"
         "QTableWidget::item {"
         "   padding: 5px;"
         "}"
-        "QTableWidget::item:selected {"
-        "   background-color: #2a82da;"
-        "}"
         "QHeaderView::section {"
-        "   background-color: #222222;"
+        "   background-color: #252526;"
         "   color: white;"
         "   font-weight: bold;"
         "   border: 1px solid #333333;"
@@ -82,10 +77,10 @@ void DockerUIManager::showContainerDetails()
     
     layout->addWidget(containerTableWidget);
     
-    // Butonlar
+    // Buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     
-    QPushButton *refreshButton = new QPushButton("Yenile", containerDialog);
+    QPushButton *refreshButton = new QPushButton("Refresh", containerDialog);
     refreshButton->setStyleSheet(
         "QPushButton {"
         "   background-color: #0078d7;"
@@ -99,7 +94,7 @@ void DockerUIManager::showContainerDetails()
         "}"
     );
     
-    QPushButton *closeButton = new QPushButton("Kapat", containerDialog);
+    QPushButton *closeButton = new QPushButton("Close", containerDialog);
     closeButton->setStyleSheet(
         "QPushButton {"
         "   background-color: #e74c3c;"
@@ -119,21 +114,21 @@ void DockerUIManager::showContainerDetails()
     
     layout->addLayout(buttonLayout);
     
-    // İlk konteyner listesini göster
+    // Show first container list
     setTableWidget(containerTableWidget);
     updateContainerList();
     
-    // Buton bağlantıları
+    // Button connections
     QObject::connect(refreshButton, &QPushButton::clicked, this, &DockerUIManager::updateContainerList);
     QObject::connect(closeButton, &QPushButton::clicked, containerDialog, &QDialog::accept);
     
-    // Mevcut Docker durumunu kontrol et - Sadece log ekle, durum bilgisini gösterme (Service Status sayfasına özel)
+    // Check current Docker status - Only add log, don't display status (specific to Service Status page)
     if (m_dockerManager->isDockerAvailable() && m_logTextEdit) {
-        // Docker durumunu log kısmına ekle
-        m_logTextEdit->appendPlainText(QString("\n🔍 %1 | Docker durumu kontrol edildi: Mevcut")
+        // Add Docker status to log section
+        m_logTextEdit->appendPlainText(QString("\n🔍 %1 | Docker status checked: Available")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
     } else if (m_logTextEdit) {
-        m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Docker mevcut değil veya çalışmıyor!")
+        m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Docker is not available or not running!")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
     }
     
@@ -148,7 +143,7 @@ void DockerUIManager::updateContainerList()
     m_containerTableWidget->setRowCount(0);
     
     if (!m_dockerManager->isDockerAvailable()) {
-        QTableWidgetItem *errorItem = new QTableWidgetItem("Docker mevcut değil veya çalışmıyor!");
+        QTableWidgetItem *errorItem = new QTableWidgetItem("Docker is not available or not running!");
         m_containerTableWidget->insertRow(0);
         m_containerTableWidget->setSpan(0, 0, 1, 5);
         m_containerTableWidget->setItem(0, 0, errorItem);
@@ -163,20 +158,20 @@ void DockerUIManager::updateContainerList()
         int row = m_containerTableWidget->rowCount();
         m_containerTableWidget->insertRow(row);
         
-        // Konteyner bilgilerini tabloya ekle
+        // Add container information to the table
         m_containerTableWidget->setItem(row, 0, new QTableWidgetItem(container["id"].toString()));
         m_containerTableWidget->setItem(row, 1, new QTableWidgetItem(container["name"].toString()));
         m_containerTableWidget->setItem(row, 2, new QTableWidgetItem(container["image"].toString()));
         m_containerTableWidget->setItem(row, 3, new QTableWidgetItem(container["status"].toString()));
         m_containerTableWidget->setItem(row, 4, new QTableWidgetItem(container["ports"].toString()));
         
-        // Eğer bu aktif konteynerse (bizim uygulamamızın kullandığı) rengini değiştir
+        // If this is the active container (used by our application), change its color
         if (container["current"].toBool()) {
             for (int col = 0; col < m_containerTableWidget->columnCount(); ++col) {
                 QTableWidgetItem *item = m_containerTableWidget->item(row, col);
                 if (item) {
-                    item->setBackground(QColor(0, 100, 0, 100)); // Koyu yeşil arkaplan
-                    item->setForeground(Qt::white); // Beyaz metin
+                    item->setBackground(QColor(0, 100, 0, 100)); // Dark green background
+                    item->setForeground(Qt::white); // White text
                 }
             }
         }
@@ -185,22 +180,22 @@ void DockerUIManager::updateContainerList()
 
 QJsonArray DockerUIManager::getDockerContainers()
 {
-    // DockerManager sınıfı üzerinden konteynerleri listele
+    // List containers through the DockerManager class
     if (!m_dockerManager || !m_dockerManager->isDockerAvailable()) {
-        return QJsonArray(); // Docker çalışmıyorsa boş liste döndür
+        return QJsonArray(); // Return empty list if Docker is not running
     }
     
-    return m_dockerManager->listContainers(true); // Tüm konteynerleri listele (çalışan ve durmuş)
+    return m_dockerManager->listContainers(true); // List all containers (running and stopped)
 }
 
 QJsonArray DockerUIManager::getDockerImages()
 {
-    // DockerManager sınıfı üzerinden imajları listele
+    // List images through the DockerManager class
     if (!m_dockerManager || !m_dockerManager->isDockerAvailable()) {
-        return QJsonArray(); // Docker çalışmıyorsa boş liste döndür
+        return QJsonArray(); // Return empty list if Docker is not running
     }
     
-    // DockerManager'dan imaj listesini al
+    // Get image list from DockerManager
     QProcess dockerProcess;
     dockerProcess.start("docker", QStringList() << "images" << "--format" << "{{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}");
     dockerProcess.waitForFinished();

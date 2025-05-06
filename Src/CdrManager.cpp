@@ -9,10 +9,10 @@
 
 CdrManager::CdrManager(QObject *parent) : QObject(parent) {
     dockerManager = new DockerManager(this);
-    cdrImageName = ""; // Boş başlatılıyor, kullanıcı seçecek
+    cdrImageName = ""; // Initialized empty, user will select
     outputDir = QDir::tempPath() + "/cdr_output";
     
-    // Çıktı dizininin var olduğundan emin olalım
+    // Make sure the output directory exists
     QDir().mkpath(outputDir);
 }
 
@@ -26,7 +26,7 @@ bool CdrManager::initialize() {
         return false;
     }
     
-    // İmaj seçilmemişse CDR başlatılamaz
+    // CDR cannot be initialized if image not selected
     if (cdrImageName.isEmpty()) {
         qDebug() << "CDR image not selected, please choose an image first";
         return false;
@@ -34,7 +34,7 @@ bool CdrManager::initialize() {
     
     qDebug() << "Initializing CDR manager with image:" << cdrImageName;
     
-    // Geçici dizini oluştur
+    // Create temporary directory
     outputDir = QDir::tempPath() + "/cdr_output";
     QDir().mkpath(outputDir);
     
@@ -59,19 +59,19 @@ QString CdrManager::getCurrentImageName() const {
 }
 
 QStringList CdrManager::getAvailableCdrImages() const {
-    // Önerilen CDR imajları listesi - bu imajlar gerçek dünyada test edilmeli
+    // List of recommended CDR images - these images should be tested in real-world scenarios
     QStringList images;
-    images << "dannybeckett/disarm:latest"         // DisARM CDR aracı
-          << "opendxl/opendxl-file-transfer-service:latest"  // OpenDXL dosya transfer servisi
-          << "mintplaintext/pdf-redact-tools:latest" // PDF Redaction araçları
-          << "pdfcpu/pdfcpu:latest"                // PDF işleme aracı
-          << "custom/cdr:latest";                  // Örnek özel imaj
+    images << "dannybeckett/disarm:latest"         // DisARM CDR tool
+          << "opendxl/opendxl-file-transfer-service:latest"  // OpenDXL file transfer service
+          << "mintplaintext/pdf-redact-tools:latest" // PDF Redaction tools
+          << "pdfcpu/pdfcpu:latest"                // PDF processing tool
+          << "custom/cdr:latest";                  // Example custom image
     
     return images;
 }
 
 bool CdrManager::processFile(const QString& filePath) {
-    // İmaj seçilmemişse işlem yapılamaz
+    // Image not selected, cannot process
     if (cdrImageName.isEmpty()) {
         qDebug() << "CDR image not selected, please choose an image first";
         return false;
@@ -83,16 +83,16 @@ bool CdrManager::processFile(const QString& filePath) {
         return false;
     }
     
-    // Container adını ve özellikleri yapılandıralım
+    // Configure container name and properties
     QString containerConfig = "name=cdr_container,image=" + cdrImageName;
     
-    // Container'ı başlatalım
+    // Start the container
     if (!dockerManager->startContainer(containerConfig)) {
         qDebug() << "Failed to start CDR container";
         return false;
     }
     
-    // Dosyayı container'a kopyalayalım
+    // Copy the file to the container
     QString containerPath = "/input/" + fileInfo.fileName();
     if (!dockerManager->copyFileToContainer(filePath, containerPath)) {
         qDebug() << "Failed to copy file to container";
@@ -100,24 +100,24 @@ bool CdrManager::processFile(const QString& filePath) {
         return false;
     }
     
-    // CDR işlemini çalıştıralım - disarm imajı için uygun komut
+    // Run the CDR process - appropriate command for disarm image
     QString command = "disarm sanitize " + containerPath + " --output /output/";
     QString result = dockerManager->executeCommand(command);
     
     qDebug() << "CDR process result: " << result;
     
-    // İşlenen dosyanın adını oluştur
+    // Generate the name for the processed file
     QString outputFileName = generateOutputFilename(filePath);
     
-    // İşlenen dosyayı container'dan kopyalayalım
-    // disarm genellikle dosyayı container içinde /output/ dizinine kaydeder
+    // Copy the processed file from the container
+    // disarm usually saves the file in the /output/ directory inside the container
     QString containerOutputPath = "/output/" + fileInfo.fileName() + "_sanitized";
     QString localOutputPath = outputDir + "/" + outputFileName;
     
     if (!dockerManager->copyFileFromContainer(containerOutputPath, localOutputPath)) {
         qDebug() << "Failed to copy processed file from container, trying alternative path";
         
-        // Alternatif bir dosya yolu deneyelim
+        // Try an alternative file path
         containerOutputPath = "/output/" + fileInfo.fileName();
         
         if (!dockerManager->copyFileFromContainer(containerOutputPath, localOutputPath)) {
@@ -127,7 +127,7 @@ bool CdrManager::processFile(const QString& filePath) {
         }
     }
     
-    // Container'ı durdur
+    // Stop the container
     dockerManager->stopContainer();
     
     qDebug() << "File processed successfully: " << localOutputPath;
@@ -145,7 +145,7 @@ QString CdrManager::generateOutputFilename(const QString& inputFilePath) {
     QString suffix = fileInfo.suffix();
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
     
-    // Temiz dosya adını oluşturalım
+    // Generate the cleaned file name
     return baseName + "_cleaned_" + timestamp + "." + suffix;
 }
 

@@ -34,17 +34,17 @@ ScanManager::ScanManager(QObject *parent)
     // YARA başlatma ve kuralları yükleme
     std::error_code error = m_yaraManager->initialize();
     if (error) {
-        qDebug() << "YARA başlatma hatası:" << QString::fromStdString(error.message());
+        qDebug() << "YARA initialization error:" << QString::fromStdString(error.message());
     } else {
-        qDebug() << "YARA başarıyla başlatıldı.";
+        qDebug() << "YARA successfully initialized.";
         
         // Kuralları yükle
         QString rulePath = QCoreApplication::applicationDirPath() + "/Rules/test.yar";
         error = m_yaraManager->loadRules(rulePath.toStdString());
         if (error) {
-            qDebug() << "YARA kuralları yüklenirken hata oluştu:" << QString::fromStdString(error.message());
+            qDebug() << "Error loading YARA rules:" << QString::fromStdString(error.message());
         } else {
-            qDebug() << "YARA kuralları başarıyla yüklendi.";
+            qDebug() << "YARA rules successfully loaded.";
         }
     }
 }
@@ -92,8 +92,8 @@ void ScanManager::performOfflineScan(const QString& filePath)
         // YARA başlatma ve kuralları yükleme
         std::error_code error = m_yaraManager->initialize();
         if (error) {
-            m_resultTextEdit->appendPlainText(tr("❌ YARA başlatma hatası: %1").arg(QString::fromStdString(error.message())));
-            m_statusBar->showMessage(tr("Tarama başarısız: YARA başlatılamadı"));
+            m_resultTextEdit->appendPlainText(tr("❌ YARA initialization error: %1").arg(QString::fromStdString(error.message())));
+            m_statusBar->showMessage(tr("Scan failed: YARA could not be initialized"));
             return;
         }
         
@@ -101,30 +101,30 @@ void ScanManager::performOfflineScan(const QString& filePath)
         QString rulePath = QCoreApplication::applicationDirPath() + "/Rules/test.yar";
         error = m_yaraManager->loadRules(rulePath.toStdString());
         if (error) {
-            m_resultTextEdit->appendPlainText(tr("❌ YARA kuralları yüklenirken hata oluştu: %1").arg(QString::fromStdString(error.message())));
-            m_statusBar->showMessage(tr("Tarama başarısız: YARA kuralları yüklenemedi"));
+            m_resultTextEdit->appendPlainText(tr("❌ Error loading YARA rules: %1").arg(QString::fromStdString(error.message())));
+            m_statusBar->showMessage(tr("Scan failed: YARA rules could not be loaded"));
             return;
         }
     }
     
     // Durum mesajını güncelle
-    m_statusBar->showMessage(tr("Dosya taranıyor: %1").arg(filePath));
+    m_statusBar->showMessage(tr("Scanning file: %1").arg(filePath));
     
     // Log'a ekle
-    m_logTextEdit->appendPlainText(QString("\n🔍 %1 | Dosya taranıyor: %2")
+    m_logTextEdit->appendPlainText(QString("\n🔍 %1 | Scanning file: %2")
         .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
         .arg(filePath));
     
     // Sonuç alanını temizle ve ilk bilgiyi göster
     m_resultTextEdit->clear();
-    m_resultTextEdit->appendPlainText(tr("Dosya taranıyor: %1\n").arg(filePath));
-    m_resultTextEdit->appendPlainText(tr("Offline tarama için YARA kuralları kullanılıyor...\n"));
+    m_resultTextEdit->appendPlainText(tr("Scanning file: %1\n").arg(filePath));
+    m_resultTextEdit->appendPlainText(tr("Using YARA rules for offline scanning...\n"));
     
     // Dosya var mı kontrol et
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || !fileInfo.isFile() || !fileInfo.isReadable()) {
-        m_resultTextEdit->appendPlainText(tr("❌ Dosya bulunamadı veya okunamıyor: %1").arg(filePath));
-        m_statusBar->showMessage(tr("Tarama başarısız: Dosya bulunamadı"));
+        m_resultTextEdit->appendPlainText(tr("❌ File not found or unreadable: %1").arg(filePath));
+        m_statusBar->showMessage(tr("Scan failed: File not found"));
         return;
     }
     
@@ -140,37 +140,37 @@ void ScanManager::performOfflineScan(const QString& filePath)
         }
         
         if (error) {
-            m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında hata oluştu: %1").arg(QString::fromStdString(error.message())));
+            m_resultTextEdit->appendPlainText(tr("❌ Error occurred during scanning: %1").arg(QString::fromStdString(error.message())));
         } else if (matches.isEmpty()) {
-            m_resultTextEdit->appendPlainText(tr("✅ Dosyada hiçbir tehdit tespit edilmedi."));
+            m_resultTextEdit->appendPlainText(tr("✅ No threats detected in the file."));
         } else {
-            m_resultTextEdit->appendPlainText(tr("⚠️ Dosyada potansiyel tehditler tespit edildi!\n"));
-            m_resultTextEdit->appendPlainText(tr("Eşleşen YARA kuralları:"));
+            m_resultTextEdit->appendPlainText(tr("⚠️ Potential threats detected in the file!\n"));
+            m_resultTextEdit->appendPlainText(tr("Matching YARA rules:"));
             
             for (const QString &match : matches) {
                 m_resultTextEdit->appendPlainText(tr("- %1").arg(match));
             }
             
-            m_resultTextEdit->appendPlainText(tr("\n⚠️ Bu dosya zararlı olabilir. Dikkatli olun!"));
+            m_resultTextEdit->appendPlainText(tr("\n⚠️ This file may be harmful. Proceed with caution!"));
         }
         
         // İsteğe bağlı olarak, daha fazla analiz için VirusTotal'e yönlendirebiliriz
         if (!matches.isEmpty()) {
-            m_resultTextEdit->appendPlainText(tr("\nDaha detaylı analiz için 'VirusTotal Tarama' özelliğini kullanabilirsiniz."));
+            m_resultTextEdit->appendPlainText(tr("\nFor more detailed analysis, you can use the 'VirusTotal Scan' feature."));
         }
     } catch (const std::exception& e) {
-        m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında beklenmeyen bir hata oluştu: %1").arg(e.what()));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Tarama hatası: %2")
+        m_resultTextEdit->appendPlainText(tr("❌ Unexpected error occurred during scanning: %1").arg(e.what()));
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Scan error: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(e.what()));
     } catch (...) {
-        m_resultTextEdit->appendPlainText(tr("❌ Tarama sırasında bilinmeyen bir hata oluştu."));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Tarama hatası: Bilinmeyen hata")
+        m_resultTextEdit->appendPlainText(tr("❌ Unknown error occurred during scanning."));
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Scan error: Unknown error")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
     }
     
     // Durum çubuğunu güncelle
-    m_statusBar->showMessage(tr("Tarama tamamlandı"));
+    m_statusBar->showMessage(tr("Scan completed"));
 }
 
 void ScanManager::performOnlineScan(const QString& filePath)
@@ -180,27 +180,27 @@ void ScanManager::performOnlineScan(const QString& filePath)
     
     // API Key kontrolü
     if (m_apiManager->getApiKey().isEmpty()) {
-        m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | API anahtarı bulunamadı")
+        m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | API key not found")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
-        QMessageBox::warning(nullptr, tr("API Key Gerekli"), 
-                           tr("VirusTotal taraması için API anahtarı gerekli.\n"
-                              "Lütfen önce 'API Key Ayarla' seçeneğini kullanın."));
+        QMessageBox::warning(nullptr, tr("API Key Required"), 
+                           tr("VirusTotal scan requires an API key.\n"
+                              "Please use the 'Set API Key' option first."));
         return;
     }
     
     // Durum mesajını güncelle
-    m_statusBar->showMessage(tr("Dosya VirusTotal'e gönderiliyor: %1").arg(filePath));
+    m_statusBar->showMessage(tr("Sending file to VirusTotal: %1").arg(filePath));
     
     // API isteğinden önce temizle ve bilgi mesajı göster
     m_resultTextEdit->clear();
-    m_resultTextEdit->appendPlainText(tr("Dosya VirusTotal'e gönderiliyor: %1").arg(filePath));
-    m_resultTextEdit->appendPlainText(tr("Bu işlem dosya boyutuna bağlı olarak biraz zaman alabilir..."));
+    m_resultTextEdit->appendPlainText(tr("Sending file to VirusTotal: %1").arg(filePath));
+    m_resultTextEdit->appendPlainText(tr("This process may take some time depending on the file size..."));
     
     // Dosya içeriğini okumalı ve multipart form olarak göndermeli
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        m_resultTextEdit->appendPlainText(tr("\n❌ Dosya açılamadı: %1").arg(filePath));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Dosya açılamadı: %2")
+        m_resultTextEdit->appendPlainText(tr("\n❌ File could not be opened: %1").arg(filePath));
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | File could not be opened: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(filePath));
         return;
@@ -211,7 +211,7 @@ void ScanManager::performOnlineScan(const QString& filePath)
     file.close();
     
     if (fileData.isEmpty()) {
-        m_resultTextEdit->appendPlainText(tr("\n❌ Dosya boş: %1").arg(filePath));
+        m_resultTextEdit->appendPlainText(tr("\n❌ File is empty: %1").arg(filePath));
         return;
     }
     
@@ -222,7 +222,7 @@ void ScanManager::performOnlineScan(const QString& filePath)
     // VirusTotal'e dosyayı gönder
     m_apiManager->uploadFileToVirusTotal(filePath, fileName, fileData);
     
-    m_logTextEdit->appendPlainText(QString("\n📤 %1 | VirusTotal'e dosya gönderiliyor: %2")
+    m_logTextEdit->appendPlainText(QString("\n📤 %1 | Sending file to VirusTotal: %2")
         .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
         .arg(filePath));
 }
@@ -232,7 +232,7 @@ bool ScanManager::performCdrScan(const QString& filePath) {
         qDebug() << "CDR manager is not initialized";
         if (m_resultTextEdit) {
             m_resultTextEdit->clear();
-            m_resultTextEdit->appendPlainText("⚠️ CDR yöneticisi başlatılamadı! Docker kurulumu kontrol edilmeli.");
+            m_resultTextEdit->appendPlainText("⚠️ CDR manager could not be initialized! Docker setup should be checked.");
         }
         return false;
     }
@@ -241,15 +241,15 @@ bool ScanManager::performCdrScan(const QString& filePath) {
     if (m_cdrManager->getCurrentImageName().isEmpty()) {
         if (m_resultTextEdit) {
             m_resultTextEdit->clear();
-            m_resultTextEdit->appendPlainText("⚠️ CDR işlemi için Docker imajı seçilmemiş!");
-            m_resultTextEdit->appendPlainText("\nLütfen aşağıdaki imajlardan birini seçin:");
+            m_resultTextEdit->appendPlainText("⚠️ No Docker image selected for CDR operation!");
+            m_resultTextEdit->appendPlainText("\nPlease select one of the following images:");
             
             QStringList availableImages = m_cdrManager->getAvailableCdrImages();
             for (int i = 0; i < availableImages.size(); ++i) {
                 m_resultTextEdit->appendPlainText(QString("  %1. %2").arg(i+1).arg(availableImages[i]));
             }
             
-            m_resultTextEdit->appendPlainText("\nİşlemi tekrar başlatmadan önce Ayarlar > Docker Yapılandırması menüsünden imaj seçimi yapın.");
+            m_resultTextEdit->appendPlainText("\nBefore restarting the operation, select an image from Settings > Docker Configuration menu.");
         }
         
         // Make sure this signal is actually connected to a slot that shows the selection UI
@@ -266,10 +266,10 @@ bool ScanManager::performCdrScan(const QString& filePath) {
     
     if (m_resultTextEdit) {
         m_resultTextEdit->clear();
-        m_resultTextEdit->appendPlainText("🔍 CDR taraması başlatılıyor...");
-        m_resultTextEdit->appendPlainText("📄 Dosya: " + filePath);
-        m_resultTextEdit->appendPlainText("🐳 Docker İmajı: " + m_cdrManager->getCurrentImageName());
-        m_resultTextEdit->appendPlainText("\nİşlem devam ediyor, lütfen bekleyin...\n");
+        m_resultTextEdit->appendPlainText("🔍 Starting CDR scan...");
+        m_resultTextEdit->appendPlainText("📄 File: " + filePath);
+        m_resultTextEdit->appendPlainText("🐳 Docker Image: " + m_cdrManager->getCurrentImageName());
+        m_resultTextEdit->appendPlainText("\nOperation in progress, please wait...\n");
     }
     
     // CDR taraması işlemi
@@ -279,22 +279,22 @@ bool ScanManager::performCdrScan(const QString& filePath) {
         QString cleanedFilePath = m_cdrManager->getCleanedFilePath(filePath);
         
         if (m_resultTextEdit) {
-            m_resultTextEdit->appendPlainText("\n✅ CDR taraması tamamlandı!");
-            m_resultTextEdit->appendPlainText("🔒 Temizlenmiş dosya: " + cleanedFilePath);
+            m_resultTextEdit->appendPlainText("\n✅ CDR scan completed!");
+            m_resultTextEdit->appendPlainText("🔒 Cleaned file: " + cleanedFilePath);
         }
         
         if (m_statusBar) {
-            m_statusBar->showMessage("CDR taraması tamamlandı: " + cleanedFilePath);
+            m_statusBar->showMessage("CDR scan completed: " + cleanedFilePath);
         }
     }
     else {
         if (m_resultTextEdit) {
-            m_resultTextEdit->appendPlainText("\n❌ CDR taraması başarısız oldu!");
-            m_resultTextEdit->appendPlainText("Dosya işlenirken bir hata oluştu.");
+            m_resultTextEdit->appendPlainText("\n❌ CDR scan failed!");
+            m_resultTextEdit->appendPlainText("An error occurred while processing the file.");
         }
         
         if (m_statusBar) {
-            m_statusBar->showMessage("CDR taraması başarısız oldu!");
+            m_statusBar->showMessage("CDR scan failed!");
         }
     }
     
@@ -306,7 +306,7 @@ bool ScanManager::performSandboxScan(const QString& filePath) {
         qDebug() << "Sandbox manager is not initialized";
         if (m_resultTextEdit) {
             m_resultTextEdit->clear();
-            m_resultTextEdit->appendPlainText("⚠️ Sandbox yöneticisi başlatılamadı! Docker kurulumu kontrol edilmeli.");
+            m_resultTextEdit->appendPlainText("⚠️ Sandbox manager could not be initialized! Docker setup should be checked.");
         }
         return false;
     }
@@ -315,15 +315,15 @@ bool ScanManager::performSandboxScan(const QString& filePath) {
     if (m_sandboxManager->getCurrentImageName().isEmpty()) {
         if (m_resultTextEdit) {
             m_resultTextEdit->clear();
-            m_resultTextEdit->appendPlainText("⚠️ Sandbox işlemi için Docker imajı seçilmemiş!");
-            m_resultTextEdit->appendPlainText("\nLütfen aşağıdaki imajlardan birini seçin:");
+            m_resultTextEdit->appendPlainText("⚠️ No Docker image selected for Sandbox operation!");
+            m_resultTextEdit->appendPlainText("\nPlease select one of the following images:");
             
             QStringList availableImages = m_sandboxManager->getAvailableSandboxImages();
             for (int i = 0; i < availableImages.size(); ++i) {
                 m_resultTextEdit->appendPlainText(QString("  %1. %2").arg(i+1).arg(availableImages[i]));
             }
             
-            m_resultTextEdit->appendPlainText("\nİşlemi tekrar başlatmadan önce Ayarlar > Docker Yapılandırması menüsünden imaj seçimi yapın.");
+            m_resultTextEdit->appendPlainText("\nBefore restarting the operation, select an image from Settings > Docker Configuration menu.");
         }
         
         // Make sure this signal is actually connected to a slot that shows the selection UI
@@ -340,10 +340,10 @@ bool ScanManager::performSandboxScan(const QString& filePath) {
     
     if (m_resultTextEdit) {
         m_resultTextEdit->clear();
-        m_resultTextEdit->appendPlainText("🧪 Sandbox analizi başlatılıyor...");
-        m_resultTextEdit->appendPlainText("📄 Dosya: " + filePath);
-        m_resultTextEdit->appendPlainText("🐳 Docker İmajı: " + m_sandboxManager->getCurrentImageName());
-        m_resultTextEdit->appendPlainText("\nAnaliz devam ediyor, lütfen bekleyin...\n");
+        m_resultTextEdit->appendPlainText("🧪 Starting Sandbox analysis...");
+        m_resultTextEdit->appendPlainText("📄 File: " + filePath);
+        m_resultTextEdit->appendPlainText("🐳 Docker Image: " + m_sandboxManager->getCurrentImageName());
+        m_resultTextEdit->appendPlainText("\nAnalysis in progress, please wait...\n");
     }
 
     // Sandbox analizi başlat ve sonuç objesini al
@@ -353,22 +353,22 @@ bool ScanManager::performSandboxScan(const QString& filePath) {
     if (success) {
         QJsonObject results = m_sandboxManager->getAnalysisResults();
         QString analysisResultJson = QString::fromUtf8(QJsonDocument(results).toJson(QJsonDocument::Indented));
-        m_resultTextEdit->appendPlainText(tr("\n✅ Sandbox analizi tamamlandı."));
-        m_resultTextEdit->appendPlainText(tr("\nANALİZ SONUÇLARI:"));
+        m_resultTextEdit->appendPlainText(tr("\n✅ Sandbox analysis completed."));
+        m_resultTextEdit->appendPlainText(tr("\nANALYSIS RESULTS:"));
         m_resultTextEdit->appendPlainText(analysisResultJson);
         
-        m_logTextEdit->appendPlainText(QString("\n✅ %1 | Sandbox analizi tamamlandı: %2")
+        m_logTextEdit->appendPlainText(QString("\n✅ %1 | Sandbox analysis completed: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(filePath));
     } else {
-        m_resultTextEdit->appendPlainText(tr("\n❌ Sandbox analizi başarısız oldu."));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Sandbox analizi başarısız: %2")
+        m_resultTextEdit->appendPlainText(tr("\n❌ Sandbox analysis failed."));
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Sandbox analysis failed: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(filePath));
     }
     
     // Durum çubuğunu güncelle
-    m_statusBar->showMessage(tr("Sandbox analizi tamamlandı"));
+    m_statusBar->showMessage(tr("Sandbox analysis completed"));
     
     return success;
 }
@@ -404,7 +404,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                         m_refreshAttempts = 0;
                         
                         if (m_logTextEdit) {
-                            m_logTextEdit->appendPlainText(QString("\n⏳ %1 | Analiz %2 durumunda, otomatik yenileme başlatıldı: %3")
+                            m_logTextEdit->appendPlainText(QString("\n⏳ %1 | Analysis in %2 status, auto-refresh started: %3")
                                 .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                 .arg(status)
                                 .arg(analysisId));
@@ -416,19 +416,19 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                         if (!status.isEmpty()) {
                             // Only update the UI if the number of attempts is within limits or at milestone attempts
                             if (m_refreshAttempts == 0 || m_refreshAttempts % 3 == 0 || m_refreshAttempts == MAX_REFRESH_ATTEMPTS - 1) {
-                                m_resultTextEdit->appendPlainText(tr("\n⏳ Analiz durumu: %1 (Deneme %2/%3)")
+                                m_resultTextEdit->appendPlainText(tr("\n⏳ Analysis status: %1 (Attempt %2/%3)")
                                     .arg(status)
                                     .arg(m_refreshAttempts + 1)
                                     .arg(MAX_REFRESH_ATTEMPTS));
-                                m_resultTextEdit->appendPlainText(tr("Sonuçlar henüz hazır değil. Otomatik olarak yenilenecek..."));
+                                m_resultTextEdit->appendPlainText(tr("Results are not ready yet. Will refresh automatically..."));
                             }
                             
                             // Check if we've reached the maximum number of attempts
                             if (m_refreshAttempts >= MAX_REFRESH_ATTEMPTS - 1) {
                                 // Stop the timer to prevent further attempts
                                 m_refreshTimer->stop();
-                                m_resultTextEdit->appendPlainText(tr("\n⚠️ Analiz sonuçları için maksimum bekleme süresi aşıldı."));
-                                m_resultTextEdit->appendPlainText(tr("Analiz hala devam ediyor olabilir. Daha sonra tekrar deneyebilir veya aşağıdaki bağlantıyı kullanabilirsiniz:"));
+                                m_resultTextEdit->appendPlainText(tr("\n⚠️ Maximum wait time exceeded for analysis results."));
+                                m_resultTextEdit->appendPlainText(tr("Analysis may still be ongoing. You can try again later or use the link below:"));
                                 
                                 // Add link to VirusTotal
                                 if (data.contains("links") && data["links"].toObject().contains("self")) {
@@ -441,7 +441,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                                 
                                 // Log the maximum attempts reached
                                 if (m_logTextEdit) {
-                                    m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Maksimum bekleme süresi aşıldı (%2 deneme), analiz sonuçları alınamadı")
+                                    m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Maximum wait time exceeded (%2 attempts), analysis results not obtained")
                                         .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                         .arg(MAX_REFRESH_ATTEMPTS));
                                 }
@@ -451,7 +451,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                                 m_refreshAttempts = 0;
                             }
                             
-                            m_statusBar->showMessage(tr("VirusTotal analizi devam ediyor (%1)...").arg(status));
+                            m_statusBar->showMessage(tr("VirusTotal analysis ongoing (%1)...").arg(status));
                         }
                     }
                 } 
@@ -462,7 +462,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                         m_refreshAttempts = 0;
                         
                         if (m_logTextEdit) {
-                            m_logTextEdit->appendPlainText(QString("\n✅ %1 | Analiz tamamlandı, otomatik yenileme durduruldu: %2")
+                            m_logTextEdit->appendPlainText(QString("\n✅ %1 | Analysis completed, auto-refresh stopped: %2")
                                 .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                 .arg(analysisId));
                         }
@@ -480,37 +480,37 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                         
                         // Display detailed results
                         m_resultTextEdit->clear();
-                        m_resultTextEdit->appendPlainText(tr("VirusTotal Analiz Sonuçları:"));
+                        m_resultTextEdit->appendPlainText(tr("VirusTotal Analysis Results:"));
                         m_resultTextEdit->appendPlainText(tr("--------------------------------------"));
-                        m_resultTextEdit->appendPlainText(tr("📋 Analiz Kimliği: %1").arg(analysisId));
+                        m_resultTextEdit->appendPlainText(tr("📋 Analysis ID: %1").arg(analysisId));
                         
                         // Format date if available
                         if (attributes.contains("date")) {
                             QDateTime analysisDate = QDateTime::fromSecsSinceEpoch(attributes["date"].toInt());
-                            m_resultTextEdit->appendPlainText(tr("📅 Analiz Tarihi: %1").arg(
+                            m_resultTextEdit->appendPlainText(tr("📅 Analysis Date: %1").arg(
                                 analysisDate.toString("yyyy-MM-dd hh:mm:ss")
                             ));
                         }
                         
                         // Display scan statistics
-                        m_resultTextEdit->appendPlainText(tr("\n📊 Tarama Özeti:"));
-                        m_resultTextEdit->appendPlainText(tr("  🔴 Zararlı: %1").arg(malicious));
-                        m_resultTextEdit->appendPlainText(tr("  🟠 Şüpheli: %1").arg(suspicious));
-                        m_resultTextEdit->appendPlainText(tr("  🟢 Temiz: %1").arg(undetected));
-                        m_resultTextEdit->appendPlainText(tr("  ⚪ Zaman Aşımı: %1").arg(timeout));
-                        m_resultTextEdit->appendPlainText(tr("  📈 Toplam: %1").arg(total));
+                        m_resultTextEdit->appendPlainText(tr("\n📊 Scan Summary:"));
+                        m_resultTextEdit->appendPlainText(tr("  🔴 Malicious: %1").arg(malicious));
+                        m_resultTextEdit->appendPlainText(tr("  🟠 Suspicious: %1").arg(suspicious));
+                        m_resultTextEdit->appendPlainText(tr("  🟢 Clean: %1").arg(undetected));
+                        m_resultTextEdit->appendPlainText(tr("  ⚪ Timeout: %1").arg(timeout));
+                        m_resultTextEdit->appendPlainText(tr("  📈 Total: %1").arg(total));
                         
                         // Risk assessment
                         QString risk;
                         if (malicious > 0) {
-                            risk = tr("🔴 YÜKSEK RİSK - %1 antivirüs motoru bu dosyayı zararlı olarak tespit etti!").arg(malicious);
+                            risk = tr("🔴 HIGH RISK - %1 antivirus engines detected this file as malicious!").arg(malicious);
                         } else if (suspicious > 0) {
-                            risk = tr("🟠 ORTA RİSK - %1 antivirüs motoru bu dosyayı şüpheli olarak işaretledi.").arg(suspicious);
+                            risk = tr("🟠 MEDIUM RISK - %1 antivirus engines flagged this file as suspicious.").arg(suspicious);
                         } else {
-                            risk = tr("🟢 DÜŞÜK RİSK - Hiçbir antivirüs bu dosyayı zararlı olarak tespit etmedi.");
+                            risk = tr("🟢 LOW RISK - No antivirus engines detected this file as malicious.");
                         }
                         
-                        m_resultTextEdit->appendPlainText(tr("\n⚠️ Risk Değerlendirmesi:"));
+                        m_resultTextEdit->appendPlainText(tr("\n⚠️ Risk Assessment:"));
                         m_resultTextEdit->appendPlainText(risk);
                         
                         // Get file information
@@ -523,7 +523,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                         
                         // Display file info if available
                         if (!fileInfo.isEmpty()) {
-                            m_resultTextEdit->appendPlainText(tr("\n📄 Dosya Bilgileri:"));
+                            m_resultTextEdit->appendPlainText(tr("\n📄 File Information:"));
                             if (fileInfo.contains("sha256"))
                                 m_resultTextEdit->appendPlainText(tr("  SHA-256: %1").arg(fileInfo["sha256"].toString()));
                             if (fileInfo.contains("sha1"))
@@ -531,7 +531,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                             if (fileInfo.contains("md5"))
                                 m_resultTextEdit->appendPlainText(tr("  MD5: %1").arg(fileInfo["md5"].toString()));
                             if (fileInfo.contains("size"))
-                                m_resultTextEdit->appendPlainText(tr("  Boyut: %1 bayt").arg(fileInfo["size"].toInt()));
+                                m_resultTextEdit->appendPlainText(tr("  Size: %1 bytes").arg(fileInfo["size"].toInt()));
                         }
                         
                         // Add link to detailed results
@@ -539,13 +539,13 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                             QString selfLink = data["links"].toObject()["self"].toString();
                             QString vtGuiLink = selfLink.replace("api/v3/", "gui/");
                             
-                            m_resultTextEdit->appendPlainText(tr("\n🔍 Detaylı sonuçları görmek için:"));
+                            m_resultTextEdit->appendPlainText(tr("\n🔍 To view detailed results:"));
                             m_resultTextEdit->appendPlainText(vtGuiLink);
                         }
                         
                         // Log completion
                         if (m_logTextEdit) {
-                            m_logTextEdit->appendPlainText(QString("\n📊 %1 | VirusTotal analizi tamamlandı: %2 zararlı, %3 şüpheli, %4 temiz")
+                            m_logTextEdit->appendPlainText(QString("\n📊 %1 | VirusTotal analysis completed: %2 malicious, %3 suspicious, %4 clean")
                                 .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                 .arg(malicious)
                                 .arg(suspicious)
@@ -553,26 +553,26 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                         }
                         
                         // Update status bar
-                        m_statusBar->showMessage(tr("VirusTotal analizi tamamlandı"));
+                        m_statusBar->showMessage(tr("VirusTotal analysis completed"));
                     }
                 }
                 // If no stats available but we have attributes, it might be a pending analysis
                 else if (!attributes.contains("stats") || attributes["stats"].toObject().isEmpty()) {
                     // This is just the initial upload response, not the analysis result
-                    m_resultTextEdit->appendPlainText(tr("\n✅ Dosya başarıyla VirusTotal'e yüklendi."));
-                    m_resultTextEdit->appendPlainText(tr("Analiz kimliği: %1").arg(analysisId));
-                    m_resultTextEdit->appendPlainText(tr("\nSonuçlar analiz edilirken lütfen bekleyin..."));
+                    m_resultTextEdit->appendPlainText(tr("\n✅ File successfully uploaded to VirusTotal."));
+                    m_resultTextEdit->appendPlainText(tr("Analysis ID: %1").arg(analysisId));
+                    m_resultTextEdit->appendPlainText(tr("\nResults are being analyzed, please wait..."));
                     
                     // Start auto-refresh timer
                     m_refreshTimer->start();
                     m_refreshAttempts = 0;
                     
                     // Update status bar
-                    m_statusBar->showMessage(tr("VirusTotal analizi devam ediyor..."));
+                    m_statusBar->showMessage(tr("VirusTotal analysis ongoing..."));
                     
                     // Log
                     if (m_logTextEdit) {
-                        m_logTextEdit->appendPlainText(QString("\n✅ %1 | Dosya VirusTotal'e yüklendi. Analiz ID: %2")
+                        m_logTextEdit->appendPlainText(QString("\n✅ %1 | File uploaded to VirusTotal. Analysis ID: %2")
                             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                             .arg(analysisId));
                     }
@@ -596,27 +596,27 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
             
             // Display detailed results
             m_resultTextEdit->clear();
-            m_resultTextEdit->appendPlainText(tr("VirusTotal Dosya Raporu:"));
+            m_resultTextEdit->appendPlainText(tr("VirusTotal File Report:"));
             m_resultTextEdit->appendPlainText(tr("--------------------------------------"));
             
             // File hashes
-            m_resultTextEdit->appendPlainText(tr("\n📄 Dosya Bilgileri:"));
+            m_resultTextEdit->appendPlainText(tr("\n📄 File Information:"));
             m_resultTextEdit->appendPlainText(tr("  SHA-256: %1").arg(attributes.contains("sha256") ? attributes["sha256"].toString() : data["id"].toString()));
             m_resultTextEdit->appendPlainText(tr("  SHA-1: %1").arg(attributes["sha1"].toString()));
             m_resultTextEdit->appendPlainText(tr("  MD5: %1").arg(attributes["md5"].toString()));
-            m_resultTextEdit->appendPlainText(tr("  Boyut: %1 bayt").arg(attributes["size"].toInt()));
+            m_resultTextEdit->appendPlainText(tr("  Size: %1 bytes").arg(attributes["size"].toInt()));
             
             // Format date if available
             if (attributes.contains("first_submission_date")) {
                 QDateTime submissionDate = QDateTime::fromSecsSinceEpoch(attributes["first_submission_date"].toInt());
-                m_resultTextEdit->appendPlainText(tr("  İlk Gönderim: %1").arg(
+                m_resultTextEdit->appendPlainText(tr("  First Submission: %1").arg(
                     submissionDate.toString("yyyy-MM-dd hh:mm:ss")
                 ));
             }
             
             // File type info
             if (attributes.contains("type_description")) {
-                m_resultTextEdit->appendPlainText(tr("  Dosya Türü: %1").arg(attributes["type_description"].toString()));
+                m_resultTextEdit->appendPlainText(tr("  File Type: %1").arg(attributes["type_description"].toString()));
             }
             
             // Stats info
@@ -629,29 +629,29 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                 int total = malicious + suspicious + undetected;
                 
                 // Display scan statistics
-                m_resultTextEdit->appendPlainText(tr("\n📊 Tarama Özeti:"));
-                m_resultTextEdit->appendPlainText(tr("  🔴 Zararlı: %1").arg(malicious));
-                m_resultTextEdit->appendPlainText(tr("  🟠 Şüpheli: %1").arg(suspicious));
-                m_resultTextEdit->appendPlainText(tr("  🟢 Temiz: %1").arg(undetected));
-                m_resultTextEdit->appendPlainText(tr("  📈 Toplam: %1").arg(total));
+                m_resultTextEdit->appendPlainText(tr("\n📊 Scan Summary:"));
+                m_resultTextEdit->appendPlainText(tr("  🔴 Malicious: %1").arg(malicious));
+                m_resultTextEdit->appendPlainText(tr("  🟠 Suspicious: %1").arg(suspicious));
+                m_resultTextEdit->appendPlainText(tr("  🟢 Clean: %1").arg(undetected));
+                m_resultTextEdit->appendPlainText(tr("  📈 Total: %1").arg(total));
                 
                 // Risk assessment
                 QString risk;
                 if (malicious > 0) {
-                    risk = tr("🔴 YÜKSEK RİSK - %1 antivirüs motoru bu dosyayı zararlı olarak tespit etti!").arg(malicious);
+                    risk = tr("🔴 HIGH RISK - %1 antivirus engines detected this file as malicious!").arg(malicious);
                 } else if (suspicious > 0) {
-                    risk = tr("🟠 ORTA RİSK - %1 antivirüs motoru bu dosyayı şüpheli olarak işaretledi.").arg(suspicious);
+                    risk = tr("🟠 MEDIUM RISK - %1 antivirus engines flagged this file as suspicious.").arg(suspicious);
                 } else {
-                    risk = tr("🟢 DÜŞÜK RİSK - Hiçbir antivirüs bu dosyayı zararlı olarak tespit etmedi.");
+                    risk = tr("🟢 LOW RISK - No antivirus engines detected this file as malicious.");
                 }
                 
-                m_resultTextEdit->appendPlainText(tr("\n⚠️ Risk Değerlendirmesi:"));
+                m_resultTextEdit->appendPlainText(tr("\n⚠️ Risk Assessment:"));
                 m_resultTextEdit->appendPlainText(risk);
                 
                 // Detailed AV results if available
                 if (attributes.contains("last_analysis_results") && !attributes["last_analysis_results"].toObject().isEmpty()) {
                     QJsonObject avResults = attributes["last_analysis_results"].toObject();
-                    m_resultTextEdit->appendPlainText(tr("\n🔍 Detaylı Antivirüs Tarama Sonuçları:"));
+                    m_resultTextEdit->appendPlainText(tr("\n🔍 Detailed Antivirus Scan Results:"));
                     
                     QStringList avNames = avResults.keys();
                     std::sort(avNames.begin(), avNames.end());  // Alfabetik sırala
@@ -687,7 +687,7 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                 
                 // Log
                 if (m_logTextEdit) {
-                    m_logTextEdit->appendPlainText(QString("\n📊 %1 | VirusTotal raporu alındı: %2 zararlı, %3 şüpheli, %4 temiz")
+                    m_logTextEdit->appendPlainText(QString("\n📊 %1 | VirusTotal report obtained: %2 malicious, %3 suspicious, %4 clean")
                         .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                         .arg(malicious)
                         .arg(suspicious)
@@ -700,12 +700,12 @@ void ScanManager::handleApiResponse(const QJsonObject& response)
                 QString selfLink = data["links"].toObject()["self"].toString();
                 QString vtGuiLink = selfLink.replace("api/v3/", "gui/");
                 
-                m_resultTextEdit->appendPlainText(tr("\n🔍 Detaylı sonuçları görmek için:"));
+                m_resultTextEdit->appendPlainText(tr("\n🔍 To view detailed results:"));
                 m_resultTextEdit->appendPlainText(vtGuiLink);
             }
             
             // Update status bar
-            m_statusBar->showMessage(tr("VirusTotal raporu alındı"));
+            m_statusBar->showMessage(tr("VirusTotal report obtained"));
         }
     }
 }
@@ -719,7 +719,7 @@ void ScanManager::handleApiError(const QString& errorMessage)
     if (errorMessage.contains("server replied:")) {
         // Log the full error for debugging
         if (m_logTextEdit) {
-            m_logTextEdit->appendPlainText(QString("\n🔍 %1 | API hata detayı: %2")
+            m_logTextEdit->appendPlainText(QString("\n🔍 %1 | API error details: %2")
                 .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                 .arg(errorMessage));
         }
@@ -733,19 +733,19 @@ void ScanManager::handleApiError(const QString& errorMessage)
             fileHash = match.captured(1);
             
             // This is a duplicate submission - retrieve the existing analysis by file hash
-            m_resultTextEdit->appendPlainText(tr("\n⚠️ Bu dosya daha önce VirusTotal'e yüklenmiş."));
-            m_resultTextEdit->appendPlainText(tr("🔄 Mevcut analiz sonucu alınıyor..."));
+            m_resultTextEdit->appendPlainText(tr("\n⚠️ This file has already been uploaded to VirusTotal."));
+            m_resultTextEdit->appendPlainText(tr("🔄 Retrieving existing analysis results..."));
             
             if (!fileHash.isEmpty()) {
                 // Log action
                 if (m_logTextEdit) {
-                    m_logTextEdit->appendPlainText(QString("\n🔄 %1 | Dosya zaten analiz edilmiş, hash ile sonuçlar alınıyor: %2")
+                    m_logTextEdit->appendPlainText(QString("\n🔄 %1 | File already analyzed, retrieving results by hash: %2")
                         .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                         .arg(fileHash));
                 }
                 
                 // Update status bar
-                m_statusBar->showMessage(tr("Mevcut analiz sonucu alınıyor..."));
+                m_statusBar->showMessage(tr("Retrieving existing analysis results..."));
                 
                 // Request file report directly using the hash
                 QString endpoint = QString("files/%1").arg(fileHash);
@@ -756,12 +756,12 @@ void ScanManager::handleApiError(const QString& errorMessage)
     }
     
     // Default error handling for other types of errors
-    m_resultTextEdit->appendPlainText(tr("\n❌ API hatası: %1").arg(errorMessage));
-    m_statusBar->showMessage(tr("API isteği başarısız"));
+    m_resultTextEdit->appendPlainText(tr("\n❌ API error: %1").arg(errorMessage));
+    m_statusBar->showMessage(tr("API request failed"));
     
     // Log
     if (m_logTextEdit) {
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | API hatası: %2")
+        m_logTextEdit->appendPlainText(QString("\n❌ %1 | API error: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(errorMessage));
     }
@@ -770,22 +770,22 @@ void ScanManager::handleApiError(const QString& errorMessage)
 void ScanManager::fetchAnalysisResults(const QString& analysisId)
 {
     // Update UI with initial status
-    m_resultTextEdit->appendPlainText(tr("\nVirusTotal Analiz Sonuçları:"));
+    m_resultTextEdit->appendPlainText(tr("\nVirusTotal Analysis Results:"));
     m_resultTextEdit->appendPlainText(tr("--------------------------------------"));
-    m_resultTextEdit->appendPlainText(tr("✅ Dosya başarıyla VirusTotal'e yüklendi."));
-    m_resultTextEdit->appendPlainText(tr("📋 Analiz Kimliği: %1").arg(analysisId));
-    m_resultTextEdit->appendPlainText(tr("\n🔄 Analiz sonuçları alınıyor... Lütfen bekleyin..."));
+    m_resultTextEdit->appendPlainText(tr("✅ File successfully uploaded to VirusTotal."));
+    m_resultTextEdit->appendPlainText(tr("📋 Analysis ID: %1").arg(analysisId));
+    m_resultTextEdit->appendPlainText(tr("\n🔄 Retrieving analysis results... Please wait..."));
     
     // Log the action
     if (m_logTextEdit) {
-        m_logTextEdit->appendPlainText(QString("\n🔄 %1 | Analiz sonuçları alınıyor: %2")
+        m_logTextEdit->appendPlainText(QString("\n🔄 %1 | Retrieving analysis results: %2")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(analysisId));
     }
     
     // Update status bar
     if (m_statusBar) {
-        m_statusBar->showMessage(tr("VirusTotal analiz sonuçları alınıyor..."));
+        m_statusBar->showMessage(tr("Retrieving VirusTotal analysis results..."));
     }
     
     // Make API request to get analysis results
@@ -811,14 +811,14 @@ void ScanManager::checkAnalysisStatus()
         
         // Log ve kullanıcıya bildir
         if (m_logTextEdit) {
-            m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Analiz sonuçları için maksimum bekleme süresi aşıldı: %2")
+            m_logTextEdit->appendPlainText(QString("\n⚠️ %1 | Maximum wait time exceeded for analysis results: %2")
                 .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                 .arg(m_currentAnalysisId));
         }
         
         if (m_resultTextEdit) {
-            m_resultTextEdit->appendPlainText(tr("\n⚠️ Analiz sonuçları için maksimum bekleme süresi aşıldı."));
-            m_resultTextEdit->appendPlainText(tr("Analiz hala devam ediyor olabilir. Lütfen daha sonra tekrar deneyin veya aşağıdaki bağlantıyı kullanın:"));
+            m_resultTextEdit->appendPlainText(tr("\n⚠️ Maximum wait time exceeded for analysis results."));
+            m_resultTextEdit->appendPlainText(tr("Analysis may still be ongoing. Please try again later or use the link below:"));
             m_resultTextEdit->appendPlainText(tr("https://www.virustotal.com/gui/analyses/%1").arg(m_currentAnalysisId));
         }
         
@@ -829,7 +829,7 @@ void ScanManager::checkAnalysisStatus()
     m_refreshAttempts++;
     
     if (m_logTextEdit) {
-        m_logTextEdit->appendPlainText(QString("\n🔄 %1 | Analiz sonuçları kontrol ediliyor (Deneme %2/%3): %4")
+        m_logTextEdit->appendPlainText(QString("\n🔄 %1 | Checking analysis results (Attempt %2/%3): %4")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
             .arg(m_refreshAttempts)
             .arg(MAX_REFRESH_ATTEMPTS)
