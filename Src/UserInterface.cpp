@@ -954,12 +954,32 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     : QDialog(parent)
 {
     setWindowTitle(tr("Docker Image Selection - %1").arg(serviceType));
-    setMinimumWidth(500);
+    setMinimumWidth(750); // Genişliği daha da artırıldı (700->750)
+    setMinimumHeight(600); // Yükseklik artırıldı (550->600)
     setModal(true);
     
+    // Ana diyalog arkaplanı ve stili
+    setStyleSheet(
+        "QDialog {"
+        "   background-color: #212121;"  // Daha koyu ve modern bir arka plan
+        "   font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;" // Modern fontlar
+        "   color: #f5f5f5;" // Daha açık ve okunabilir metin rengi
+        "}"
+        "QLabel {"
+        "   font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;" // Modern fontlar
+        "   color: #f5f5f5;" // Daha açık ve okunabilir metin rengi
+        "}"
+        "QPushButton {"
+        "   font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;" // Modern fontlar
+        "}"
+        "QComboBox {"
+        "   font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;" // Modern fontlar
+        "}"
+    );
+    
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setSpacing(15);
-    layout->setContentsMargins(20, 20, 20, 20);
+    layout->setSpacing(24); // Boşluk artırıldı (20->24)
+    layout->setContentsMargins(35, 35, 35, 35); // İç kenar boşlukları artırıldı
     
     // Description text based on service type
     QString description;
@@ -972,33 +992,109 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     }
     
     QLabel *infoLabel = new QLabel(description, this);
-    infoLabel->setStyleSheet("font-size: 11pt; color: #2c3e50; margin-bottom: 10px;");
+    infoLabel->setStyleSheet(
+        "font-size: 15pt;" // Font boyutu artırıldı (14pt->15pt)
+        "color: #e0e0e0;" // Daha parlak ve okunabilir renk
+        "margin-bottom: 15px;"
+        "letter-spacing: 0.3px;" // Harfler arası boşluk eklendi
+        "line-height: 140%;" // Satır yüksekliği artırıldı
+        "font-weight: 400;" // Normal kalınlık
+    );
     infoLabel->setWordWrap(true);
     layout->addWidget(infoLabel);
     
-    // Warning about images
-    QLabel *warningLabel = new QLabel(tr("⚠️ The selected Docker image should be from a trusted source. "
-                                         "When an image is selected, the Docker container will start automatically."), this);
-    warningLabel->setStyleSheet("font-size: 11pt; color: #e67e22; margin-bottom: 5px;");
-    warningLabel->setWordWrap(true);
-    layout->addWidget(warningLabel);
+    // Warning about images - daha belirgin ve modern
+    QFrame* warningFrame = new QFrame(this);
+    warningFrame->setStyleSheet(
+        "background-color: rgba(255, 152, 0, 0.15);" // Daha şık bir turuncu arkaplan
+        "border-left: 4px solid #FF9800;" // Sol kenarda belirgin turuncu çizgi
+        "border-radius: 8px;"
+        "padding: 2px;"
+        "margin-bottom: 10px;"
+    );
     
-    // Image selection combo box
+    QHBoxLayout* warningLayout = new QHBoxLayout(warningFrame);
+    warningLayout->setContentsMargins(15, 15, 15, 15);
+    
+    QLabel* warningIcon = new QLabel(this);
+    warningIcon->setText("⚠️");
+    warningIcon->setStyleSheet("font-size: 20pt; border: none; background-color: transparent;");
+    warningLayout->addWidget(warningIcon);
+    
+    QLabel *warningLabel = new QLabel(tr("The selected Docker image should be from a trusted source. "
+                                         "When an image is selected, the Docker container will start automatically."), this);
+    warningLabel->setStyleSheet(
+        "font-size: 13pt;" // Aynı kalınlık korundu
+        "color: #FFB74D;" // Daha parlak turuncu
+        "padding: 5px 10px;"
+        "background-color: transparent;"
+        "border: none;"
+        "letter-spacing: 0.3px;" // Harfler arası boşluk eklendi
+        "font-weight: 500;" // Biraz daha kalın
+    );
+    warningLabel->setWordWrap(true);
+    warningLayout->addWidget(warningLabel, 1);
+    
+    layout->addWidget(warningFrame);
+    
+    // Image selection combo box - daha estetik ve modern yapıldı
     QHBoxLayout *comboLayout = new QHBoxLayout();
+    comboLayout->setSpacing(20); // Boşluk artırıldı (15->20)
+    
     QLabel *comboLabel = new QLabel(tr("Docker Image:"), this);
-    comboLabel->setStyleSheet("font-size: 11pt; font-weight: bold;");
+    comboLabel->setStyleSheet(
+        "font-size: 15pt;" // Font boyutu artırıldı (14pt->15pt)
+        "font-weight: 500;" // Daha belirgin
+        "color: #e0e0e0;" // Daha açık gri
+    );
     
     imageComboBox = new QComboBox(this);
     imageComboBox->setStyleSheet(
         "QComboBox {"
-        "   padding: 8px;"
-        "   font-size: 11pt;"
-        "   border: 2px solid #bdc3c7;"
-        "   border-radius: 5px;"
-        "   min-width: 350px;"
+        "   padding: 14px;" // Padding artırıldı (12px->14px)
+        "   font-size: 14pt;" // Font boyutu artırıldı (13pt->14pt)
+        "   border: 2px solid #424242;" // Daha koyu sınır
+        "   border-radius: 8px;" 
+        "   min-width: 450px;"
+        "   background-color: #2c2c2c;" // Daha koyu arkaplan
+        "   color: #e0e0e0;" // Daha açık metin
+        "   selection-background-color: #0078D7;" // Windows mavi vurgu rengi
+        "}"
+        "QComboBox:hover {"
+        "   border: 2px solid #616161;" // Hover durumunda daha açık sınır
+        "   background-color: #323232;" // Hover durumunda daha açık arkaplan
         "}"
         "QComboBox:focus {"
-        "   border: 2px solid #3498db;"
+        "   border: 2px solid #0078D7;" // Odaklanıldığında Windows mavi
+        "}"
+        "QComboBox::drop-down {"
+        "   subcontrol-origin: padding;"
+        "   subcontrol-position: center right;"
+        "   width: 30px;"
+        "   border-left: none;"
+        "   border-top-right-radius: 8px;"
+        "   border-bottom-right-radius: 8px;"
+        "}"
+        "QComboBox::down-arrow {"
+        "   image: none;" // Varsayılan ok kaldırıldı
+        "   width: 20px;"
+        "   height: 20px;"
+        "}"
+        "QComboBox::down-arrow:after {"
+        "   content: '▼';" // Unicode aşağı ok karakteri
+        "   color: #e0e0e0;" // Ok rengi
+        "   position: absolute;"
+        "   top: 0;"
+        "   right: 0;"
+        "}"
+        "QComboBox QAbstractItemView {" // Dropdown liste stilini geliştiriyoruz
+        "   font-size: 14pt;" // Font boyutu artırıldı (13pt->14pt)
+        "   padding: 8px;"
+        "   background-color: #2c2c2c;" // Dropdown arkaplanı
+        "   border: 2px solid #424242;" // Dropdown sınırı
+        "   border-radius: 0px 0px 8px 8px;" // Alt köşeler yuvarlak
+        "   selection-background-color: #0078D7;" // Seçili öğe arkaplanı
+        "   selection-color: white;" // Seçili öğe yazı rengi
         "}"
     );
     
@@ -1017,20 +1113,28 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     comboLayout->addWidget(imageComboBox, 1);
     layout->addLayout(comboLayout);
     
-    // Image description info area
+    // Image description info area - daha modern ve okunabilir
     QLabel *descriptionTitle = new QLabel(tr("Image Description:"), this);
-    descriptionTitle->setStyleSheet("font-size: 11pt; font-weight: bold; margin-top: 10px;");
+    descriptionTitle->setStyleSheet(
+        "font-size: 15pt;" // Font boyutu artırıldı (14pt->15pt)
+        "font-weight: 500;" // Orta kalınlık
+        "color: #e0e0e0;" // Daha açık gri
+        "margin-top: 15px;"
+        "margin-bottom: 10px;" // Alt boşluk eklendi
+    );
     layout->addWidget(descriptionTitle);
     
     QLabel *imageDescription = new QLabel(this);
     imageDescription->setStyleSheet(
-        "background-color: #f8f9fa;"
-        "border: 1px solid #dcdde1;"
-        "border-radius: 5px;"
-        "padding: 10px;"
-        "font-size: 10pt;"
-        "color: #2d3436;"
-        "min-height: 80px;"
+        "background-color: #2c2c2c;" // Daha koyu arkaplan
+        "border: 1px solid #424242;" // Daha koyu sınır
+        "border-radius: 8px;"
+        "padding: 25px;" // Padding artırıldı (20px->25px)
+        "font-size: 14pt;" // Font boyutu artırıldı (13pt->14pt)
+        "color: #e0e0e0;" // Daha açık yazı rengi
+        "min-height: 150px;" // Yükseklik artırıldı (120px->150px)
+        "letter-spacing: 0.3px;" // Harfler arası mesafe
+        "line-height: 140%;" // Satır yüksekliği
     );
     imageDescription->setWordWrap(true);
     
@@ -1080,49 +1184,58 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     
     layout->addWidget(imageDescription);
     
-    // Buttons
+    // Buttons - butonların tasarımı tamamen yenilendi
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    buttonLayout->setSpacing(10);
+    buttonLayout->setSpacing(20); // Boşluk korundu
     
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
     QPushButton *okButton = new QPushButton(tr("Select Image"), this);
     
-    QString buttonStyle = 
+    // İptal butonu tasarımı
+    cancelButton->setStyleSheet(
         "QPushButton {"
-        "   padding: 8px 20px;"
-        "   font-size: 11pt;"
-        "   border-radius: 5px;"
-        "   min-width: 100px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #f0f0f0;"
-        "}";
-    
-    cancelButton->setStyleSheet(buttonStyle + 
-        "QPushButton {"
-        "   background-color: #e74c3c;"
-        "   color: white;"
+        "   padding: 14px 32px;" // Padding artırıldı
+        "   font-size: 14pt;" // Font korundu
+        "   border-radius: 6px;" // Daha az yuvarlak köşeler
+        "   min-width: 160px;" // Genişlik artırıldı (150px->160px)
+        "   background-color: #424242;" // Daha nötr gri
+        "   color: #f5f5f5;" // Daha açık yazı rengi
         "   border: none;"
+        "   font-weight: 500;" // Orta kalınlık
         "}"
         "QPushButton:hover {"
-        "   background-color: #c0392b;"
-        "}");
+        "   background-color: #616161;" // Hover durumunda daha açık gri
+        "}"
+        "QPushButton:pressed {"
+        "   background-color: #757575;" // Basıldığında daha da açık
+        "}"
+    );
     
-    okButton->setStyleSheet(buttonStyle + 
+    // Seç butonu tasarımı - modern ve etkileyici
+    okButton->setStyleSheet(
         "QPushButton {"
-        "   background-color: #2ecc71;"
-        "   color: white;"
+        "   padding: 14px 32px;" // Padding artırıldı 
+        "   font-size: 14pt;" // Font korundu
+        "   border-radius: 6px;" // Daha az yuvarlak köşeler
+        "   min-width: 160px;" // Genişlik artırıldı (150px->160px)
+        "   background-color: #0078D7;" // Windows mavi aksan rengi
+        "   color: white;" 
         "   border: none;"
+        "   font-weight: 500;" // Orta kalınlık
         "}"
         "QPushButton:hover {"
-        "   background-color: #27ae60;"
-        "}");
+        "   background-color: #1E88E5;" // Hover durumunda daha açık mavi
+        "}"
+        "QPushButton:pressed {"
+        "   background-color: #0063B1;" // Basıldığında daha koyu mavi
+        "}"
+    );
     
     buttonLayout->addStretch();
     buttonLayout->addWidget(cancelButton);
     buttonLayout->addWidget(okButton);
     
-    layout->addSpacing(15);
+    layout->addSpacing(25); // Boşluk korundu
     layout->addLayout(buttonLayout);
     
     connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
