@@ -1,0 +1,41 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib/QtNetwork.framework/Versions/A/Headers",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib/QtConcurrent.framework/Versions/A/Headers",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib/QtSql.framework/Versions/A/Headers"
+            ],
+            "defines": [
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_WIDGETS_LIB",
+                "QT_NETWORK_LIB",
+                "QT_SQL_LIB",
+                "QT_CONCURRENT_LIB"
+            ],
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+                "/Volumes/Crucial/QT/6.10.0/macos/lib"
+            ],
+            "compilerPath": "/usr/bin/clang++",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "macos-clang-arm64",
+            "compileCommands": "${workspaceFolder}/compile_commands.json",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "/Volumes/Crucial/QT/6.10.0/macos/lib"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}

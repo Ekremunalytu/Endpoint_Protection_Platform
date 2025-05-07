@@ -2,13 +2,13 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
-#include <QJsonArray>
-#include <QJsonObject>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonObject>
 #include <QThread>
 
-DockerManager::DockerManager(QObject *parent) : QObject(parent), dockerProcess(new QProcess(this)), containerRunning(false) {
+DockerManager::DockerManager(QObject *parent) : QObject(parent) {
     // Docker process ayarları - SeparateChannels kullanarak hata çıktılarını ayrı tutuyoruz
-    dockerProcess->setProcessChannelMode(QProcess::SeparateChannels);
+    dockerProcess.setProcessChannelMode(QProcess::SeparateChannels);
     
     // İlk başta container çalışmadığını işaretle
     containerRunning = false;
@@ -20,30 +20,34 @@ DockerManager::~DockerManager() {
     if (isContainerRunning()) {
         stopContainer();
     }
-    delete dockerProcess;
+    // QProcess member olduğu için delete işlemi kaldırıldı
 }
 
-bool DockerManager::isDockerAvailable() {
+bool DockerManager::isDockerAvailable() const {
     QProcess process;
     process.start("docker", QStringList() << "ps"); // Changed from docker --version to docker ps
     process.waitForFinished();
 
+    // const metodundan mutable bir üye değişkeni değiştiremeyeceğimiz için burada
+    // yerel bir değişken oluşturuyoruz
+    QProcess localProcess;
+    
     if (process.exitCode() == 0) {
         try {
-            dockerProcess->start("docker", QStringList() << "ps");
+            localProcess.start("docker", QStringList() << "ps");
             
             // Timeout değerini artırıyoruz - bazı ortamlarda daha uzun sürebilir
-            if (!dockerProcess->waitForFinished(10000)) {  // 10 saniye timeout
+            if (!localProcess.waitForFinished(10000)) {  // 10 saniye timeout
                 qDebug() << "Docker command timeout";
                 return false;
             }
             
-            if (dockerProcess->exitCode() != 0) {
-                qDebug() << "Docker daemon is not responsive: " << dockerProcess->readAllStandardError();
+            if (localProcess.exitCode() != 0) {
+                qDebug() << "Docker daemon is not responsive: " << localProcess.readAllStandardError();
                 return false;
             }
             
-            QString output = dockerProcess->readAllStandardOutput().trimmed();
+            QString output = localProcess.readAllStandardOutput().trimmed();
             qDebug() << "Docker daemon is responsive: " << output;
             return true;
         } catch (const std::exception& e) {
@@ -103,30 +107,30 @@ bool DockerManager::startContainer(const QString& config) {
         }
         
         // Önce imajın mevcut olup olmadığını kontrol edelim
-        dockerProcess->start("docker", QStringList() << "image" << "inspect" << imageName);
-        if (!dockerProcess->waitForFinished(10000)) {
+        dockerProcess.start("docker", QStringList() << "image" << "inspect" << imageName);
+        if (!dockerProcess.waitForFinished(10000)) {
             qDebug() << "Docker image inspect command timeout";
         }
         
-        bool imageExists = (dockerProcess->exitCode() == 0);
+        bool imageExists = (dockerProcess.exitCode() == 0);
         
         // Eğer imaj mevcut değilse, çekmeyi deneyelim
         if (!imageExists) {
             qDebug() << "Image not found locally, pulling image:" << imageName;
             
             // İmaj çekme işlemi uzun sürebilir, timeout değerini artıralım
-            dockerProcess->start("docker", QStringList() << "pull" << imageName);
+            dockerProcess.start("docker", QStringList() << "pull" << imageName);
             
             // İmaj çekme için daha uzun timeout (2 dakika)
-            if (!dockerProcess->waitForFinished(120000)) {
+            if (!dockerProcess.waitForFinished(120000)) {
                 qDebug() << "Docker pull command timeout";
-                qDebug() << "Error pulling image:" << dockerProcess->readAllStandardError();
+                qDebug() << "Error pulling image:" << dockerProcess.readAllStandardError();
                 
                 // İmaj çekemedik, mevcut bir imaj var mı kontrol edelim
-                dockerProcess->start("docker", QStringList() << "image" << "inspect" << imageName);
-                dockerProcess->waitForFinished(10000);
+                dockerProcess.start("docker", QStringList() << "image" << "inspect" << imageName);
+                dockerProcess.waitForFinished(10000);
                 
-                if (dockerProcess->exitCode() != 0) {
+                if (dockerProcess.exitCode() != 0) {
                     // İmaj bulunamadı ve çekilemedi
                     qDebug() << "Failed to pull image and image does not exist locally:" << imageName;
                     return false;
@@ -134,17 +138,17 @@ bool DockerManager::startContainer(const QString& config) {
                     // İmaj zaten varmış
                     qDebug() << "Image exists locally, continuing with existing image:" << imageName;
                 }
-            } else if (dockerProcess->exitCode() != 0) {
+            } else if (dockerProcess.exitCode() != 0) {
                 // İmaj çekme başarısız oldu
-                QString errorOutput = dockerProcess->readAllStandardError();
+                QString errorOutput = dockerProcess.readAllStandardError();
                 qDebug() << "Failed to pull image:" << imageName;
                 qDebug() << "Error:" << errorOutput;
                 
                 // Bakın yerel bir imaj var mı
-                dockerProcess->start("docker", QStringList() << "image" << "inspect" << imageName);
-                dockerProcess->waitForFinished(10000);
+                dockerProcess.start("docker", QStringList() << "image" << "inspect" << imageName);
+                dockerProcess.waitForFinished(10000);
                 
-                if (dockerProcess->exitCode() != 0) {
+                if (dockerProcess.exitCode() != 0) {
                     qDebug() << "No local image found either, cannot proceed";
                     return false;
                 } else {
@@ -158,8 +162,8 @@ bool DockerManager::startContainer(const QString& config) {
         }
         
         // Önce evcut konteyneri kontrol et ve varsa kaldır
-        dockerProcess->start("docker", QStringList() << "rm" << "-f" << containerName);
-        dockerProcess->waitForFinished(10000);
+        dockerProcess.start("docker", QStringList() << "rm" << "-f" << containerName);
+        dockerProcess.waitForFinished(10000);
         
         // Bazı temel dizinleri bağlayalım
         QStringList runArgs;
@@ -181,18 +185,18 @@ bool DockerManager::startContainer(const QString& config) {
         qDebug() << "Running docker container with command:" << runArgs.join(" ");
         
         // Konteyner başlatma
-        dockerProcess->start("docker", runArgs);
+        dockerProcess.start("docker", runArgs);
         
         // Konteyner başlatma için 30 saniye timeout
-        if (!dockerProcess->waitForFinished(30000)) {
+        if (!dockerProcess.waitForFinished(30000)) {
             qDebug() << "Docker run command timeout";
-            QString errorOutput = dockerProcess->readAllStandardError();
+            QString errorOutput = dockerProcess.readAllStandardError();
             qDebug() << "Error starting container:" << errorOutput;
             return false;
         }
         
-        if (dockerProcess->exitCode() != 0) {
-            QString errorOutput = dockerProcess->readAllStandardError();
+        if (dockerProcess.exitCode() != 0) {
+            QString errorOutput = dockerProcess.readAllStandardError();
             qDebug() << "Failed to start container:" << errorOutput;
             return false;
         }
@@ -215,57 +219,74 @@ bool DockerManager::startContainer(const QString& config) {
     }
 }
 
-void DockerManager::stopContainer() {
+// stopContainer ve isContainerRunning metotlarını implement etmemiz gerek
+// Interface uygulamaları
+bool DockerManager::stopContainer(const QString& containerName) {
     try {
         if (containerName.isEmpty()) {
             qDebug() << "No container name specified, cannot stop container";
-            containerRunning = false;
-            return;
+            return false;
         }
         
         qDebug() << "Stopping container:" << containerName;
         
         // İlk önce konteyneri durdur
-        dockerProcess->start("docker", QStringList() << "stop" << containerName);
-        if (!dockerProcess->waitForFinished(20000)) {
+        dockerProcess.start("docker", QStringList() << "stop" << containerName);
+        if (!dockerProcess.waitForFinished(20000)) {
             qDebug() << "Docker stop command timeout, forcing removal";
         }
         
         // Sonra konteyneri kaldır (zorla kaldır)
-        dockerProcess->start("docker", QStringList() << "rm" << "-f" << containerName);
-        if (!dockerProcess->waitForFinished(20000)) {
+        dockerProcess.start("docker", QStringList() << "rm" << "-f" << containerName);
+        if (!dockerProcess.waitForFinished(20000)) {
             qDebug() << "Docker rm command timeout";
         }
         
-        containerRunning = false;
+        // Eğer durdurulan konteyner mevcut konteyner ise, durumunu güncelle
+        if (this->containerName == containerName) {
+            containerRunning = false;
+        }
+        
         qDebug() << "Container stopped and removed:" << containerName;
+        return true;
     } catch (const std::exception& e) {
         qDebug() << "Exception in stopContainer:" << e.what();
-        containerRunning = false;
+        return false;
     } catch (...) {
         qDebug() << "Unknown exception in stopContainer";
-        containerRunning = false;
+        return false;
     }
 }
 
-bool DockerManager::isContainerRunning() {
+// İç kullanım için overload edilmiş metot
+void DockerManager::stopContainer() {
+    if (!containerName.isEmpty()) {
+        stopContainer(containerName);
+    }
+}
+
+bool DockerManager::isContainerRunning(const QString& containerName) {
     try {
         if (containerName.isEmpty()) {
             qDebug() << "No container name specified, assuming not running";
-            containerRunning = false;
             return false;
         }
         
-        dockerProcess->start("docker", QStringList() << "ps" << "-q" << "-f" << "name=" + containerName);
+        dockerProcess.start("docker", QStringList() << "ps" << "-q" << "-f" << "name=" + containerName);
         
-        if (!dockerProcess->waitForFinished(10000)) {
+        if (!dockerProcess.waitForFinished(10000)) {
             qDebug() << "Docker ps command timeout";
-            return containerRunning;  // Son bilinen durumu döndür
+            return false;
         }
         
-        QString output = dockerProcess->readAllStandardOutput().trimmed();
-        containerRunning = !output.isEmpty();
-        return containerRunning;
+        QString output = dockerProcess.readAllStandardOutput().trimmed();
+        bool isRunning = !output.isEmpty();
+        
+        if (this->containerName == containerName) {
+            containerRunning = isRunning;
+        }
+        
+        return isRunning;
     } catch (const std::exception& e) {
         qDebug() << "Exception in isContainerRunning:" << e.what();
         return false;
@@ -273,6 +294,14 @@ bool DockerManager::isContainerRunning() {
         qDebug() << "Unknown exception in isContainerRunning";
         return false;
     }
+}
+
+// İç kullanım için overload edilmiş metot - parametresi yok
+bool DockerManager::isContainerRunning() {
+    if (containerName.isEmpty()) {
+        return false;
+    }
+    return isContainerRunning(containerName);
 }
 
 QString DockerManager::executeCommand(const QString& command) {
@@ -284,21 +313,21 @@ QString DockerManager::executeCommand(const QString& command) {
         
         qDebug() << "Executing command in container:" << command;
         
-        dockerProcess->start("docker", QStringList() << "exec" << containerName << "sh" << "-c" << command);
+        dockerProcess.start("docker", QStringList() << "exec" << containerName << "sh" << "-c" << command);
         
         // Komut yürütmesi için daha uzun bir timeout (60 saniye)
-        if (!dockerProcess->waitForFinished(60000)) {
+        if (!dockerProcess.waitForFinished(60000)) {
             qDebug() << "Docker exec command timeout";
             return QString();
         }
         
-        if (dockerProcess->exitCode() != 0) {
-            QString errorOutput = dockerProcess->readAllStandardError();
+        if (dockerProcess.exitCode() != 0) {
+            QString errorOutput = dockerProcess.readAllStandardError();
             qDebug() << "Failed to execute command in container:" << errorOutput;
             return QString();
         }
         
-        QString output = dockerProcess->readAllStandardOutput().trimmed();
+        QString output = dockerProcess.readAllStandardOutput().trimmed();
         return output;
     } catch (const std::exception& e) {
         qDebug() << "Exception in executeCommand:" << e.what();
@@ -321,11 +350,11 @@ bool DockerManager::copyFileToContainer(const QString& localPath, const QString&
         return false;
     }
     
-    dockerProcess->start("docker", QStringList() << "cp" << localPath << containerName + ":" + containerPath);
-    dockerProcess->waitForFinished();
+    dockerProcess.start("docker", QStringList() << "cp" << localPath << containerName + ":" + containerPath);
+    dockerProcess.waitForFinished();
     
-    if (dockerProcess->exitCode() != 0) {
-        qDebug() << "Failed to copy file to container: " << dockerProcess->readAllStandardError();
+    if (dockerProcess.exitCode() != 0) {
+        qDebug() << "Failed to copy file to container: " << dockerProcess.readAllStandardError();
         return false;
     }
     
@@ -345,11 +374,11 @@ bool DockerManager::copyFileFromContainer(const QString& containerPath, const QS
         QDir().mkpath(dirInfo.absolutePath());
     }
     
-    dockerProcess->start("docker", QStringList() << "cp" << containerName + ":" + containerPath << localPath);
-    dockerProcess->waitForFinished();
+    dockerProcess.start("docker", QStringList() << "cp" << containerName + ":" + containerPath << localPath);
+    dockerProcess.waitForFinished();
     
-    if (dockerProcess->exitCode() != 0) {
-        qDebug() << "Failed to copy file from container: " << dockerProcess->readAllStandardError();
+    if (dockerProcess.exitCode() != 0) {
+        qDebug() << "Failed to copy file from container: " << dockerProcess.readAllStandardError();
         return false;
     }
     
@@ -369,16 +398,16 @@ QJsonArray DockerManager::listContainers(bool showAll) {
     args << "--format" << "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}";
     
     // Komutu çalıştır
-    dockerProcess->start("docker", args);
-    dockerProcess->waitForFinished();
+    dockerProcess.start("docker", args);
+    dockerProcess.waitForFinished();
     
     // Sonucu analiz et
-    if (dockerProcess->exitCode() != 0) {
-        qDebug() << "Docker container listesi alınamadı:" << dockerProcess->readAllStandardError();
+    if (dockerProcess.exitCode() != 0) {
+        qDebug() << "Docker container listesi alınamadı:" << dockerProcess.readAllStandardError();
         return containerList;
     }
     
-    QString output = dockerProcess->readAllStandardOutput().trimmed();
+    QString output = dockerProcess.readAllStandardOutput().trimmed();
     QStringList containers = output.split("\n");
     
     // Her konteyneri JSON objesine dönüştür
@@ -409,4 +438,70 @@ QJsonArray DockerManager::listContainers(bool showAll) {
     }
     
     return containerList;
+}
+
+// Interface metotlarını implement et
+QJsonArray DockerManager::getDockerContainers() {
+    return listContainers(true); // Tüm konteynerleri göster
+}
+
+QJsonArray DockerManager::getDockerImages() {
+    QJsonArray imageList;
+    
+    // Docker komutunu oluştur
+    QStringList args;
+    args << "images" << "--format" << "{{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}";
+    
+    // Komutu çalıştır
+    dockerProcess.start("docker", args);
+    dockerProcess.waitForFinished();
+    
+    // Sonucu analiz et
+    if (dockerProcess.exitCode() != 0) {
+        qDebug() << "Docker image listesi alınamadı:" << dockerProcess.readAllStandardError();
+        return imageList;
+    }
+    
+    QString output = dockerProcess.readAllStandardOutput().trimmed();
+    QStringList images = output.split("\n");
+    
+    // Her imajı JSON objesine dönüştür
+    for (const QString& image : images) {
+        if (image.trimmed().isEmpty()) continue;
+        
+        QStringList parts = image.split("\t");
+        QJsonObject imageObj;
+        
+        if (parts.size() >= 4) {
+            imageObj["id"] = parts[0];
+            imageObj["name"] = parts[1];
+            imageObj["tag"] = parts[2];
+            imageObj["size"] = parts[3];
+            imageObj["current"] = (parts[1] + ":" + parts[2] == imageName); // Mevcut imaj mı?
+        }
+        
+        imageList.append(imageObj);
+    }
+    
+    return imageList;
+}
+
+bool DockerManager::runContainer(const QString& imageName, const QString& containerName, const QStringList& params) {
+    QString config = "name=" + containerName + ",image=" + imageName;
+    return startContainer(config);
+}
+
+QString DockerManager::getContainerLogs(const QString& containerName) {
+    if (containerName.isEmpty()) {
+        return "Container name is empty";
+    }
+    
+    dockerProcess.start("docker", QStringList() << "logs" << containerName);
+    dockerProcess.waitForFinished();
+    
+    if (dockerProcess.exitCode() != 0) {
+        return "Failed to get logs: " + dockerProcess.readAllStandardError();
+    }
+    
+    return dockerProcess.readAllStandardOutput();
 }

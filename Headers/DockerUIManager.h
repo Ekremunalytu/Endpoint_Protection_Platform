@@ -2,9 +2,11 @@
 #define DOCKERUIMANAGER_H
 
 #include <QObject>
+#include <QString>
+#include <QtCore/QJsonArray>
+#include <QVariant>
 #include <QTableWidget>
 #include <QPlainTextEdit>
-#include <QJsonArray>
 
 class DockerManager;
 

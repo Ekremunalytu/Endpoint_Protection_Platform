@@ -3,10 +3,10 @@
 
 #include <QObject>
 #include <QString>
-#include <QStringList>
+#include <QtCore/QStringList>
 #include <QProcess>
-#include <QJsonArray>
-#include <QJsonObject>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonObject>
 #include "Interfaces/IDockerManager.h"
 
 class DockerManager : public QObject, public IDockerManager {
@@ -25,10 +25,24 @@ public:
     bool isContainerRunning(const QString& containerName) override;
     QString getContainerLogs(const QString& containerName) override;
 
+    // Additional methods
+    bool startContainer(const QString& config);
+    QString executeCommand(const QString& command);
+    bool copyFileToContainer(const QString& localPath, const QString& containerPath);
+    bool copyFileFromContainer(const QString& containerPath, const QString& localPath);
+    QJsonArray listContainers(bool showAll = false);
+    bool isContainerRunning(); // Overloaded version for internal use
+    void stopContainer(); // Overloaded version for internal use
+
 private:
     QProcess dockerProcess;
     QString executeDockerCommand(const QStringList& arguments);
     QJsonArray parseDockerOutput(const QString& output, const QString& type);
+    
+    // Added missing member variables
+    bool containerRunning; 
+    QString containerName;
+    QString imageName;
 };
 
 #endif // DOCKERMANAGER_H

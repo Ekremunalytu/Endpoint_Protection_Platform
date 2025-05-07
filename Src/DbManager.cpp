@@ -4,6 +4,25 @@
 #include <QThread>
 #include "../Headers/DbManager.h"
 
+// Statik üyelerin tanımlanması
+DbManager* DbManager::instance = nullptr;
+std::mutex DbManager::mutex;
+QSqlDatabase DbManager::db;
+
+// Private constructor implementation
+DbManager::DbManager() {
+    // Constructor içi boş kalabilir veya gerekli başlangıç işlemleri yapılabilir
+}
+
+// Singleton pattern için getInstance metodu implementasyonu
+DbManager* DbManager::getInstance() {
+    std::lock_guard<std::mutex> lock(mutex);
+    if (instance == nullptr) {
+        instance = new DbManager();
+    }
+    return instance;
+}
+
 // Thread local veritabanı bağlantı adını oluştur
 QString getConnectionNameForThread() {
     return QString("connection_%1").arg((quintptr)QThread::currentThreadId());

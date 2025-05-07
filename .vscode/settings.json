@@ -9,5 +9,6 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "files.associations": {
         "typeinfo": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 } 

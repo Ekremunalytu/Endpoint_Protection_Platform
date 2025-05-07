@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QStringList>
-#include <QJsonArray>
+#include <QtCore/QJsonArray>
 #include <QJsonObject>
 
 class IDockerManager {

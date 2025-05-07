@@ -26,6 +26,7 @@ public:
 private:
     DockerManager *dockerManager;
     QString cdrImageName;
+    QString outputDir; // Temizlenmiş dosyaların çıkış dizini
     
     // Yardımcı metotlar
     QString generateOutputFilename(const QString& inputFilePath);
