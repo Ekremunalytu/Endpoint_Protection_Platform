@@ -59,10 +59,16 @@ set(HEADER_FILES
     Headers/ApplicationStartup.h  # ApplicationStartup eklendi
 )
 
+# QT Resource dosyaları
+set(RESOURCE_FILES
+    Resources/resources.qrc
+)
+
 # Yürütülebilir oluştur
 add_executable(${PROJECT_NAME}
     ${SOURCE_FILES}
     ${HEADER_FILES}
+    ${RESOURCE_FILES}
 )
 
 # Qt kütüphanelerini linkle
@@ -81,15 +87,23 @@ if(WIN32)
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/Headers
-        "C:/Qt/6.10.0/msvc2022_64/include"
-        "C:/Qt/6.10.0/msvc2022_64/lib"
+        "$<TARGET_PROPERTY:Qt6::Core,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Gui,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Widgets,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Sql,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Network,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Concurrent,INTERFACE_INCLUDE_DIRECTORIES>"
     )
 elseif(APPLE)
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/Headers
-        "/Volumes/Crucial/QT/6.10.0/macos/include"
-        "/Volumes/Crucial/QT/6.10.0/macos/lib"
+        "$<TARGET_PROPERTY:Qt6::Core,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Gui,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Widgets,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Sql,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Network,INTERFACE_INCLUDE_DIRECTORIES>"
+        "$<TARGET_PROPERTY:Qt6::Concurrent,INTERFACE_INCLUDE_DIRECTORIES>"
     )
 endif()
 

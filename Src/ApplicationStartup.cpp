@@ -11,9 +11,17 @@
 #include "../Headers/ConfigManager.h"
 
 #include <QDebug>
+#include <QFile>
+#include <QApplication>
+#include <QTextStream>
 
 ApplicationStartup::ApplicationStartup(QObject *parent) : QObject(parent)
 {
+    // QApplication pointer'ını al
+    app = qobject_cast<QApplication*>(parent);
+    if (!app) {
+        qWarning() << "ApplicationStartup: QApplication referansı alınamadı!";
+    }
 }
 
 ApplicationStartup::~ApplicationStartup()
@@ -31,7 +39,10 @@ void ApplicationStartup::initialize()
     // Servisleri kaydet
     registerServices();
     
-    qDebug() << "ApplicationStartup: Tüm servisler hazır.";
+    // Stil dosyalarını yükle
+    loadStyleSheets();
+    
+    qDebug() << "ApplicationStartup: Tüm servisler ve stiller hazır.";
 }
 
 void ApplicationStartup::initializeServices()
@@ -102,6 +113,29 @@ void ApplicationStartup::registerServices()
         qCritical() << "ApplicationStartup: Servis başlatma hatası:" << e.what();
     } catch (...) {
         qCritical() << "ApplicationStartup: Bilinmeyen servis başlatma hatası!";
+    }
+}
+
+void ApplicationStartup::loadStyleSheets()
+{
+    qDebug() << "ApplicationStartup: Stil dosyaları yükleniyor...";
+    
+    if (!app) {
+        qWarning() << "ApplicationStartup: QApplication referansı olmadan stiller yüklenemez!";
+        return;
+    }
+    
+    // Ana stil dosyasını yükle (qrc kaynaklarından)
+    QFile styleFile(":/styles/styles/main.qss");
+    
+    if (styleFile.open(QFile::ReadOnly)) {
+        QString styleSheet = QLatin1String(styleFile.readAll());
+        app->setStyleSheet(styleSheet);
+        
+        qDebug() << "ApplicationStartup: Ana stil dosyası başarıyla yüklendi.";
+        styleFile.close();
+    } else {
+        qWarning() << "ApplicationStartup: Stil dosyası açılamadı:" << styleFile.errorString();
     }
 }
 

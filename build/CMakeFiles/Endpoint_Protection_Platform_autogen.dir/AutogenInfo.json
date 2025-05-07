@@ -477,7 +477,8 @@
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ConcurrentPrivate/Qt6ConcurrentPrivateTargets.cmake",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ConcurrentPrivate/Qt6ConcurrentPrivateAdditionalTargetInfo.cmake",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ConcurrentPrivate/Qt6ConcurrentPrivateVersionlessAliasTargets.cmake",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Concurrent/Qt6ConcurrentVersionlessAliasTargets.cmake"
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Concurrent/Qt6ConcurrentVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Resources/resources.qrc"
 	],
 	"CMAKE_SOURCE_DIR" : "/Volumes/Crucial/Endpoint_Protection_Platform",
 	"CROSS_CONFIG" : false,
@@ -594,11 +595,10 @@
 		"/Volumes/Crucial/Endpoint_Protection_Platform",
 		"/Volumes/Crucial/Endpoint_Protection_Platform/Headers",
 		"/opt/homebrew/include",
-		"/Volumes/Crucial/QT/6.10.0/macos/include",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtCore.framework/Headers",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtCore.framework",
 		"/Volumes/Crucial/QT/6.10.0/macos/mkspecs/macx-clang",
+		"/Volumes/Crucial/QT/6.10.0/macos/include",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework/Headers",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtWidgets.framework/Headers",

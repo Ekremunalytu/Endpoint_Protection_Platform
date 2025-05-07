@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     qDebug() << "Uygulama başlatılıyor...";
     
     // Uygulama başlatıcısını oluştur ve servisleri başlat
+    // QApplication nesnesini parent olarak geçiriyoruz
     ApplicationStartup* appStartup = new ApplicationStartup(&app);
     appStartup->initialize();
     

@@ -57,23 +57,7 @@ void DockerUIManager::showContainerDetails()
     containerTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     containerTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     containerTableWidget->setAlternatingRowColors(true);
-    containerTableWidget->setStyleSheet(
-        "QTableWidget {"
-        "   background-color: #2d2d30;"
-        "   color: #ffffff;"
-        "   border: 1px solid #3f3f46;"
-        "}"
-        "QTableWidget::item {"
-        "   padding: 5px;"
-        "}"
-        "QHeaderView::section {"
-        "   background-color: #252526;"
-        "   color: white;"
-        "   font-weight: bold;"
-        "   border: 1px solid #333333;"
-        "   padding: 4px;"
-        "}"
-    );
+    // Stil tanımlamasını kaldırıp objectName ekledik
     
     layout->addWidget(containerTableWidget);
     
@@ -81,32 +65,10 @@ void DockerUIManager::showContainerDetails()
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     
     QPushButton *refreshButton = new QPushButton("Refresh", containerDialog);
-    refreshButton->setStyleSheet(
-        "QPushButton {"
-        "   background-color: #0078d7;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 8px 16px;"
-        "   border-radius: 4px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #1c97ea;"
-        "}"
-    );
+    // Stil tanımlamasını değiştirip normal QPushButton kullanıyoruz
     
     QPushButton *closeButton = new QPushButton("Close", containerDialog);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "   background-color: #e74c3c;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 8px 16px;"
-        "   border-radius: 4px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #c0392b;"
-        "}"
-    );
+    closeButton->setObjectName("dangerButton");
     
     buttonLayout->addStretch();
     buttonLayout->addWidget(refreshButton);

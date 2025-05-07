@@ -1,0 +1,14 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/styles">
+        <file>styles/main.qss</file>
+    </qresource>
+    <qresource prefix="/images">
+        <!-- Buraya ileride eklenecek görseller -->
+        <!-- <file>images/shield.png</file> -->
+        <!-- <file>images/icon.png</file> -->
+    </qresource>
+    <qresource prefix="/icons">
+        <!-- Buraya ileride eklenecek ikonlar -->
+    </qresource>
+</RCC>

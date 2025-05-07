@@ -30,32 +30,10 @@ void ResultsView::setupTextEditStyle(QPlainTextEdit* textEdit)
 {
     if (!textEdit) return;
     
-    // Metin düzenleyici stil ayarları
-    textEdit->setStyleSheet(
-        "QPlainTextEdit {"
-        "    background-color: #181818;"
-        "    color: #cccccc;"
-        "    border: none;"
-        "    font-family: 'Consolas', 'Courier New', monospace;"
-        "    font-size: 12pt;"
-        "    padding: 10px;"
-        "}"
-        "QScrollBar:vertical {"
-        "    background: #222222;"
-        "    width: 12px;"
-        "    margin: 0px;"
-        "}"
-        "QScrollBar::handle:vertical {"
-        "    background: #444444;"
-        "    min-height: 20px;"
-        "    border-radius: 6px;"
-        "}"
-        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
-        "    height: 0px;"
-        "}"
-    );
+    // QSS'i CSS niteliklerini ayarlamak yerine objectName atayarak kullanıyoruz
+    textEdit->setObjectName("resultsTextEdit");
     
-    // Satır sayısı için sol kenar boşluğu
+    // Satır sayısı için sol kenar boşluğu - bu özellikler hala kod içerisinde ayarlanabilir
     textEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     textEdit->document()->setDocumentMargin(15);
 }

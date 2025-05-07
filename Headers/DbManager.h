@@ -1,16 +1,16 @@
 #ifndef DBMANAGER_H
 #define DBMANAGER_H
 
-#include <QString>
-#include <QStringList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
-#include <QFile>
-#include <QDebug>
-#include <QMessageBox>
+#include <QtCore/QFile>
+#include <QtCore/QDebug>
+#include <QtWidgets/QMessageBox>
 #include <QtConcurrent>
-#include <QFutureWatcher>
+#include <QtCore/QFutureWatcher>
 #include <functional>
 #include <mutex>
 #include "Interfaces/IDbManager.h"

@@ -44,67 +44,21 @@ ApiKeyDialog::ApiKeyDialog(QWidget *parent) : QDialog(parent) {
     setModal(true);
     setMinimumWidth(450);
 
-    // Modern tema renkleri - ana temadan alındı
-    QString backgroundColor = "#181818";      // İkincil arkaplan rengi
-    QString textColor = "#ffffff";            // Ana metin rengi
-    QString secondaryTextColor = "#cccccc";   // İkincil metin rengi
-    QString accentColor = "#0078d7";          // Vurgu rengi
-    QString borderColor = "#333333";          // Kenarlık rengi
-    
-    // Dialog'a tema uygula
-    setStyleSheet(QString(
-        "QDialog {"
-        "   background-color: %1;"
-        "   color: %2;"
-        "   font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;"
-        "}")
-        .arg(backgroundColor)
-        .arg(textColor)
-    );
-
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(20);
     layout->setContentsMargins(30, 30, 30, 30);
 
     QLabel *infoLabel = new QLabel("Enter your VirusTotal API key:", this);
-    infoLabel->setStyleSheet(QString(
-        "font-size: 15pt;"
-        "color: %1;"
-        "margin-bottom: 10px;")
-        .arg(textColor)
-    );
+    infoLabel->setObjectName("infoLabel");
     layout->addWidget(infoLabel);
 
     apiKeyLineEdit = new QLineEdit(this);
     apiKeyLineEdit->setPlaceholderText("API Key here...");
-    apiKeyLineEdit->setStyleSheet(QString(
-        "QLineEdit {"
-        "   padding: 12px;"
-        "   font-size: 13pt;"
-        "   border: 2px solid %1;"
-        "   border-radius: 5px;"
-        "   background-color: #232323;"
-        "   color: %2;"
-        "}"
-        "QLineEdit:focus {"
-        "   border: 2px solid %3;"
-        "}")
-        .arg(borderColor)
-        .arg(textColor)
-        .arg(accentColor)
-    );
     layout->addWidget(apiKeyLineEdit);
     
-    // API key hakkında ek bilgi
     QLabel *apiInfoLabel = new QLabel(tr("Get your free API key from <a href='https://www.virustotal.com/gui/join-us'>VirusTotal</a>"), this);
     apiInfoLabel->setOpenExternalLinks(true);
-    apiInfoLabel->setStyleSheet(QString(
-        "font-size: 11pt;"
-        "color: %1;"
-        "margin-top: -10px;"
-        "margin-bottom: 10px;")
-        .arg(secondaryTextColor)
-    );
+    apiInfoLabel->setObjectName("apiInfoLabel");
     layout->addWidget(apiInfoLabel);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -113,47 +67,7 @@ ApiKeyDialog::ApiKeyDialog(QWidget *parent) : QDialog(parent) {
     QPushButton *okButton = new QPushButton("Save", this);
     QPushButton *cancelButton = new QPushButton("Cancel", this);
 
-    // Ortak buton stili
-    QString buttonStyle = QString(
-        "QPushButton {"
-        "   padding: 12px 25px;"
-        "   font-size: 13pt;"
-        "   border-radius: 5px;"
-        "   min-width: 120px;"
-        "   font-weight: 500;"
-        "}")
-        .arg(secondaryTextColor);
-
-    // Kaydet butonu
-    okButton->setStyleSheet(buttonStyle + QString(
-        "QPushButton {"
-        "   background-color: %1;"
-        "   color: white;"
-        "   border: none;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #1e88e5;"
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #0066c0;"
-        "}")
-        .arg(accentColor)
-    );
-
-    // İptal butonu
-    cancelButton->setStyleSheet(buttonStyle +
-        "QPushButton {"
-        "   background-color: #424242;"
-        "   color: white;"
-        "   border: none;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #616161;"
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #212121;"
-        "}"
-    );
+    cancelButton->setObjectName("secondaryButton");
 
     buttonLayout->addStretch();
     buttonLayout->addWidget(cancelButton);
@@ -250,43 +164,6 @@ MainWindow::MainWindow(QWidget *parent)
     resize(width, height);
     setMinimumSize(800, 600);
 
-    // Modern stil ayarları
-    setStyleSheet(
-        "QMainWindow {"
-        "    background-color: #0c0c0c;" // Daha koyu siyah background
-        "}"
-        "QWidget {"
-        "    color: #ffffff;"
-        "}"
-        "QToolBar {"
-        "    background-color: #0c0c0c;"
-        "    border: none;"
-        "    spacing: 10px;"
-        "    padding: 5px;"
-        "}"
-        "QStatusBar {"
-        "    background-color: #1e1e1e;"
-        "    color: #cccccc;"
-        "    border-top: 1px solid #333333;"
-        "}"
-        "QStatusBar::item {"
-        "    border: none;"
-        "}"
-        "QPushButton {"
-        "    background-color: #0078d7;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 8px 16px;"
-        "    border-radius: 4px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #1c97ea;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #0067b8;"
-        "}"
-    );
-
     createActions();
     createMenus();
     createStatusBar();
@@ -343,48 +220,11 @@ void MainWindow::createMenus()
     QToolButton* menuButton = new QToolButton(this);
     menuButton->setText(tr("Menu"));
     menuButton->setPopupMode(QToolButton::InstantPopup);
-    menuButton->setStyleSheet(
-        "QToolButton {"
-        "    background-color: #007acc;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 8px 16px;"
-        "    font-size: 12pt;"
-        "    border-radius: 5px;"
-        "}"
-        "QToolButton:hover {"
-        "    background-color: #1c97ea;"
-        "}"
-        "QToolButton::menu-indicator {"
-        "    image: none;"
-        "}"
-    );
+    menuButton->setObjectName("menuToolButton");
 
     // Create menu - Sadeleştirilmiş menü yapısı
     QMenu* menu = new QMenu(this);
-    menu->setStyleSheet(
-        "QMenu {"
-        "    background-color: #252526;"
-        "    border: 1px solid #3f3f46;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "}"
-        "QMenu::item {"
-        "    padding: 8px 25px 8px 15px;"
-        "    border-radius: 3px;"
-        "    margin: 2px;"
-        "    color: #cccccc;"
-        "}"
-        "QMenu::item:selected {"
-        "    background-color: #007acc;"
-        "    color: white;"
-        "}"
-        "QMenu::separator {"
-        "    height: 1px;"
-        "    background-color: #3f3f46;"
-        "    margin: 5px 15px;"
-        "}"
-    );
+    menu->setObjectName("mainMenu");
 
     // Menüde sadece API Key ayarını bırakıyoruz
     menu->addAction(apiKeyAction);
@@ -395,14 +235,7 @@ void MainWindow::createMenus()
     QToolBar* mainToolBar = addToolBar(tr("Main Menu"));
     mainToolBar->setMovable(false);
     mainToolBar->addWidget(menuButton);
-    mainToolBar->setStyleSheet(
-        "QToolBar {"
-        "    background-color: #252526;"
-        "    border: none;"
-        "    spacing: 10px;"
-        "    padding: 5px;"
-        "}"
-    );
+    mainToolBar->setObjectName("mainToolBar");
 }
 
 void MainWindow::createToolBars()
@@ -426,17 +259,8 @@ void MainWindow::createModernCentralWidgets()
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Tema renkleri - tutarlı renk değişkenleri tanımlayarak arayüzün tutarlı görünmesini sağlıyoruz
-    QString backgroundColor = "#0c0c0c";      // Ana arkaplan rengi - koyu siyah
-    QString secondaryBgColor = "#181818";     // İkincil arkaplan rengi - sidebar ve diğer alanlar için
-    QString accentColor = "#0078d7";          // Vurgu rengi - Microsoft mavisi
-    QString borderColor = "#333333";          // Kenarlık rengi
-    QString textColor = "#ffffff";            // Ana metin rengi - beyaz
-    QString secondaryTextColor = "#cccccc";   // İkincil metin rengi - açık gri
-    
     // Ana içerik bölümü
     QWidget *contentWidget = new QWidget(this);
-    contentWidget->setStyleSheet(QString("background-color: %1;").arg(backgroundColor));
     
     // Sol sidebar için bir layout
     QHBoxLayout *horizontalLayout = new QHBoxLayout(contentWidget);
@@ -446,36 +270,7 @@ void MainWindow::createModernCentralWidgets()
     // Sol sidebar oluştur
     QWidget *sidebarWidget = new QWidget(this);
     sidebarWidget->setFixedWidth(220);
-    sidebarWidget->setStyleSheet(
-        QString("QWidget {"
-        "    background-color: %1;"
-        "    border-right: 1px solid %2;"
-        "}"
-        "QPushButton {"
-        "    text-align: left;"
-        "    padding: 12px 20px;"
-        "    border: none;"
-        "    border-radius: 0;"
-        "    background-color: transparent;"
-        "    color: %3;"
-        "    font-size: 14px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: %2;"
-        "    color: %4;"
-        "}"
-        "QPushButton:checked {"
-        "    background-color: #222222;"
-        "    color: %4;"
-        "    font-weight: bold;"
-        "    border-left: 4px solid %5;"
-        "}")
-        .arg(secondaryBgColor)
-        .arg(borderColor)
-        .arg(secondaryTextColor)
-        .arg(textColor)
-        .arg(accentColor)
-    );
+    sidebarWidget->setObjectName("sidebarWidget");
     
     // Sidebar layout
     QVBoxLayout *sidebarLayout = new QVBoxLayout(sidebarWidget);
@@ -486,39 +281,17 @@ void MainWindow::createModernCentralWidgets()
     QString sidebarButtonColor = "#1e88e5";
     
     // Sidebar butonu oluşturma için lambda fonksiyon
-    auto createSidebarButton = [this, sidebarLayout, textColor, accentColor](const QString &text, bool checked = false, const QString &bgColor = "") {
+    auto createSidebarButton = [this, sidebarLayout](const QString &text, bool checked = false, bool colored = true) {
         QPushButton *btn = new QPushButton(text, this);
         btn->setCheckable(true);
         btn->setChecked(checked);
         btn->setIconSize(QSize(20, 20));
         
-        // Butonun renkli olması için özel stil
-        if (!bgColor.isEmpty()) {
-            btn->setStyleSheet(QString(
-                "QPushButton {"
-                "    text-align: left;"
-                "    padding: 12px 20px;"
-                "    border: none;"
-                "    border-radius: 0;"
-                "    background-color: %1;"
-                "    color: %2;"
-                "    font-size: 14px;"
-                "    font-weight: bold;"
-                "}"
-                "QPushButton:hover {"
-                "    background-color: #333333;"
-                "    color: %2;"
-                "}"
-                "QPushButton:checked {"
-                "    background-color: #222222;"
-                "    color: %2;"
-                "    font-weight: bold;"
-                "    border-left: 4px solid %3;"
-                "}")
-                .arg(bgColor)
-                .arg(textColor)
-                .arg(accentColor)
-            );
+        // Objename ile QSS bağlantısı
+        if (colored) {
+            btn->setObjectName("coloredSidebarButton");
+        } else {
+            btn->setObjectName("sidebarButton");
         }
         
         sidebarLayout->addWidget(btn);
@@ -526,16 +299,16 @@ void MainWindow::createModernCentralWidgets()
     };
 
     // Sidebar butonları - hepsi aynı renk kullanıyor
-    QPushButton *offlineScanBtn = createSidebarButton(tr("Offline Scan"), true, sidebarButtonColor);
-    QPushButton *virusScanBtn = createSidebarButton(tr("Online Scan"), false, sidebarButtonColor);
-    QPushButton *cdrScanBtn = createSidebarButton(tr("CDR Scan"), false, sidebarButtonColor);
-    QPushButton *sandboxBtn = createSidebarButton(tr("Sandbox"), false, sidebarButtonColor);
-    QPushButton *serviceStatusBtn = createSidebarButton(tr("Service Status"), false, sidebarButtonColor);
+    QPushButton *offlineScanBtn = createSidebarButton(tr("Offline Scan"), true);
+    QPushButton *virusScanBtn = createSidebarButton(tr("Online Scan"), false);
+    QPushButton *cdrScanBtn = createSidebarButton(tr("CDR Scan"), false);
+    QPushButton *sandboxBtn = createSidebarButton(tr("Sandbox"), false);
+    QPushButton *serviceStatusBtn = createSidebarButton(tr("Service Status"), false);
 
     // Sidebar'ın alt kısmına geçmiş butonu ekle - aynı renk stili ile
     sidebarLayout->addStretch();
     
-    QPushButton *historyBtn = createSidebarButton(tr("History"), false, sidebarButtonColor);
+    QPushButton *historyBtn = createSidebarButton(tr("History"), false);
     
     // Histori butonuna tıklama işlevi ekliyoruz
     connect(historyBtn, &QPushButton::clicked, this, &MainWindow::onHistoryButtonClicked);
@@ -544,7 +317,7 @@ void MainWindow::createModernCentralWidgets()
 
     // Ana içerik alanı
     QWidget *mainContentWidget = new QWidget(this);
-    mainContentWidget->setStyleSheet(QString("background-color: %1; padding: 20px;").arg(backgroundColor));
+    mainContentWidget->setObjectName("mainContentWidget");
     
     QVBoxLayout *mainContentLayout = new QVBoxLayout(mainContentWidget);
     mainContentLayout->setSpacing(20);
@@ -566,13 +339,7 @@ void MainWindow::createModernCentralWidgets()
     logoLabel->setFixedSize(32, 32);
     
     QLabel *titleLabel = new QLabel(tr("Antivirus"), this);
-    titleLabel->setStyleSheet(
-        "QLabel {"
-        "    font-size: 24px;"
-        "    font-weight: bold;"
-        "    color: white;"
-        "}"
-    );
+    titleLabel->setObjectName("titleLabel");
     
     headerLayout->addWidget(logoLabel);
     headerLayout->addWidget(titleLabel);
@@ -580,17 +347,7 @@ void MainWindow::createModernCentralWidgets()
     // Hamburger menü ikonu
     QPushButton *menuButton = new QPushButton(this);
     menuButton->setFixedSize(32, 32);
-    menuButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    color: white;"
-        "    font-size: 20px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #333333;"
-        "}"
-    );
+    menuButton->setObjectName("menuIcon");
     menuButton->setText("≡");
     
     // Layout'lara ekle - Service Status bilgisi artık burada gösterilmeyecek
@@ -602,7 +359,7 @@ void MainWindow::createModernCentralWidgets()
     
     // Alt kısımda sonuçlar bölgesi
     QWidget *contentAreaWidget = new QWidget(this);
-    contentAreaWidget->setStyleSheet("background-color: transparent;");
+    contentAreaWidget->setObjectName("contentAreaWidget");
     QVBoxLayout *contentAreaLayout = new QVBoxLayout(contentAreaWidget);
     contentAreaLayout->setSpacing(20);
     contentAreaLayout->setContentsMargins(0, 30, 0, 0);
@@ -611,14 +368,7 @@ void MainWindow::createModernCentralWidgets()
     
     // Sonuçlar için çok daha geniş bir alan (başlangıçta gizli)
     QWidget *resultsWidget = new QWidget(this);
-    resultsWidget->setStyleSheet(
-        "QWidget {"
-        "    background-color: #14141a;"
-        "    border-radius: 12px;"
-        "    padding: 15px;"
-        "    margin-top: 20px;"
-        "}"
-    );
+    resultsWidget->setObjectName("resultsWidget");
     
     QVBoxLayout *resultsLayout = new QVBoxLayout(resultsWidget);
     resultsLayout->setSpacing(15);
@@ -629,31 +379,13 @@ void MainWindow::createModernCentralWidgets()
     
     // Sonuçlar başlığı
     QLabel *resultsTitle = new QLabel(tr("Scan Results"), this);
-    resultsTitle->setStyleSheet(
-        "QLabel {"
-        "    font-size: 20px;"
-        "    font-weight: bold;"
-        "    color: white;"
-        "}"
-    );
+    resultsTitle->setObjectName("titleLabel");
     resultsTitleLayout->addWidget(resultsTitle);
     resultsTitleLayout->addStretch();
     
     // Detaylı görünüm butonu
     QPushButton *detailedViewButton = new QPushButton(tr("Detailed Analysis"), this);
-    detailedViewButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: #333333;"
-        "    color: white;"
-        "    border: none;"
-        "    border-radius: 4px;"
-        "    padding: 6px 12px;"
-        "    font-size: 13px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #444444;"
-        "}"
-    );
+    detailedViewButton->setObjectName("secondaryButton");
     resultsTitleLayout->addWidget(detailedViewButton);
     resultsLayout->addLayout(resultsTitleLayout);
     
@@ -661,13 +393,7 @@ void MainWindow::createModernCentralWidgets()
     QScrollArea *resultScrollArea = new QScrollArea(this);
     resultScrollArea->setWidgetResizable(true);
     resultScrollArea->setFrameShape(QFrame::NoFrame);
-    resultScrollArea->setStyleSheet(
-        "QScrollArea {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    min-width: 800px;"
-        "}"
-    );
+    resultScrollArea->setObjectName("transparentScrollArea");
     
     // Scroll area'nın boyutunu genişletmek için minimum yükseklik ve genişlik ata
     resultScrollArea->setMinimumHeight(500);
@@ -690,13 +416,7 @@ void MainWindow::createModernCentralWidgets()
     QScrollArea *detailedResultScrollArea = new QScrollArea(this);
     detailedResultScrollArea->setWidgetResizable(true);
     detailedResultScrollArea->setFrameShape(QFrame::NoFrame);
-    detailedResultScrollArea->setStyleSheet(
-        "QScrollArea {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    min-width: 800px;"
-        "}"
-    );
+    detailedResultScrollArea->setObjectName("transparentScrollArea");
     
     // Detaylı scroll area'ya da normal scroll area ile aynı boyut politikalarını uygula
     detailedResultScrollArea->setMinimumHeight(500);
@@ -718,29 +438,7 @@ void MainWindow::createModernCentralWidgets()
     
     // API log widget - Yükseklik artırıldı
     QGroupBox *apiGroup = new QGroupBox(tr("Low-Level Communication"), this);
-    apiGroup->setStyleSheet(
-        QString("QGroupBox {"
-        "    font-size: 14px;"
-        "    font-weight: bold;"
-        "    border: 1px solid %1;"
-        "    border-radius: 8px;"
-        "    margin-top: 1ex;"
-        "    padding: 10px;"
-        "    background-color: %2;"
-        "    color: %3;"
-        "}"
-        "QGroupBox::title {"
-        "    subcontrol-origin: margin;"
-        "    subcontrol-position: top center;"
-        "    padding: 0 10px;"
-        "    color: %3;"
-        "    background-color: %2;"
-        "}")
-        .arg(borderColor)
-        .arg(secondaryBgColor)
-        .arg(secondaryTextColor)
-    );
-
+    
     QVBoxLayout *apiLayout = new QVBoxLayout(apiGroup);
     apiLogTextEdit = new QPlainTextEdit();
     apiLogTextEdit->setReadOnly(true);

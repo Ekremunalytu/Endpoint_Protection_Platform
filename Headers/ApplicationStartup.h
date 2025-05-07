@@ -2,6 +2,7 @@
 #define APPLICATIONSTARTUP_H
 
 #include <QObject>
+#include <QApplication>
 
 // Servis sağlayıcı sınıf
 class ApplicationStartup : public QObject
@@ -14,14 +15,15 @@ public:
 
     // Uygulamayı başlat ve tüm servisleri hazırla
     void initialize();
-    
-    // Servis sağlayıcılarını temizle
-    void cleanup();
 
 private:
     // Servisleri başlat
     void initializeServices();
     void registerServices();
+    void loadStyleSheets();  // Stil dosyalarını yüklemek için yeni fonksiyon
+    void cleanup();
+
+    QApplication* app;  // QApplication referansı için pointer
 };
 
 #endif // APPLICATIONSTARTUP_H
