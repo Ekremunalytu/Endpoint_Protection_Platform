@@ -24,30 +24,37 @@ DockerManager::~DockerManager() {
 }
 
 bool DockerManager::isDockerAvailable() {
-    try {
-        dockerProcess->start("docker", QStringList() << "--version");
-        
-        // Timeout değerini artırıyoruz - bazı ortamlarda daha uzun sürebilir
-        if (!dockerProcess->waitForFinished(10000)) {  // 10 saniye timeout
-            qDebug() << "Docker command timeout";
+    QProcess process;
+    process.start("docker", QStringList() << "ps"); // Changed from docker --version to docker ps
+    process.waitForFinished();
+
+    if (process.exitCode() == 0) {
+        try {
+            dockerProcess->start("docker", QStringList() << "ps");
+            
+            // Timeout değerini artırıyoruz - bazı ortamlarda daha uzun sürebilir
+            if (!dockerProcess->waitForFinished(10000)) {  // 10 saniye timeout
+                qDebug() << "Docker command timeout";
+                return false;
+            }
+            
+            if (dockerProcess->exitCode() != 0) {
+                qDebug() << "Docker daemon is not responsive: " << dockerProcess->readAllStandardError();
+                return false;
+            }
+            
+            QString output = dockerProcess->readAllStandardOutput().trimmed();
+            qDebug() << "Docker daemon is responsive: " << output;
+            return true;
+        } catch (const std::exception& e) {
+            qDebug() << "Exception in isDockerAvailable:" << e.what();
+            return false;
+        } catch (...) {
+            qDebug() << "Unknown exception in isDockerAvailable";
             return false;
         }
-        
-        if (dockerProcess->exitCode() != 0) {
-            qDebug() << "Docker is not available: " << dockerProcess->readAllStandardOutput();
-            return false;
-        }
-        
-        QString output = dockerProcess->readAllStandardOutput().trimmed();
-        qDebug() << "Docker is available: " << output;
-        return true;
-    } catch (const std::exception& e) {
-        qDebug() << "Exception in isDockerAvailable:" << e.what();
-        return false;
-    } catch (...) {
-        qDebug() << "Unknown exception in isDockerAvailable";
-        return false;
     }
+    return false; // Added to ensure a value is always returned
 }
 
 bool DockerManager::startContainer(const QString& config) {

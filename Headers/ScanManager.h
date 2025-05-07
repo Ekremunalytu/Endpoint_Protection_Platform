@@ -36,6 +36,7 @@ public:
     bool performSandboxScan(const QString& filePath);
     
     // Servis durum kontrolleri
+    bool isDbInitialized() const;
     bool isCdrInitialized() const;
     bool isSandboxInitialized() const;
 

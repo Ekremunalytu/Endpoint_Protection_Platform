@@ -19,6 +19,9 @@ public:
     // SQLite veritabanına bağlanır.
     static bool connectToDatabase();
 
+    // Veritabanı bağlantısının açık olup olmadığını kontrol eder.
+    static bool isDatabaseConnected();
+
     // Veritabanındaki tabloları listeler.
     static void listTables();
 

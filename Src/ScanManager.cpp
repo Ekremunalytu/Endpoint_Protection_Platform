@@ -3,6 +3,7 @@
 #include "../Headers/YaraRuleManager.h"
 #include "../Headers/CdrManager.h"
 #include "../Headers/SandboxManager.h"
+#include "../Headers/DbManager.h" // Added to include DbManager definition
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QJsonDocument>
@@ -855,4 +856,10 @@ bool ScanManager::isSandboxInitialized() const
         return false;
     
     return m_sandboxManager->initialize();
+}
+
+bool ScanManager::isDbInitialized() const
+{
+    // Use the new DbManager::isDatabaseConnected() method
+    return DbManager::isDatabaseConnected(); 
 }

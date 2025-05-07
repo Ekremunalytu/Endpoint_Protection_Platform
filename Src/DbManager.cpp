@@ -193,3 +193,13 @@ void DbManager::asyncConnectToDatabase(std::function<void(bool)> callback) {
     });
     watcher->setFuture(future);
 }
+
+// Veritabanı bağlantısının açık olup olmadığını kontrol eder.
+bool DbManager::isDatabaseConnected() {
+    QString connectionName = getConnectionNameForThread();
+    if (QSqlDatabase::contains(connectionName)) {
+        QSqlDatabase db = QSqlDatabase::database(connectionName);
+        return db.isOpen();
+    }
+    return false;
+}

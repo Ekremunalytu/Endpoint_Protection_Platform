@@ -369,11 +369,8 @@ void MainWindow::createMenus()
         "}"
     );
 
-    // Menüde sadece yönetim işlevlerini bırakıyoruz
+    // Menüde sadece API Key ayarını bırakıyoruz
     menu->addAction(apiKeyAction);
-    menu->addAction(serviceStatusAction);
-    menu->addSeparator();
-    menu->addAction(dockerAction);
 
     menuButton->setMenu(menu);
 
@@ -468,7 +465,10 @@ void MainWindow::createModernCentralWidgets()
     sidebarLayout->setSpacing(0);
     sidebarLayout->setContentsMargins(0, 20, 0, 20);
 
-    // Sidebar butonları (menü öğeleri)
+    // Sidebar butonları için ortak renk - daha tutarlı bir UI için
+    QString sidebarButtonColor = "#1e88e5";
+    
+    // Sidebar butonu oluşturma için lambda fonksiyon
     auto createSidebarButton = [this, sidebarLayout, textColor, accentColor](const QString &text, bool checked = false, const QString &bgColor = "") {
         QPushButton *btn = new QPushButton(text, this);
         btn->setCheckable(true);
@@ -508,36 +508,17 @@ void MainWindow::createModernCentralWidgets()
         return btn;
     };
 
-    // Sidebar butonları - renkli ve yeni isimlerle güncellendi
-    QPushButton *offlineScanBtn = createSidebarButton(tr("Offline Scan"), true, "#1e88e5");  // Mavi renk
-    QPushButton *virusScanBtn = createSidebarButton(tr("Online Scan"), false, "#43a047");   // Yeşil renk
-    QPushButton *cdrScanBtn = createSidebarButton(tr("CDR Scan"), false, "#ff9800");        // Turuncu renk
-    QPushButton *sandboxBtn = createSidebarButton(tr("Sandbox"), false, "#9c27b0");         // Mor renk
-    QPushButton *serviceStatusBtn = createSidebarButton(tr("Service Status"), false, "#e91e63"); // Pembe renk
+    // Sidebar butonları - hepsi aynı renk kullanıyor
+    QPushButton *offlineScanBtn = createSidebarButton(tr("Offline Scan"), true, sidebarButtonColor);
+    QPushButton *virusScanBtn = createSidebarButton(tr("Online Scan"), false, sidebarButtonColor);
+    QPushButton *cdrScanBtn = createSidebarButton(tr("CDR Scan"), false, sidebarButtonColor);
+    QPushButton *sandboxBtn = createSidebarButton(tr("Sandbox"), false, sidebarButtonColor);
+    QPushButton *serviceStatusBtn = createSidebarButton(tr("Service Status"), false, sidebarButtonColor);
 
-    // Sidebar'ın alt kısmına geçmiş butonu ekle
+    // Sidebar'ın alt kısmına geçmiş butonu ekle - aynı renk stili ile
     sidebarLayout->addStretch();
     
-    QPushButton *historyBtn = new QPushButton(tr("History"), this);
-    historyBtn->setStyleSheet(
-        QString("QPushButton {"
-        "    text-align: left;"
-        "    padding: 12px 20px;"
-        "    border: none;"
-        "    border-radius: 0;"
-        "    background-color: transparent;"
-        "    color: %1;"
-        "    font-size: 14px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: %2;"
-        "    color: %3;"
-        "}")
-        .arg(secondaryTextColor)
-        .arg(borderColor)
-        .arg(textColor)
-    );
-    sidebarLayout->addWidget(historyBtn);
+    QPushButton *historyBtn = createSidebarButton(tr("History"), false, sidebarButtonColor);
     
     // Histori butonuna tıklama işlevi ekliyoruz
     connect(historyBtn, &QPushButton::clicked, this, &MainWindow::onHistoryButtonClicked);
@@ -1383,11 +1364,70 @@ void ServiceStatusDialog::updateServiceStatus() {
     // Mevcut servisleri temizle
     statusTable->setRowCount(0);
     
-    // Örnek servis durumları (gerçek uygulamada API'dan alınacak)
-    QStringList services = {"Virüs Tarama Engine", "Real-time Protection", "CDR Service", "Sandbox Service", "Update Service"};
-    QStringList statuses = {"Active", "Active", "Active", "Inactive", "Active"};
-    QStringList details = {"Running (v1.2.3)", "Monitoring all files", "Docker container running", "Service stopped", "Last update: Today 10:45"};
+    // Servis durumlarını hazırla
+    QStringList services = {"VirusTotal API", "Docker Service", "CDR Service", "Sandbox Service", "Database Connection"};
+    QStringList statuses;
+    QStringList details;
+
+    // VirusTotal API durumu - API key var mı kontrol et
+    bool vtApiActive = false;
+    if (apiManager) {
+        QString apiKey = apiManager->getApiKey();
+        vtApiActive = !apiKey.isEmpty();
+    }
+    statuses.append(vtApiActive ? "Active" : "Inactive");
+    details.append(vtApiActive ? 
+        "API key found" : 
+        "API key missing");
     
+    // Docker servisi durumu
+    bool dockerRunning = dockerUIManager->isDockerAvailable();
+    statuses.append(dockerRunning ? "Active" : "Inactive");
+    details.append(dockerRunning ? 
+        "Docker engine running" : 
+        "Docker is not running");
+    
+    // CDR Service durumu
+    bool cdrActive = scanManager->isCdrInitialized() && dockerRunning;
+    statuses.append(cdrActive ? "Active" : "Inactive");
+    
+    if (cdrActive) {
+        QString cdrImage = scanManager->getCurrentCdrImageName();
+        details.append(cdrImage.isEmpty() ? 
+            "Ready to process files" : 
+            "Using image: " + cdrImage);
+    } else if (!dockerRunning) {
+        details.append("Requires Docker to run");
+    } else {
+        details.append("Service not initialized");
+    }
+    
+    // Sandbox Service durumu
+    bool sandboxActive = scanManager->isSandboxInitialized() && dockerRunning;
+    statuses.append(sandboxActive ? "Active" : "Inactive");
+    
+    if (sandboxActive) {
+        QString sandboxImage = scanManager->getCurrentSandboxImageName();
+        details.append(sandboxImage.isEmpty() ? 
+            "Ready for analysis" : 
+            "Using image: " + sandboxImage);
+    } else if (!dockerRunning) {
+        details.append("Requires Docker to run");
+    } else {
+        details.append("Service not initialized");
+    }
+    
+    // Veritabanı bağlantısı durumu
+    bool dbStatus = false;
+    try {
+        dbStatus = scanManager->isDbInitialized();
+    } catch (...) {
+        dbStatus = false;
+    }
+    statuses.append(dbStatus ? "Active" : "Inactive");
+    details.append(dbStatus ? "Connected" : "Connection error");
+    
+    // Servisleri tabloya ekle
     for (int i = 0; i < services.size(); ++i) {
         int row = statusTable->rowCount();
         statusTable->insertRow(row);
@@ -1418,43 +1458,53 @@ void ServiceStatusDialog::updateContainerList() {
     // Mevcut container'ları temizle
     containerTable->setRowCount(0);
     
-    // Container İstatistikleri (gerçekte DockerManager'dan alınacak)
-    int runningCount = 2;
-    int totalCount = 5;
-    int imageCount = 8;
+    // DockerUIManager üzerinden gerçek Docker container verilerini al
+    QJsonArray containers = dockerUIManager->getDockerContainers();
+    QJsonArray images = dockerUIManager->getDockerImages();
+    
+    // Gerçek sayıları hesapla
+    int runningCount = 0;
+    int totalCount = containers.size();
+    int imageCount = images.size();
+    
+    // Çalışan container sayısını bul
+    for (int i = 0; i < containers.size(); ++i) {
+        QJsonObject container = containers[i].toObject();
+        QString status = container["status"].toString().toLower();
+        if (status.contains("up") || status.contains("running")) {
+            runningCount++;
+        }
+    }
     
     // İstatistik değerlerini güncelle
     runningContainerValue->setText(QString::number(runningCount));
     totalContainerValue->setText(QString::number(totalCount));
     imageValue->setText(QString::number(imageCount));
     
-    // Örnek container verileri
-    QStringList containerIds = {"7a38a", "f2b9c", "12d3e", "e54f6", "9a1b2"};
-    QStringList containerNames = {"cdr-engine", "sandbox-analysis", "scan-service", "update-engine", "database-service"};
-    QStringList containerImages = {"cdr:latest", "sandbox:1.2", "scan:2.1", "updater:1.0", "db:latest"};
-    QStringList containerStatuses = {"Running", "Running", "Exited", "Exited", "Created"};
-    QStringList containerPorts = {"8080:80", "9000:9000", "", "", "5432:5432"};
-    
-    for (int i = 0; i < containerIds.size(); ++i) {
+    // Container bilgilerini tabloya ekle
+    for (int i = 0; i < containers.size(); ++i) {
+        QJsonObject container = containers[i].toObject();
+        
         int row = containerTable->rowCount();
         containerTable->insertRow(row);
         
         // Container ID
-        containerTable->setItem(row, 0, new QTableWidgetItem(containerIds[i]));
+        containerTable->setItem(row, 0, new QTableWidgetItem(container["id"].toString()));
         
         // Container Name
-        containerTable->setItem(row, 1, new QTableWidgetItem(containerNames[i]));
+        containerTable->setItem(row, 1, new QTableWidgetItem(container["name"].toString()));
         
         // Container Image
-        containerTable->setItem(row, 2, new QTableWidgetItem(containerImages[i]));
+        containerTable->setItem(row, 2, new QTableWidgetItem(container["image"].toString()));
         
         // Status - renkli gösterim
         QTableWidgetItem* statusItem = new QTableWidgetItem();
-        statusItem->setText(containerStatuses[i]);
+        QString status = container["status"].toString();
+        statusItem->setText(status);
         
-        if (containerStatuses[i] == "Running") {
+        if (status.toLower().contains("up") || status.toLower().contains("running")) {
             statusItem->setForeground(QBrush(QColor("#4CAF50")));  // Yeşil
-        } else if (containerStatuses[i] == "Exited") {
+        } else if (status.toLower().contains("exit")) {
             statusItem->setForeground(QBrush(QColor("#F44336")));  // Kırmızı
         } else {
             statusItem->setForeground(QBrush(QColor("#FFC107")));  // Sarı/Turuncu
@@ -1463,7 +1513,28 @@ void ServiceStatusDialog::updateContainerList() {
         containerTable->setItem(row, 3, statusItem);
         
         // Ports
-        containerTable->setItem(row, 4, new QTableWidgetItem(containerPorts[i]));
+        containerTable->setItem(row, 4, new QTableWidgetItem(container["ports"].toString()));
+    }
+    
+    // Eğer Docker çalışmıyorsa veya container yoksa bir bilgi mesajı göster
+    if (!dockerUIManager->isDockerAvailable()) {
+        containerTable->setRowCount(0);
+        containerTable->insertRow(0);
+        QTableWidgetItem *errorItem = new QTableWidgetItem("Docker is not available or not running!");
+        errorItem->setForeground(QBrush(QColor("#F44336")));
+        containerTable->setSpan(0, 0, 1, 5);
+        containerTable->setItem(0, 0, errorItem);
+        
+        // İstatistikleri sıfırla
+        runningContainerValue->setText("0");
+        totalContainerValue->setText("0");
+        imageValue->setText("0");
+    } else if (containers.isEmpty()) {
+        containerTable->insertRow(0);
+        QTableWidgetItem *infoItem = new QTableWidgetItem("No containers found");
+        infoItem->setForeground(QBrush(QColor("#FFC107")));
+        containerTable->setSpan(0, 0, 1, 5);
+        containerTable->setItem(0, 0, infoItem);
     }
 }
 
@@ -1488,7 +1559,7 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     setModal(true);
     setMinimumSize(600, 350); // Boyutu artırıldı
     
-    // Modern tema renkleri
+    // Modern tema renkleri - tanımlanması gereken tüm renkleri tanımlıyoruz
     QString backgroundColor = "#181818";      // İkincil arkaplan rengi
     QString textColor = "#ffffff";            // Ana metin rengi
     QString secondaryTextColor = "#cccccc";   // İkincil metin rengi
@@ -1958,37 +2029,6 @@ void HistoryDialog::createUI() {
         "    background-color: #b71c1c;"
         "}")
     );
-    buttonLayout->addWidget(clearHistoryButton);
-    
-    // Close button
-    closeButton = new QPushButton(tr("Close"), this);
-    closeButton->setStyleSheet(QString(
-        "QPushButton {"
-        "    background-color: %1;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 10px 20px;"
-        "    border-radius: 6px;"
-        "    font-size: 14px;"
-        "    min-width: 130px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #1e88e5;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #0066c0;"
-        "}")
-        .arg(accentColor)
-    );
-    buttonLayout->addWidget(closeButton);
-    
-    // Add button layout to main layout
-    mainLayout->addLayout(buttonLayout);
-}
-
-void HistoryDialog::loadHistory() {
-    // Geçici test verileri ekle
-    // Gerçek uygulamada bu kısım DbManager'dan veri çekecek
     
     // Offline scan history data
     for (int i = 0; i < 5; i++) {
@@ -2067,6 +2107,201 @@ void HistoryDialog::loadHistory() {
     }
     
     // Benzer veriler diğer tablolar için de oluşturulabilir
+}
+
+void HistoryDialog::loadHistory() {
+    // Bu fonksiyon veritabanından gerçek geçmiş kayıtlarını yükleyecek
+    // Şu an için örnek veriler ile doldurulmuş durumda
+    
+    // İleride DbManager ile entegre edilerek aşağıdaki işlemler yapılacak:
+    // 1. DbManager üzerinden ilgili tabloların kayıtları çekilecek
+    // 2. Her bir sekme için ilgili kayıtlar tablolara eklenecek
+    // 3. İstatistikler hesaplanacak (toplam tarama sayısı, tehdit tespitleri, vb.)
+    
+    // Örnek tarama geçmişi verileri
+    for (int i = 0; i < 5; i++) {
+        int row = scanHistoryTable->rowCount();
+        scanHistoryTable->insertRow(row);
+        
+        scanHistoryTable->setItem(row, 0, new QTableWidgetItem(QDateTime::currentDateTime().addDays(-i).toString("dd.MM.yyyy hh:mm")));
+        scanHistoryTable->setItem(row, 1, new QTableWidgetItem(QString("file_%1.exe").arg(i+1)));
+        scanHistoryTable->setItem(row, 2, new QTableWidgetItem(QString("%1 KB").arg(i * 250 + 125)));
+        scanHistoryTable->setItem(row, 3, new QTableWidgetItem(QString("%1 sec").arg(i * 3 + 5)));
+        
+        QTableWidgetItem* resultItem = new QTableWidgetItem(i % 3 == 0 ? tr("Malicious") : tr("Clean"));
+        resultItem->setForeground(i % 3 == 0 ? QColor("#f44336") : QColor("#4caf50"));
+        scanHistoryTable->setItem(row, 4, resultItem);
+        
+        // View details button for actions column
+        QPushButton* viewButton = new QPushButton(tr("View"));
+        viewButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: transparent;"
+            "    color: #2196f3;"
+            "    border: 1px solid #2196f3;"
+            "    border-radius: 4px;"
+            "    padding: 5px 10px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: rgba(33, 150, 243, 0.1);"
+            "}"
+        );
+        QWidget* buttonContainer = new QWidget();
+        QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
+        buttonLayout->addWidget(viewButton);
+        buttonLayout->setAlignment(Qt::AlignCenter);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonContainer->setLayout(buttonLayout);
+        
+        scanHistoryTable->setCellWidget(row, 5, buttonContainer);
+    }
+    
+    // VirusTotal geçmişi için örnek veriler
+    for (int i = 0; i < 4; i++) {
+        int row = vtHistoryTable->rowCount();
+        vtHistoryTable->insertRow(row);
+        
+        vtHistoryTable->setItem(row, 0, new QTableWidgetItem(QDateTime::currentDateTime().addDays(-i-1).toString("dd.MM.yyyy hh:mm")));
+        vtHistoryTable->setItem(row, 1, new QTableWidgetItem(QString("suspect_%1.dll").arg(i+1)));
+        vtHistoryTable->setItem(row, 2, new QTableWidgetItem(QString("%1/70").arg(i * 5 + 3)));
+        vtHistoryTable->setItem(row, 3, new QTableWidgetItem(QString("8a3b%1c94d7ef2%2a17").arg(i*3).arg(i)));
+        
+        QTableWidgetItem* resultItem = new QTableWidgetItem(i % 2 == 0 ? tr("Suspicious") : tr("Malicious"));
+        resultItem->setForeground(i % 2 == 0 ? QColor("#ff9800") : QColor("#f44336"));
+        vtHistoryTable->setItem(row, 4, resultItem);
+        
+        // View details button
+        QPushButton* viewButton = new QPushButton(tr("View"));
+        viewButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: transparent;"
+            "    color: #2196f3;"
+            "    border: 1px solid #2196f3;"
+            "    border-radius: 4px;"
+            "    padding: 5px 10px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: rgba(33, 150, 243, 0.1);"
+            "}"
+        );
+        QWidget* buttonContainer = new QWidget();
+        QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
+        buttonLayout->addWidget(viewButton);
+        buttonLayout->setAlignment(Qt::AlignCenter);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonContainer->setLayout(buttonLayout);
+        
+        vtHistoryTable->setCellWidget(row, 5, buttonContainer);
+    }
+    
+    // CDR geçmişi için örnek veriler
+    for (int i = 0; i < 3; i++) {
+        int row = cdrHistoryTable->rowCount();
+        cdrHistoryTable->insertRow(row);
+        
+        cdrHistoryTable->setItem(row, 0, new QTableWidgetItem(QDateTime::currentDateTime().addDays(-i-2).toString("dd.MM.yyyy hh:mm")));
+        
+        QString fileType;
+        switch(i % 3) {
+            case 0: fileType = "PDF"; break;
+            case 1: fileType = "DOCX"; break;
+            case 2: fileType = "XLSX"; break;
+        }
+        
+        cdrHistoryTable->setItem(row, 1, new QTableWidgetItem(QString("document_%1.%2").arg(i+1).arg(fileType.toLower())));
+        cdrHistoryTable->setItem(row, 2, new QTableWidgetItem(fileType));
+        cdrHistoryTable->setItem(row, 3, new QTableWidgetItem(QString::number(i)));
+        
+        QString cleanedPath = QString("/cleaned/document_%1_clean.%2").arg(i+1).arg(fileType.toLower());
+        cdrHistoryTable->setItem(row, 4, new QTableWidgetItem(cleanedPath));
+        
+        // View details button
+        QPushButton* viewButton = new QPushButton(tr("View"));
+        viewButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: transparent;"
+            "    color: #2196f3;"
+            "    border: 1px solid #2196f3;"
+            "    border-radius: 4px;"
+            "    padding: 5px 10px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: rgba(33, 150, 243, 0.1);"
+            "}"
+        );
+        QWidget* buttonContainer = new QWidget();
+        QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
+        buttonLayout->addWidget(viewButton);
+        buttonLayout->setAlignment(Qt::AlignCenter);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonContainer->setLayout(buttonLayout);
+        
+        cdrHistoryTable->setCellWidget(row, 5, buttonContainer);
+    }
+    
+    // Sandbox geçmişi için örnek veriler
+    for (int i = 0; i < 3; i++) {
+        int row = sandboxHistoryTable->rowCount();
+        sandboxHistoryTable->insertRow(row);
+        
+        sandboxHistoryTable->setItem(row, 0, new QTableWidgetItem(QDateTime::currentDateTime().addDays(-i-3).toString("dd.MM.yyyy hh:mm")));
+        sandboxHistoryTable->setItem(row, 1, new QTableWidgetItem(QString("malware_%1.exe").arg(i+1)));
+        
+        // Risk score (0-100)
+        int riskScore = i * 30 + 40;
+        QTableWidgetItem* scoreItem = new QTableWidgetItem(QString::number(riskScore) + "/100");
+        if (riskScore >= 80) {
+            scoreItem->setForeground(QColor("#f44336")); // High risk - red
+        } else if (riskScore >= 50) {
+            scoreItem->setForeground(QColor("#ff9800")); // Medium risk - orange
+        } else {
+            scoreItem->setForeground(QColor("#ffeb3b")); // Low risk - yellow
+        }
+        sandboxHistoryTable->setItem(row, 2, scoreItem);
+        
+        // Suspicious behaviors
+        QString behaviors = "";
+        if (i % 3 == 0) {
+            behaviors = "Registry changes, Process injection";
+        } else if (i % 3 == 1) {
+            behaviors = "File encryption, Network connection";
+        } else {
+            behaviors = "System file access, Persistence";
+        }
+        sandboxHistoryTable->setItem(row, 3, new QTableWidgetItem(behaviors));
+        
+        // Network activity
+        QString network = "";
+        if (i % 2 == 0) {
+            network = "Connections to suspicious IP";
+        } else {
+            network = "No suspicious network activity";
+        }
+        sandboxHistoryTable->setItem(row, 4, new QTableWidgetItem(network));
+        
+        // View details button
+        QPushButton* viewButton = new QPushButton(tr("View"));
+        viewButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: transparent;"
+            "    color: #2196f3;"
+            "    border: 1px solid #2196f3;"
+            "    border-radius: 4px;"
+            "    padding: 5px 10px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: rgba(33, 150, 243, 0.1);"
+            "}"
+        );
+        QWidget* buttonContainer = new QWidget();
+        QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
+        buttonLayout->addWidget(viewButton);
+        buttonLayout->setAlignment(Qt::AlignCenter);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonContainer->setLayout(buttonLayout);
+        
+        sandboxHistoryTable->setCellWidget(row, 5, buttonContainer);
+    }
 }
 
 void HistoryDialog::setupConnections() {
