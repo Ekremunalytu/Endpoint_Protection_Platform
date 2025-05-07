@@ -1,5 +1,5 @@
-#ifndef DbManager_H
-#define DbManager_H
+#ifndef DBMANAGER_H
+#define DBMANAGER_H
 
 #include <QString>
 #include <QStringList>
@@ -11,35 +11,45 @@
 #include <QMessageBox>
 #include <QtConcurrent>
 #include <QFutureWatcher>
+#include <functional>
+#include <mutex>
+#include "Interfaces/IDbManager.h"
 
 // DatabaseManager sınıfı, veritabanı bağlantısı, şema oluşturma, tablo listeleme,
-// örnek sorgu çalıştırma ve bağlantı kapatma işlemlerini yöneten static metodları içerir.
-class DbManager {
+// örnek sorgu çalıştırma ve bağlantı kapatma işlemlerini yöneten bir singleton olarak çalışır
+class DbManager : public IDbManager {
+private:
+    static DbManager* instance;
+    static std::mutex mutex;
+    static QSqlDatabase db;
+
+    // Private constructor for singleton pattern
+    DbManager();
+    
+    // Veritabanı yardımcı fonksiyonları
+    bool createTables();
+    void closeConnection(const QString &connectionName = QString());
+
 public:
-    // SQLite veritabanına bağlanır.
-    static bool connectToDatabase();
+    // Singleton pattern için thread-safe getInstance metodu
+    static DbManager* getInstance();
+    
+    // IDbManager implementasyonu
+    bool connectToDatabase() override;
+    bool isDatabaseConnected() const override;
+    void listTables() override;
+    QString searchHashMd5(const QString &md5Hash) override;
+    QString searchHashSha1(const QString &sha1) override;
+    QString searchHashSha256(const QString &sha256) override;
+    void executeSampleQuery() override;
+    void asyncConnectToDatabase(std::function<void(bool)> callback) override;
 
-    // Veritabanı bağlantısının açık olup olmadığını kontrol eder.
-    static bool isDatabaseConnected();
-
-    // Veritabanındaki tabloları listeler.
-    static void listTables();
-
-    static QString searchHashmMd5(const QString &md5Hash);
-
-    static QString searchHashSha_1(QString sha1);
-
-    static QString searchHashSha_256(QString sha256);
-
-
-    // 'FILE' tablosundan örnek sorgu çalıştırır.
-    static void executeSampleQuery();
-
-    // Veritabanı bağlantısını kapatır ve bağlantıyı havuzdan kaldırır.
-    static void closeConnection(const QString &connectionName = QSqlDatabase::defaultConnection);
-
-    // Asenkron veritabanı bağlantısı (threaded)
-    static void asyncConnectToDatabase(std::function<void(bool)> callback);
+    // Yardımcı sınıf metotları (static değil)
+    bool addScanRecord(const QString &fileName, const QString &scanType, 
+                      const QString &md5Hash, const QString &sha1Hash, 
+                      const QString &sha256Hash, bool isDetected,
+                      const QString &detectionDetails);
+    QStringList getRecentScans(int limit = 10);
 };
 
-#endif // DbManager_H
+#endif // DBMANAGER_H

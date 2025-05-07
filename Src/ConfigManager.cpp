@@ -1,3 +1,7 @@
 #include "../Headers/ConfigManager.h"
 
-ConfigManager* ConfigManager::instance = nullptr; 
+// Static üyelerin tanımlanması
+ConfigManager* ConfigManager::instance = nullptr;
+std::mutex ConfigManager::mutex;
+
+// Not: Header dosyasında inline tanımlanmış metotlar burada tekrar tanımlanmayacak

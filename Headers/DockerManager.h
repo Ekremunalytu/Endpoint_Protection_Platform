@@ -2,34 +2,33 @@
 #define DOCKERMANAGER_H
 
 #include <QObject>
-#include <QProcess>
 #include <QString>
-#include <QDebug>
-#include <QJsonObject>
+#include <QStringList>
+#include <QProcess>
 #include <QJsonArray>
+#include <QJsonObject>
+#include "Interfaces/IDockerManager.h"
 
-class DockerManager : public QObject {
+class DockerManager : public QObject, public IDockerManager {
     Q_OBJECT
 
 public:
     DockerManager(QObject *parent = nullptr);
     ~DockerManager();
 
-    bool isDockerAvailable();
-    bool startContainer(const QString& config);
-    void stopContainer();
-    bool isContainerRunning();
-    QString executeCommand(const QString& command);
-    bool copyFileToContainer(const QString& localPath, const QString& containerPath);
-    bool copyFileFromContainer(const QString& containerPath, const QString& localPath);
-
-    QJsonArray listContainers(bool showAll = true);
+    // IDockerManager interface implementation
+    bool isDockerAvailable() const override;
+    QJsonArray getDockerContainers() override;
+    QJsonArray getDockerImages() override;
+    bool runContainer(const QString& imageName, const QString& containerName, const QStringList& params) override;
+    bool stopContainer(const QString& containerName) override;
+    bool isContainerRunning(const QString& containerName) override;
+    QString getContainerLogs(const QString& containerName) override;
 
 private:
-    QProcess *dockerProcess;
-    QString containerName;
-    QString imageName;
-    bool containerRunning;
+    QProcess dockerProcess;
+    QString executeDockerCommand(const QStringList& arguments);
+    QJsonArray parseDockerOutput(const QString& output, const QString& type);
 };
 
 #endif // DOCKERMANAGER_H

@@ -18,7 +18,47 @@ extern "C" {
     #include <yara.h>
 }
 
-// Static callback fonksiyonu
+// Custom error category implementation for YARA errors
+namespace {
+    class YaraErrorCategory : public std::error_category {
+    public:
+        const char* name() const noexcept override {
+            return "YARA";
+        }
+        
+        std::string message(int ev) const override {
+            switch (static_cast<YaraErrorCodes>(ev)) {
+                case YaraErrorCodes::success:
+                    return "Success";
+                case YaraErrorCodes::AlreadyInitialized:
+                    return "YARA is already initialized";
+                case YaraErrorCodes::NotInitialized:
+                    return "YARA is not initialized";
+                case YaraErrorCodes::InternalError:
+                    return "YARA internal error";
+                case YaraErrorCodes::FileNotFound:
+                    return "File not found or not accessible";
+                case YaraErrorCodes::CompilerError:
+                    return "Error compiling YARA rules";
+                case YaraErrorCodes::RulesNotCompiled:
+                    return "YARA rules are not compiled";
+                case YaraErrorCodes::ScanError:
+                    return "Error scanning with YARA";
+                default:
+                    return "Unknown YARA error";
+            }
+        }
+    };
+    
+    const YaraErrorCategory yaraErrorCategory{};
+}
+
+// make_error_code implementation for YaraErrorCodes
+std::error_code make_error_code(YaraErrorCodes e) {
+    return {static_cast<int>(e), yaraErrorCategory};
+}
+
+// Static callback function
 static int yara_callback(
     YR_SCAN_CONTEXT* context,
     int message,
@@ -35,14 +75,14 @@ static int yara_callback(
 }
 
 // Constructor & Destructor
-YaraRuleManager::YaraRuleManager() = default;
+YaraRuleManager::YaraRuleManager() : rules(nullptr), compiler(nullptr), initialized(false) {}
 
 YaraRuleManager::~YaraRuleManager() {
     finalize();
 }
 
 // Initialize / Finalize
-std::error_code YaraRuleManager::initialize() noexcept {
+std::error_code YaraRuleManager::initialize() {
     if (initialized)
         return make_error_code(YaraErrorCodes::AlreadyInitialized);
 
@@ -57,7 +97,7 @@ std::error_code YaraRuleManager::initialize() noexcept {
     return make_error_code(YaraErrorCodes::success);
 }
 
-std::error_code YaraRuleManager::finalize() noexcept {
+std::error_code YaraRuleManager::finalize() {
     if (!initialized)
         return make_error_code(YaraErrorCodes::NotInitialized);
 
@@ -113,7 +153,7 @@ bool createSimpleYaraRule(const QString& rulePath) {
 }
 
 // Load & Unload Rules
-std::error_code YaraRuleManager::loadRules(const std::string& rulesFilePath) noexcept {
+std::error_code YaraRuleManager::loadRules(const std::string& rulesFilePath) {
     if (!initialized)
         return make_error_code(YaraErrorCodes::NotInitialized);
 
@@ -196,10 +236,10 @@ std::error_code YaraRuleManager::loadRules(const std::string& rulesFilePath) noe
         qDebug() << "YARA compiler creation failed with code:" << cres;
         return make_error_code(YaraErrorCodes::InternalError);
     }
-    compiler.reset(rawCompiler);
+    compiler = rawCompiler;
 
     // Hata yakalama fonksiyonunu ayarla
-    yr_compiler_set_callback(compiler.get(), 
+    yr_compiler_set_callback(rawCompiler, 
         [](int error_level, const char* file_name, int line_number, const YR_RULE* rule, const char* message, void* user_data) -> void {
             qDebug() << "YARA compiler error: Level:" << error_level << "Line:" << line_number
                      << "Message:" << message << "File:" << (file_name ? file_name : "unknown");
@@ -236,7 +276,7 @@ std::error_code YaraRuleManager::loadRules(const std::string& rulesFilePath) noe
     
     // Şimdi compiler'a ekleyelim
     cres = yr_compiler_add_file(
-        compiler.get(),
+        rawCompiler,
         ruleFile,
         nullptr,
         qRulePath.toUtf8().constData()
@@ -252,7 +292,7 @@ std::error_code YaraRuleManager::loadRules(const std::string& rulesFilePath) noe
 
     // Eğer derleme başarılıysa, kuralları elde edelim
     YR_RULES* rawRules = nullptr;
-    cres = yr_compiler_get_rules(compiler.get(), &rawRules);
+    cres = yr_compiler_get_rules(rawCompiler, &rawRules);
     
     if (cres != ERROR_SUCCESS) {
         qDebug() << "Failed to get compiled rules with code:" << cres;
@@ -260,24 +300,33 @@ std::error_code YaraRuleManager::loadRules(const std::string& rulesFilePath) noe
     }
     
     // Kuralları saklayalım
-    rules.reset(rawRules);
+    rules = rawRules;
     
     // Compiler'ı temizleyelim
-    compiler.reset();
+    compiler = nullptr;
+    yr_compiler_destroy(rawCompiler);
     
     qDebug() << "YARA rules successfully loaded and compiled";
     std::cout << "YARA kuralları başarıyla yüklendi ve derlendi." << std::endl;
     return make_error_code(YaraErrorCodes::success);
 }
 
-std::error_code YaraRuleManager::unloadRules() noexcept {
-    compiler.reset();
-    rules.reset();
+std::error_code YaraRuleManager::unloadRules() {
+    if (rules) {
+        yr_rules_destroy(rules);
+        rules = nullptr;
+    }
+    
+    if (compiler) {
+        YR_COMPILER* comp = static_cast<YR_COMPILER*>(compiler);
+        yr_compiler_destroy(comp);
+        compiler = nullptr;
+    }
     return make_error_code(YaraErrorCodes::success);
 }
 
 // Compile Rules - artık loadRules içinde yapılıyor
-std::error_code YaraRuleManager::compileRules() noexcept {
+std::error_code YaraRuleManager::compileRules() {
     if (!compiler) {
         qDebug() << "No compiler available for rule compilation";
         return make_error_code(YaraErrorCodes::RulesNotCompiled);
@@ -285,25 +334,27 @@ std::error_code YaraRuleManager::compileRules() noexcept {
 
     qDebug() << "Attempting to compile YARA rules";
     YR_RULES* rawRules = nullptr;
-    int cres = yr_compiler_get_rules(compiler.get(), &rawRules);
+    YR_COMPILER* comp = static_cast<YR_COMPILER*>(compiler);
+    int cres = yr_compiler_get_rules(comp, &rawRules);
     if (cres != ERROR_SUCCESS) {
         qDebug() << "Compilation failed with code:" << cres;
         return make_error_code(YaraErrorCodes::CompilerError);
     }
 
     qDebug() << "Rules compiled successfully";
-    rules.reset(rawRules);
-    compiler.reset();
+    rules = rawRules;
+    compiler = nullptr;
+    yr_compiler_destroy(comp);
     return make_error_code(YaraErrorCodes::success);
 }
 
-// Callback setter
-void YaraRuleManager::setCallback(std::function<void(const std::string&)> cb) noexcept {
+// Callback setter - remove noexcept to match header
+void YaraRuleManager::setCallback(std::function<void(const std::string&)> cb) {
     callback = std::move(cb);
 }
 
 // Scanning Methods
-std::error_code YaraRuleManager::scanFile(const std::string& filePath, std::vector<std::string>& matches) noexcept {
+std::error_code YaraRuleManager::scanFile(const std::string& filePath, std::vector<std::string>& matches) {
     if (!initialized) {
         qDebug() << "YARA not initialized for scanning";
         return make_error_code(YaraErrorCodes::NotInitialized);
@@ -366,7 +417,7 @@ std::error_code YaraRuleManager::scanFile(const std::string& filePath, std::vect
                 if (bytesRead > 0) {
                     // Bellek olarak tara
                     int sres = yr_rules_scan_mem(
-                        rules.get(),
+                        rules,
                         buffer.data(), 
                         bytesRead,
                         scan_flags,
@@ -398,7 +449,7 @@ std::error_code YaraRuleManager::scanFile(const std::string& filePath, std::vect
 #else
     // Standart YARA tarama fonksiyonunu kullanalım
     int sres = yr_rules_scan_file(
-        rules.get(),
+        rules,
         filePath.c_str(),
         scan_flags,
         yara_callback,
@@ -416,7 +467,7 @@ std::error_code YaraRuleManager::scanFile(const std::string& filePath, std::vect
     return make_error_code(YaraErrorCodes::success);
 }
 
-std::error_code YaraRuleManager::scanMemory(const uint8_t* data, size_t size, std::vector<std::string>& matches) noexcept {
+std::error_code YaraRuleManager::scanMemory(const uint8_t* data, size_t size, std::vector<std::string>& matches) {
     if (!initialized)
         return make_error_code(YaraErrorCodes::NotInitialized);
     if (!rules)
@@ -426,7 +477,7 @@ std::error_code YaraRuleManager::scanMemory(const uint8_t* data, size_t size, st
     setCallback([&matches](const std::string& name) { matches.push_back(name); });
 
     int sres = yr_rules_scan_mem(
-        rules.get(),
+        rules,
         data,
         size,
         0,

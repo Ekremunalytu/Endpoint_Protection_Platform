@@ -1,4 +1,6 @@
 #include "../Headers/UserInterface.h"
+#include "../Headers/ServiceLocator.h"
+#include "../Headers/DockerManager.h" // DockerManager başlık dosyasını ekliyoruz
 
 #include <QMainWindow>
 #include <QString>
@@ -33,6 +35,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QHeaderView>
+#include <QToolButton> // QToolButton başlık dosyasını ekledik
 #include <cmath>
 #include "../Headers/DbManager.h" // DbManager.h başlık dosyasını dahil ediyoruz
 
@@ -170,19 +173,41 @@ MainWindow::MainWindow(QWidget *parent)
       virusTotalAction(nullptr),
       apiKeyAction(nullptr),
       statusLabel(nullptr),
-      resultTextEdit(nullptr),
-      apiManager(nullptr)
+      resultTextEdit(nullptr)
 {
-    // Manager sınıflarını oluşturma
-    apiManager = ApiManager::getInstance(this);
-    scanManager = new ScanManager(this);
+    // ServiceLocator'dan tüm servisleri al
+    apiManager = ServiceLocator::getApiManager();
+    yaraRuleManager = ServiceLocator::getYaraRuleManager();
+    cdrManager = ServiceLocator::getCdrManager();
+    sandboxManager = ServiceLocator::getSandboxManager();
+    dbManager = ServiceLocator::getDbManager();
+    dockerManager = dynamic_cast<DockerManager*>(ServiceLocator::getDockerManager());
+    
+    // ScanManager'ı oluştur - servisleri direkt olarak enjekte et
+    scanManager = new ScanManager(
+        apiManager,       // IApiManager olarak kullanılacak
+        yaraRuleManager,  // IYaraRuleManager olarak kullanılacak
+        cdrManager,       // ICdrManager olarak kullanılacak
+        sandboxManager,   // ISandboxManager olarak kullanılacak
+        dbManager,        // IDbManager olarak kullanılacak
+        this
+    );
+    
+    // Diğer manager'ları oluştur
     resultsView = new ResultsView(this);
     dockerUIManager = new DockerUIManager(this);
     
     // API yanıtlarını yakalamak için sinyal-slot bağlantıları
-    connect(apiManager, &ApiManager::responseReceived, this, &MainWindow::onApiResponseReceived);
-    connect(apiManager, &ApiManager::error, this, &MainWindow::onApiError);
-    connect(apiManager, &ApiManager::requestSent, this, &MainWindow::onApiRequestSent);
+    if (auto qApiManager = dynamic_cast<QObject*>(apiManager)) {
+        connect(qApiManager, SIGNAL(responseReceived(const QJsonObject&)),
+                this, SLOT(onApiResponseReceived(const QJsonObject&)));
+        connect(qApiManager, SIGNAL(error(const QString&)),
+                this, SLOT(onApiError(const QString&)));
+        connect(qApiManager, SIGNAL(requestSent(const QString&)),
+                this, SLOT(onApiRequestSent(const QString&)));
+    } else {
+        qWarning() << "MainWindow: API Manager does not support signal/slot connections!";
+    }
     
     // Docker imaj seçim sinyalini bağla
     connect(scanManager, &ScanManager::dockerImageSelectionRequired, 
@@ -194,7 +219,7 @@ MainWindow::MainWindow(QWidget *parent)
                 if (serviceType == "CDR") {
                     availableImages = scanManager->getAvailableCdrImages();
                     currentImage = scanManager->getCurrentCdrImageName();
-                } else if (serviceType == "Sandbox") {
+                } else {
                     availableImages = scanManager->getAvailableSandboxImages();
                     currentImage = scanManager->getCurrentSandboxImageName();
                 }
@@ -207,20 +232,12 @@ MainWindow::MainWindow(QWidget *parent)
                 
                 if (dialog.exec() == QDialog::Accepted) {
                     QString selectedImage = dialog.getSelectedImage();
-                    qDebug() << "Selected image:" << selectedImage << "for" << serviceType;
-                    
-                    // Seçilen imajı ayarla
-                    if (serviceType == "CDR") {
-                        scanManager->setCdrImageName(selectedImage);
-                    } else if (serviceType == "Sandbox") {
-                        scanManager->setSandboxImageName(selectedImage);
-                    }
-                    
-                    // İşlem hemen tekrar denenebilir
-                    if (serviceType == "CDR") {
-                        onCdrButtonClicked();
-                    } else if (serviceType == "Sandbox") {
-                        onSandboxButtonClicked();
+                    if (!selectedImage.isEmpty()) {
+                        if (serviceType == "CDR") {
+                            scanManager->setCdrImageName(selectedImage);
+                        } else {
+                            scanManager->setSandboxImageName(selectedImage);
+                        }
                     }
                 }
             });
@@ -1019,7 +1036,7 @@ void MainWindow::onHistoryButtonClicked() {
 }
 
 // ServiceStatusDialog implementasyonu
-ServiceStatusDialog::ServiceStatusDialog(ApiManager* apiManager, ScanManager* scanManager, 
+ServiceStatusDialog::ServiceStatusDialog(IApiManager* apiManager, ScanManager* scanManager, 
                                        DockerUIManager* dockerUIManager, QWidget* parent)
     : QDialog(parent),
       apiManager(apiManager),
@@ -1033,13 +1050,21 @@ ServiceStatusDialog::ServiceStatusDialog(ApiManager* apiManager, ScanManager* sc
       imageValue(nullptr),
       refreshButton(nullptr)
 {
-    setWindowTitle(tr("System Status"));
-    setMinimumSize(900, 600);
+    // Dialog ayarları
+    setWindowTitle(tr("Service Status"));
     setModal(true);
+    setMinimumSize(800, 600);
     
+    // UI bileşenlerini oluştur
     createUI();
+    
+    // Servis durumlarını güncelle
     updateServiceStatus();
+    
+    // Docker konteynerlerini güncelle
     updateContainerList();
+    
+    // Sinyal-slot bağlantılarını ayarla
     setupConnections();
 }
 
@@ -2040,84 +2065,31 @@ void HistoryDialog::createUI() {
         "    background-color: #b71c1c;"
         "}")
     );
+    buttonLayout->addWidget(clearHistoryButton);
     
-    // Offline scan history data
-    for (int i = 0; i < 5; i++) {
-        int row = scanHistoryTable->rowCount();
-        scanHistoryTable->insertRow(row);
-        
-        scanHistoryTable->setItem(row, 0, new QTableWidgetItem(QDateTime::currentDateTime().addDays(-i).toString("dd.MM.yyyy hh:mm")));
-        scanHistoryTable->setItem(row, 1, new QTableWidgetItem(QString("report_%1.pdf").arg(i+1)));
-        scanHistoryTable->setItem(row, 2, new QTableWidgetItem(QString("%1 KB").arg(i * 100 + 150)));
-        scanHistoryTable->setItem(row, 3, new QTableWidgetItem(QString("%1 sec").arg(i * 2 + 3)));
-        
-        QTableWidgetItem* resultItem = new QTableWidgetItem(i % 3 == 0 ? tr("Malicious") : tr("Clean"));
-        resultItem->setForeground(i % 3 == 0 ? QColor("#f44336") : QColor("#4caf50"));
-        scanHistoryTable->setItem(row, 4, resultItem);
-        
-        // View details button
-        QPushButton* viewButton = new QPushButton(tr("View"));
-        viewButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: transparent;"
-            "    color: #2196f3;"
-            "    border: 1px solid #2196f3;"
-            "    border-radius: 4px;"
-            "    padding: 5px 10px;"
-            "}"
-            "QPushButton:hover {"
-            "    background-color: rgba(33, 150, 243, 0.1);"
-            "}"
-        );
-        QWidget* buttonContainer = new QWidget();
-        QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
-        buttonLayout->addWidget(viewButton);
-        buttonLayout->setAlignment(Qt::AlignCenter);
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonContainer->setLayout(buttonLayout);
-        
-        scanHistoryTable->setCellWidget(row, 5, buttonContainer);
-    }
+    // Close button
+    closeButton = new QPushButton(tr("Close"), this);
+    closeButton->setStyleSheet(QString(
+        "QPushButton {"
+        "    background-color: %1;"
+        "    color: white;"
+        "    border: none;"
+        "    padding: 10px 20px;"
+        "    border-radius: 6px;"
+        "    font-size: 14px;"
+        "    min-width: 130px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: #1e88e5;"
+        "}"
+        "QPushButton:pressed {"
+        "    background-color: #0066c0;"
+        "}")
+        .arg(accentColor)
+    );
+    buttonLayout->addWidget(closeButton);
     
-    // VirusTotal scan data
-    for (int i = 0; i < 5; i++) {
-        int row = vtHistoryTable->rowCount();
-        vtHistoryTable->insertRow(row);
-        
-        vtHistoryTable->setItem(row, 0, new QTableWidgetItem(QDateTime::currentDateTime().addDays(-i).toString("dd.MM.yyyy hh:mm")));
-        vtHistoryTable->setItem(row, 1, new QTableWidgetItem(QString("sample_%1.exe").arg(i+1)));
-        vtHistoryTable->setItem(row, 2, new QTableWidgetItem(QString("%1/70").arg(i * 3 + 2)));
-        vtHistoryTable->setItem(row, 3, new QTableWidgetItem(QString("5f7e%1a49b2fc3%2fe9").arg(i).arg(i*2)));
-        
-        QTableWidgetItem* resultItem = new QTableWidgetItem(i % 3 == 0 ? tr("Suspicious") : tr("Clean"));
-        resultItem->setForeground(i % 3 == 0 ? QColor("#ff9800") : QColor("#4caf50"));
-        vtHistoryTable->setItem(row, 4, resultItem);
-        
-        // View details button
-        QPushButton* viewButton = new QPushButton(tr("View"));
-        viewButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: transparent;"
-            "    color: #2196f3;"
-            "    border: 1px solid #2196f3;"
-            "    border-radius: 4px;"
-            "    padding: 5px 10px;"
-            "}"
-            "QPushButton:hover {"
-            "    background-color: rgba(33, 150, 243, 0.1);"
-            "}"
-        );
-        QWidget* buttonContainer = new QWidget();
-        QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
-        buttonLayout->addWidget(viewButton);
-        buttonLayout->setAlignment(Qt::AlignCenter);
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonContainer->setLayout(buttonLayout);
-        
-        vtHistoryTable->setCellWidget(row, 5, buttonContainer);
-    }
-    
-    // Benzer veriler diğer tablolar için de oluşturulabilir
+    mainLayout->addLayout(buttonLayout);
 }
 
 void HistoryDialog::loadHistory() {
@@ -2321,6 +2293,25 @@ void HistoryDialog::setupConnections() {
         qDebug() << "Tab changed to" << index;
         // Gerçek uygulamada burada ilgili sekme için verileri DbManager'dan yeniden yükleyebiliriz
     });
+    
+    // Clearhistory button styling - just styling, not adding to any layout here
+    clearHistoryButton->setStyleSheet(QString(
+        "QPushButton {"
+        "    background-color: #d32f2f;"
+        "    color: white;"
+        "    border: none;"
+        "    padding: 10px 20px;"
+        "    border-radius: 6px;"
+        "    font-size: 14px;"
+        "    min-width: 130px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: #f44336;"
+        "}"
+        "QPushButton:pressed {"
+        "    background-color: #b71c1c;"
+        "}")
+    );
     
     // Temizle butonu tıklandığında
     connect(clearHistoryButton, &QPushButton::clicked, [this]() {

@@ -1,14 +1,24 @@
 #include "../Headers/ApiManager.h"
 
+// Static üyelerin tanımlanması
+ApiManager* ApiManager::instance = nullptr;
+std::mutex ApiManager::mutex;
+
 ApiManager* ApiManager::getInstance(QObject* parent) {
-    static ApiManager instance(parent);
-    return &instance;
+    // Double-checked locking pattern ile thread-safe singleton
+    if (instance == nullptr) {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (instance == nullptr) {
+            instance = new ApiManager(parent);
+        }
+    }
+    return instance;
 }
 
 ApiManager::ApiManager(QObject* parent)
     : QObject(parent), networkManager(new QNetworkAccessManager(this)), configManager(ConfigManager::getInstance()) {
-    // API URL'ini doğru formatta ayarla - sonunda / olmadan
-    baseUrl = "https://www.virustotal.com/api/v3";
+    // VirusTotal API için base URL 
+    baseUrl = "https://www.virustotal.com/api/v3/";
 }
 
 void ApiManager::setApiKey(const QString& key) {
@@ -20,101 +30,147 @@ QString ApiManager::getApiKey() {
 }
 
 bool ApiManager::hasApiKey() {
-    return !getApiKey().isEmpty();
+    return configManager->hasApiKey();
 }
 
 void ApiManager::makeApiRequest(const QString& endpoint, const QJsonObject& data) {
-    QString apiKey = getApiKey();
-    if (apiKey.isEmpty()) {
-        emit error("API anahtarı eksik. Lütfen ayarlayın.");
+    // Güvenlik kontrolü: API Key var mı?
+    if (!hasApiKey()) {
+        emit error("API Key not set. Please set an API Key first.");
         return;
     }
+
+    QString fullUrl = baseUrl + endpoint;
+    QNetworkRequest request((QUrl(fullUrl)));
     
-    // URL formatını düzelt - endpoint'in başında / olduğundan emin ol
-    QString formattedEndpoint = endpoint;
-    if (!endpoint.startsWith('/')) {
-        formattedEndpoint = "/" + endpoint;
-    }
-    
-    // Debug için tam URL'i göster
-    QUrl url(baseUrl + formattedEndpoint);
-    qDebug() << "API URL:" << url.toString();
-    
-    QNetworkRequest request(url);
+    // Gerekli header'ları ekle
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("x-apikey", apiKey.toUtf8());
-    qDebug() << "[ApiManager] x-apikey header:" << apiKey;
-
-    // Sinyal tetikle - isteğin gönderildiğini bildir
-    emit requestSent(endpoint);
-
-    QNetworkReply* reply = nullptr;
+    request.setRawHeader("x-apikey", getApiKey().toUtf8());
     
-    // Veri içeren bir istek için POST, olmayan için GET kullan
+    // Request endpoint'ini log için emit et
+    emit requestSent(endpoint);
+    
+    // İstek tipi kontrolü ve gönderim
     if (data.isEmpty()) {
-        qDebug() << "[ApiManager] Sending GET request to:" << url.toString();
-        reply = networkManager->get(request);
+        // GET isteği
+        QNetworkReply* reply = networkManager->get(request);
+        connect(reply, &QNetworkReply::finished, [this, reply]() {
+            // Yanıt işleme
+            if (reply->error() == QNetworkReply::NoError) {
+                QByteArray responseData = reply->readAll();
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+                
+                if (!jsonDoc.isNull() && jsonDoc.isObject()) {
+                    emit responseReceived(jsonDoc.object());
+                } else {
+                    emit error("Invalid response format");
+                }
+            } else {
+                emit error(QString("Network error: %1").arg(reply->errorString()));
+            }
+            
+            reply->deleteLater();
+        });
     } else {
-        QJsonDocument doc(data);
-        QByteArray payload = doc.toJson();
-        qDebug() << "[ApiManager] Sending POST request to:" << url.toString();
-        qDebug() << "[ApiManager] Payload:" << QString(payload);
-        reply = networkManager->post(request, payload);
+        // POST isteği
+        QJsonDocument jsonDoc(data);
+        QByteArray jsonData = jsonDoc.toJson();
+        
+        QNetworkReply* reply = networkManager->post(request, jsonData);
+        connect(reply, &QNetworkReply::finished, [this, reply]() {
+            // Yanıt işleme
+            if (reply->error() == QNetworkReply::NoError) {
+                QByteArray responseData = reply->readAll();
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+                
+                if (!jsonDoc.isNull() && jsonDoc.isObject()) {
+                    emit responseReceived(jsonDoc.object());
+                } else {
+                    emit error("Invalid response format");
+                }
+            } else {
+                emit error(QString("Network error: %1").arg(reply->errorString()));
+            }
+            
+            reply->deleteLater();
+        });
     }
-
-    connect(reply, &QNetworkReply::finished, [this, reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            QByteArray responseData = reply->readAll();
-            qDebug() << "[ApiManager] Successful response:" << QString(responseData);
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
-            emit responseReceived(jsonResponse.object());
-        } else {
-            qDebug() << "[ApiManager] Network error:" << reply->errorString();
-            qDebug() << "[ApiManager] Response data:" << reply->readAll();
-            emit error(reply->errorString());
-        }
-        reply->deleteLater();
-    });
 }
 
 void ApiManager::uploadFileToVirusTotal(const QString& filePath, const QString& fileName, const QByteArray& fileData) {
-    QString apiKey = getApiKey();
-    if (apiKey.isEmpty()) {
-        emit error("API anahtarı eksik. Lütfen ayarlayın.");
+    // API Key kontrolü
+    if (!hasApiKey()) {
+        emit error("API Key not set. Please set an API Key first.");
         return;
     }
 
-    QUrl url(baseUrl + "/files");
-    QNetworkRequest request(url);
-    request.setRawHeader("x-apikey", apiKey.toUtf8());
+    // Dosya verisi kontrolü
+    if (fileData.isEmpty()) {
+        emit error("File is empty");
+        return;
+    }
 
-    // Create multipart message
+    // İstek için gerekli yapılar
+    QString endpoint = "files";
+    QString fullUrl = baseUrl + endpoint;
+    QNetworkRequest request((QUrl(fullUrl)));
+
+    // Header'ları ayarla
+    request.setRawHeader("x-apikey", getApiKey().toUtf8());
+
+    // Multipart form data hazırla
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-    
-    // Add the file data to the multipart message
+
+    // Dosya için part hazırla
     QHttpPart filePart;
-    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, 
-                       QVariant("form-data; name=\"file\"; filename=\"" + fileName + "\""));
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(QString("form-data; name=\"file\"; filename=\"%1\"").arg(fileName)));
+    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
     filePart.setBody(fileData);
+
     multiPart->append(filePart);
 
-    // Send the request
-    qDebug() << "[ApiManager] Uploading file to VirusTotal:" << fileName;
-    QNetworkReply* reply = networkManager->post(request, multiPart);
-    multiPart->setParent(reply); // The multiPart object will be deleted when the reply is deleted
+    // Log için endpoint'i emit et
+    emit requestSent("files (upload)");
 
-    // Handle the response
+    // POST isteği gönder
+    QNetworkReply* reply = networkManager->post(request, multiPart);
+    multiPart->setParent(reply); // multiPart'ın sahipliğini reply'a ver
+
+    // Yanıtı dinle
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
-            qDebug() << "[ApiManager] File upload successful. Response:" << QString(responseData);
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
-            emit responseReceived(jsonResponse.object());
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+
+            if (!jsonDoc.isNull() && jsonDoc.isObject()) {
+                emit responseReceived(jsonDoc.object());
+            } else {
+                emit error("Invalid response format");
+            }
         } else {
-            qDebug() << "[ApiManager] File upload failed:" << reply->errorString();
-            qDebug() << "[ApiManager] Response data:" << reply->readAll();
-            emit error("File upload failed: " + reply->errorString());
+            // Özel hata durumları için analiz
+            QByteArray errorData = reply->readAll();
+            QJsonDocument errorDoc = QJsonDocument::fromJson(errorData);
+            
+            if (!errorDoc.isNull() && errorDoc.isObject()) {
+                QJsonObject errorObj = errorDoc.object();
+                if (errorObj.contains("error")) {
+                    QJsonObject error = errorObj["error"].toObject();
+                    QString code = error["code"].toString();
+                    QString message = error["message"].toString();
+                    
+                    emit this->error(QString("API Error (%1): %2 - server replied: %3")
+                                   .arg(reply->errorString())
+                                   .arg(code)
+                                   .arg(message));
+                } else {
+                    emit error(QString("Network error: %1").arg(reply->errorString()));
+                }
+            } else {
+                emit error(QString("Network error: %1").arg(reply->errorString()));
+            }
         }
+
         reply->deleteLater();
     });
 }

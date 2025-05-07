@@ -72,7 +72,7 @@ void DbManager::listTables() {
     qDebug() << "Tables in the database:" << tables;
 }
 
-QString DbManager::searchHashmMd5(const QString &md5Hash) {
+QString DbManager::searchHashMd5(const QString &md5Hash) {
     QString connectionName = getConnectionNameForThread();
     if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
         if (!connectToDatabase()) {
@@ -97,7 +97,7 @@ QString DbManager::searchHashmMd5(const QString &md5Hash) {
     return QString();
 }
 
-QString DbManager::searchHashSha_1(QString sha1) {
+QString DbManager::searchHashSha1(const QString &sha1) {
     QString connectionName = getConnectionNameForThread();
     if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
         if (!connectToDatabase()) {
@@ -122,7 +122,7 @@ QString DbManager::searchHashSha_1(QString sha1) {
     return QString();
 }
 
-QString DbManager::searchHashSha_256(QString sha256) {
+QString DbManager::searchHashSha256(const QString &sha256) {
     QString connectionName = getConnectionNameForThread();
     if (!QSqlDatabase::contains(connectionName) || !QSqlDatabase::database(connectionName).isOpen()) {
         if (!connectToDatabase()) {
@@ -183,7 +183,8 @@ void DbManager::closeConnection(const QString &connectionName) {
 }
 
 void DbManager::asyncConnectToDatabase(std::function<void(bool)> callback) {
-    QFuture<bool> future = QtConcurrent::run([]() {
+    // Capture this pointer in the lambda so we can access connectToDatabase()
+    QFuture<bool> future = QtConcurrent::run([this]() {
         return connectToDatabase();
     });
     QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
@@ -195,7 +196,7 @@ void DbManager::asyncConnectToDatabase(std::function<void(bool)> callback) {
 }
 
 // Veritabanı bağlantısının açık olup olmadığını kontrol eder.
-bool DbManager::isDatabaseConnected() {
+bool DbManager::isDatabaseConnected() const {
     QString connectionName = getConnectionNameForThread();
     if (QSqlDatabase::contains(connectionName)) {
         QSqlDatabase db = QSqlDatabase::database(connectionName);

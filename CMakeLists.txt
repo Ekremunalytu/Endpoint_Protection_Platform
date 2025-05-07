@@ -35,9 +35,11 @@ set(SOURCE_FILES
     Src/DockerManager.cpp
     Src/CdrManager.cpp
     Src/SandboxManager.cpp
-    Src/ScanManager.cpp      # Yeni eklendi
-    Src/ResultsView.cpp      # Yeni eklendi
-    Src/DockerUIManager.cpp  # Yeni eklendi
+    Src/ScanManager.cpp
+    Src/ResultsView.cpp
+    Src/DockerUIManager.cpp
+    Src/ServiceLocator.cpp
+    Src/ApplicationStartup.cpp  # ApplicationStartup eklendi
 )
 
 set(HEADER_FILES
@@ -50,9 +52,11 @@ set(HEADER_FILES
     Headers/DockerManager.h
     Headers/CdrManager.h
     Headers/SandboxManager.h
-    Headers/ScanManager.h      # Yeni eklendi
-    Headers/ResultsView.h      # Yeni eklendi
-    Headers/DockerUIManager.h  # Yeni eklendi
+    Headers/ScanManager.h
+    Headers/ResultsView.h
+    Headers/DockerUIManager.h
+    Headers/ServiceLocator.h
+    Headers/ApplicationStartup.h  # ApplicationStartup eklendi
 )
 
 # Yürütülebilir oluştur

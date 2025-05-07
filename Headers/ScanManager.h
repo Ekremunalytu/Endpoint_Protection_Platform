@@ -10,21 +10,33 @@
 #include <QTimer>
 #include <vector>
 #include <string>
+#include <memory>
 
-#include "ApiManager.h"
-#include "YaraRuleManager.h"
-#include "CdrManager.h"
-#include "SandboxManager.h"
+// Arayüz başlık dosyaları
+#include "Interfaces/IApiManager.h"
+#include "Interfaces/IYaraRuleManager.h"
+#include "Interfaces/ICdrManager.h"
+#include "Interfaces/ISandboxManager.h"
+#include "Interfaces/IDbManager.h"
 
 class ScanManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ScanManager(QObject *parent = nullptr);
+    // Bağımlılıkları dışarıdan alan yapıcı metod
+    explicit ScanManager(
+        IApiManager* apiManager,
+        IYaraRuleManager* yaraManager,
+        ICdrManager* cdrManager,
+        ISandboxManager* sandboxManager,
+        IDbManager* dbManager,
+        QObject *parent = nullptr
+    );
+    
     ~ScanManager();
 
-    // UI bileşenlerini ayarla
+    // UI bileşenlerini ayarlama metotları
     void setTextEdit(QPlainTextEdit* resultTextEdit);
     void setLogTextEdit(QPlainTextEdit* logTextEdit);
     void setStatusBar(QStatusBar* statusBar);
@@ -41,33 +53,12 @@ public:
     bool isSandboxInitialized() const;
 
     // Docker imaj ayarları
-    void setCdrImageName(const QString& imageName) {
-        if (m_cdrManager) {
-            m_cdrManager->setCdrImageName(imageName);
-        }
-    }
-    
-    void setSandboxImageName(const QString& imageName) {
-        if (m_sandboxManager) {
-            m_sandboxManager->setSandboxImageName(imageName);
-        }
-    }
-    
-    QString getCurrentCdrImageName() const {
-        return m_cdrManager ? m_cdrManager->getCurrentImageName() : QString();
-    }
-    
-    QString getCurrentSandboxImageName() const {
-        return m_sandboxManager ? m_sandboxManager->getCurrentImageName() : QString();
-    }
-    
-    QStringList getAvailableCdrImages() const {
-        return m_cdrManager ? m_cdrManager->getAvailableCdrImages() : QStringList();
-    }
-    
-    QStringList getAvailableSandboxImages() const {
-        return m_sandboxManager ? m_sandboxManager->getAvailableSandboxImages() : QStringList();
-    }
+    void setCdrImageName(const QString& imageName);
+    void setSandboxImageName(const QString& imageName);
+    QString getCurrentCdrImageName() const;
+    QString getCurrentSandboxImageName() const;
+    QStringList getAvailableCdrImages() const;
+    QStringList getAvailableSandboxImages() const;
 
 signals:
     void dockerImageSelectionRequired(const QString &serviceType);
@@ -85,16 +76,18 @@ private:
     QPlainTextEdit* m_logTextEdit;
     QStatusBar* m_statusBar;
 
-    // Manager nesneleri
-    ApiManager* m_apiManager;
-    YaraRuleManager* m_yaraManager;
-    CdrManager* m_cdrManager;
-    SandboxManager* m_sandboxManager;
+    // Manager nesneleri - artık arayüz pointerları kullanılıyor
+    IApiManager* m_apiManager;
+    IYaraRuleManager* m_yaraManager;
+    ICdrManager* m_cdrManager;
+    ISandboxManager* m_sandboxManager;
+    IDbManager* m_dbManager;
     
     // Auto-refresh timer
     QTimer* m_refreshTimer;
     QString m_currentAnalysisId;
     int m_refreshAttempts;
+    
     static constexpr int MAX_REFRESH_ATTEMPTS = 10;
     
     // Helper methods

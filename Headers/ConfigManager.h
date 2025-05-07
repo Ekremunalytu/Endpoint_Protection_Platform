@@ -7,10 +7,12 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QDebug>
+#include <mutex>
 
 class ConfigManager {
 private:
     static ConfigManager* instance;
+    static std::mutex mutex;
     QSettings* settings;
     QString configPath;
 
@@ -27,6 +29,7 @@ private:
 
 public:
     static ConfigManager* getInstance() {
+        std::lock_guard<std::mutex> lock(mutex);
         if (!instance) {
             instance = new ConfigManager();
         }
@@ -56,4 +59,4 @@ public:
     }
 };
 
-#endif // CONFIGMANAGER_H 
+#endif // CONFIGMANAGER_H
