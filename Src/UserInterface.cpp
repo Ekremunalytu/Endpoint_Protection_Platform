@@ -1193,8 +1193,16 @@ void ServiceStatusDialog::createUI()
     // Docker container table
     containerTable = new QTableWidget(dockerContainersTab);
     containerTable->setColumnCount(5);
-    containerTable->setHorizontalHeaderLabels({tr("ID"), tr("Name"), tr("Image"), tr("Status"), tr("Ports")});
-    containerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    // Sütun başlıklarını güncelle: Name, ID, Image, Status, Ports
+    containerTable->setHorizontalHeaderLabels({tr("Name"), tr("ID"), tr("Image"), tr("Status"), tr("Ports")});
+
+    // Sütun genişliklerini ayarla
+    containerTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch); // Name
+    containerTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents); // ID
+    containerTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch); // Image
+    containerTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents); // Status
+    containerTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents); // Ports
+    
     containerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     containerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     containerTable->setAlternatingRowColors(true);
@@ -1298,6 +1306,9 @@ void ServiceStatusDialog::createUI()
     // Add tabs
     tabWidget->addTab(serviceStatusTab, tr("Service Status"));
     tabWidget->addTab(dockerContainersTab, tr("Docker Containers"));
+    
+    // Docker Containers sekmesini varsayılan yap
+    tabWidget->setCurrentIndex(1); 
     
     // Add tab widget to main layout
     mainLayout->addWidget(tabWidget);
@@ -1488,16 +1499,16 @@ void ServiceStatusDialog::updateContainerList() {
         int row = containerTable->rowCount();
         containerTable->insertRow(row);
         
-        // Container ID
-        containerTable->setItem(row, 0, new QTableWidgetItem(container["id"].toString()));
+        // Column 0: Container Name
+        containerTable->setItem(row, 0, new QTableWidgetItem(container["name"].toString()));
         
-        // Container Name
-        containerTable->setItem(row, 1, new QTableWidgetItem(container["name"].toString()));
+        // Column 1: Container ID
+        containerTable->setItem(row, 1, new QTableWidgetItem(container["id"].toString()));
         
-        // Container Image
+        // Column 2: Container Image
         containerTable->setItem(row, 2, new QTableWidgetItem(container["image"].toString()));
         
-        // Status - renkli gösterim
+        // Column 3: Status - renkli gösterim
         QTableWidgetItem* statusItem = new QTableWidgetItem();
         QString status = container["status"].toString();
         statusItem->setText(status);
@@ -1512,7 +1523,7 @@ void ServiceStatusDialog::updateContainerList() {
         
         containerTable->setItem(row, 3, statusItem);
         
-        // Ports
+        // Column 4: Ports
         containerTable->setItem(row, 4, new QTableWidgetItem(container["ports"].toString()));
     }
     
