@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ServiceStatusDialog</class>
+ <widget class="QDialog" name="ServiceStatusDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>System Status</string>
+  </property>
+  <property name="styleSheet">
+   <string>
+QDialog {
+    background-color: #181818;
+    color: #ffffff;
+    font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+QLabel {
+    color: #ffffff;
+}
+QTabWidget::pane {
+    border: 1px solid #333333;
+    background-color: #181818;
+    border-radius: 8px;
+}
+QTabBar::tab {
+    background-color: #2d2d30;
+    color: #cccccc;
+    padding: 10px 20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin-right: 4px;
+}
+QTabBar::tab:selected {
+    background-color: #0078d7;
+    color: white;
+}
+QTabBar::tab:hover:!selected {
+    background-color: #3e3e42;
+}
+QTableWidget {
+   background-color: #212121;
+   color: #ffffff;
+   gridline-color: #333333;
+   border: 1px solid #333333;
+   border-radius: 8px;
+}
+QTableWidget::item {
+   padding: 12px;
+   border-bottom: 1px solid #333333;
+}
+QTableWidget::item:selected {
+   background-color: #0078d7;
+   color: white;
+}
+QHeaderView::section {
+   background-color: #252526;
+   color: #ffffff;
+   font-weight: bold;
+   border: none;
+   padding: 10px;
+}
+QPushButton {
+   background-color: #0078d7; /* accentColor */
+   color: white;
+   border: none;
+   padding: 12px 25px;
+   border-radius: 6px;
+   font-size: 14px;
+   font-weight: 500;
+   min-width: 140px;
+}
+QPushButton:hover {
+   background-color: #1e88e5;
+}
+QPushButton:pressed {
+   background-color: #0066c0;
+}
+QPushButton#closeButton { /* Specific style for close button if different */
+   background-color: #424242;
+}
+QPushButton#closeButton:hover {
+   background-color: #616161;
+}
+QPushButton#closeButton:pressed {
+   background-color: #212121;
+}
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <property name="leftMargin">
+    <number>30</number>
+   </property>
+   <property name="topMargin">
+    <number>30</number>
+   </property>
+   <property name="rightMargin">
+    <number>30</number>
+   </property>
+   <property name="bottomMargin">
+    <number>30</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="titleLayout">
+     <item>
+      <widget class="QLabel" name="iconLabel">
+       <property name="text">
+        <string>📊</string>
+       </property>
+       <property name="styleSheet">
+        <string>font-size: 24px;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="titleLabel">
+       <property name="text">
+        <string>System Services and Container Status</string>
+       </property>
+       <property name="styleSheet">
+        <string>font-size: 22px; font-weight: bold; color: #ffffff;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="serviceStatusTab">
+      <attribute name="title">
+       <string>Service Status</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="serviceLayout">
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="serviceInfoLabel">
+         <property name="text">
+          <string>Below is the current status of system services. Green indicates the service is active and running properly.</string>
+         </property>
+         <property name="styleSheet">
+          <string>font-size: 14px; color: #cccccc; margin-bottom: 15px;</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="statusTable">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Service</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Status</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Details</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="dockerContainersTab">
+      <attribute name="title">
+       <string>Docker Containers</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="containersLayout">
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="containerInfoLabel">
+         <property name="text">
+          <string>This tab shows all Docker containers and their current status. Running containers are marked in green.</string>
+         </property>
+         <property name="styleSheet">
+          <string>font-size: 14px; color: #cccccc; margin-bottom: 15px;</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="containerTable">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Image</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Status</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Ports</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="dockerStatsFrame">
+         <property name="styleSheet">
+          <string>
+QFrame {
+    border: 1px solid #333333;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+    padding: 15px;
+}
+QLabel { /* Specific for labels within this frame */
+    color: #cccccc; 
+    font-size: 13px;
+}
+QLabel[isStatValue="true"] { /* Custom property to target value labels */
+    font-size: 24px; 
+    font-weight: bold;
+}
+</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QHBoxLayout" name="statsLayout">
+          <property name="spacing">
+           <number>20</number>
+          </property>
+          <item>
+           <widget class="QFrame" name="runningContainerCard">
+            <property name="styleSheet">
+             <string>QFrame { background-color: #252526; border-radius: 8px; border: 1px solid #333333; padding: 10px; }</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_1">
+             <item>
+              <widget class="QLabel" name="runningContainerLabel">
+               <property name="text">
+                <string>Running Containers</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="runningContainerValueLabel">
+               <property name="text">
+                <string>0</string>
+               </property>
+               <property name="styleSheet">
+                <string>color: #4CAF50;</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>isStatValue</cstring>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="totalContainerCard">
+            <property name="styleSheet">
+             <string>QFrame { background-color: #252526; border-radius: 8px; border: 1px solid #333333; padding: 10px; }</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QLabel" name="totalContainerLabel">
+               <property name="text">
+                <string>Total Containers</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="totalContainerValueLabel">
+               <property name="text">
+                <string>0</string>
+               </property>
+               <property name="styleSheet">
+                <string>color: #2196F3;</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>isStatValue</cstring>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="imageCard">
+            <property name="styleSheet">
+             <string>QFrame { background-color: #252526; border-radius: 8px; border: 1px solid #333333; padding: 10px; }</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QLabel" name="imageLabel">
+               <property name="text">
+                <string>Docker Images</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="imageValueLabel">
+               <property name="text">
+                <string>0</string>
+               </property>
+               <property name="styleSheet">
+                <string>color: #FFC107;</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>isStatValue</cstring>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <property name="spacing">
+      <number>15</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="refreshButton">
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+       <property name="icon">
+        <iconset theme="view-refresh"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ServiceStatusDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>807</x>
+     <y>563</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

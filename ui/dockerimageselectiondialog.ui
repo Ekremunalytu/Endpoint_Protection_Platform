@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DockerImageSelectionDialog</class>
+ <widget class="QDialog" name="DockerImageSelectionDialog">
+  <property name="windowTitle">
+    <string>Select Docker Image</string>
+  </property>
+  <property name="minimumWidth">
+    <number>400</number>
+  </property>
+  <property name="styleSheet">
+    <string>
+QDialog {
+    background-color: #181818;
+    color: #ffffff;
+    font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+QLabel {
+    font-size: 12pt;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+QComboBox {
+    padding: 10px;
+    font-size: 11pt;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    background-color: #232323;
+    color: #ffffff;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #232323;
+    border: 1px solid #333333;
+    selection-background-color: #0078d7;
+    color: #ffffff;
+}
+
+QPushButton {
+    padding: 10px 20px;
+    font-size: 11pt;
+    border-radius: 4px;
+    min-width: 100px;
+    font-weight: 500;
+}
+
+QPushButton#okButton {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+}
+
+QPushButton#okButton:hover {
+    background-color: #1e88e5;
+}
+
+QPushButton#okButton:pressed {
+    background-color: #0066c0;
+}
+
+QPushButton#cancelButton {
+    background-color: #424242;
+    color: white;
+    border: none;
+}
+
+QPushButton#cancelButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#cancelButton:pressed {
+    background-color: #212121;
+}
+    </string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+    <property name="spacing">
+      <number>15</number>
+    </property>
+    <property name="leftMargin">
+      <number>20</number>
+    </property>
+    <property name="topMargin">
+      <number>20</number>
+    </property>
+    <property name="rightMargin">
+      <number>20</number>
+    </property>
+    <property name="bottomMargin">
+      <number>20</number>
+    </property>
+    <item>
+      <widget class="QLabel" name="infoLabel">
+        <property name="text">
+          <string>Select an image for the service:</string>
+        </property>
+        <property name="wordWrap">
+          <bool>true</bool>
+        </property>
+      </widget>
+    </item>
+    <item>
+      <widget class="QComboBox" name="imageComboBox"/>
+    </item>
+    <item>
+      <spacer name="verticalSpacer">
+        <property name="orientation">
+          <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+          <size>
+            <width>20</width>
+            <height>10</height>
+          </size>
+        </property>
+      </spacer>
+    </item>
+    <item>
+      <layout class="QHBoxLayout" name="buttonLayout">
+        <property name="spacing">
+          <number>10</number>
+        </property>
+        <item>
+          <spacer name="horizontalSpacer">
+            <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+              <size>
+                <width>40</width>
+                <height>20</height>
+              </size>
+            </property>
+          </spacer>
+        </item>
+        <item>
+          <widget class="QPushButton" name="cancelButton">
+            <property name="text">
+              <string>Cancel</string>
+            </property>
+          </widget>
+        </item>
+        <item>
+          <widget class="QPushButton" name="okButton">
+            <property name="text">
+              <string>OK</string>
+            </property>
+          </widget>
+        </item>
+      </layout>
+    </item>
+  </layout>
+ </widget>
+ <connections>
+  <connection>
+    <sender>okButton</sender>
+    <signal>clicked()</signal>
+    <receiver>DockerImageSelectionDialog</receiver>
+    <slot>accept()</slot>
+  </connection>
+  <connection>
+    <sender>cancelButton</sender>
+    <signal>clicked()</signal>
+    <receiver>DockerImageSelectionDialog</receiver>
+    <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

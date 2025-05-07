@@ -3,7 +3,6 @@
 #include "../Headers/YaraRuleManager.h"
 #include "../Headers/CdrManager.h"
 #include "../Headers/SandboxManager.h"
-#include "../Headers/DbManager.h" // Added to include DbManager definition
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QJsonDocument>
@@ -860,6 +859,18 @@ bool ScanManager::isSandboxInitialized() const
 
 bool ScanManager::isDbInitialized() const
 {
-    // Use the new DbManager::isDatabaseConnected() method
-    return DbManager::isDatabaseConnected(); 
+    if (!m_yaraManager)
+        return false;
+    
+    try {
+        // YaraRuleManager doesn't have isInitialized() method
+        // Instead we'll check if rules are loaded, which indicates initialization was successful
+        // or we can attempt calling initialize() which should return no error if already initialized
+        std::error_code error = m_yaraManager->initialize();
+        return !error; // If error code is 0 (no error), then it's initialized
+    }
+    catch (...) {
+        // Herhangi bir hata durumunda false döndür
+        return false;
+    }
 }

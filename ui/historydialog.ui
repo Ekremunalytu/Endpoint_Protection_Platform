@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HistoryDialog</class>
+ <widget class="QDialog" name="HistoryDialog">
+  <property name="windowTitle">
+   <string>History</string>
+  </property>
+  <property name="minimumWidth">
+   <number>800</number>
+  </property>
+  <property name="minimumHeight">
+   <number>600</number>
+  </property>
+  <property name="styleSheet">
+   <string>
+QDialog {
+    background-color: #1e1e1e; /* Slightly lighter than API key dialog for differentiation */
+    color: #e0e0e0;
+    font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+QTabWidget::pane {
+    border-top: 2px solid #3c3c3c;
+    background-color: #282828;
+}
+
+QTabBar::tab {
+    background: #282828;
+    color: #b0b0b0;
+    border: 1px solid #3c3c3c;
+    border-bottom: none; /* As pane has border-top */
+    padding: 10px 20px;
+    font-size: 11pt;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background: #1e1e1e; /* Match dialog background */
+    color: #ffffff;
+    border-color: #3c3c3c;
+}
+
+QTabBar::tab:!selected:hover {
+    background: #383838;
+}
+
+QTableWidget {
+    background-color: #2c2c2c;
+    color: #d0d0d0;
+    border: 1px solid #444444;
+    gridline-color: #444444;
+    font-size: 10pt;
+}
+
+QTableWidget::item {
+    padding: 5px;
+}
+
+QHeaderView::section {
+    background-color: #383838;
+    color: #e0e0e0;
+    padding: 8px;
+    border: 1px solid #444444;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+QPushButton {
+    padding: 10px 20px;
+    font-size: 11pt;
+    border-radius: 4px;
+    min-width: 120px;
+    font-weight: 500;
+    background-color: #0078d7;
+    color: white;
+    border: none;
+}
+
+QPushButton:hover {
+    background-color: #1e88e5;
+}
+
+QPushButton:pressed {
+    background-color: #0066c0;
+}
+
+QPushButton#clearHistoryButton {
+    background-color: #c62828; /* Reddish for destructive action */
+}
+QPushButton#clearHistoryButton:hover {
+    background-color: #d32f2f;
+}
+QPushButton#clearHistoryButton:pressed {
+    background-color: #b71c1c;
+}
+
+QPushButton#exportHistoryButton {
+    background-color: #388e3c; /* Greenish for export */
+}
+QPushButton#exportHistoryButton:hover {
+    background-color: #43a047;
+}
+QPushButton#exportHistoryButton:pressed {
+    background-color: #2e7d32;
+}
+
+QPushButton#closeButton {
+   background-color: #424242;
+}
+
+QPushButton#closeButton:hover {
+   background-color: #616161;
+}
+
+QPushButton#closeButton:pressed {
+   background-color: #212121;
+}
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>15</number>
+   </property>
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <widget class="QWidget" name="scanTab">
+      <attribute name="title">
+       <string>Scan History</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="scanTabLayout">
+       <item>
+        <widget class="QTableWidget" name="scanHistoryTable"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="vtTab">
+      <attribute name="title">
+       <string>VirusTotal History</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="vtTabLayout">
+       <item>
+        <widget class="QTableWidget" name="vtHistoryTable"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="cdrTab">
+      <attribute name="title">
+       <string>CDR History</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="cdrTabLayout">
+       <item>
+        <widget class="QTableWidget" name="cdrHistoryTable"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="sandboxTab">
+      <attribute name="title">
+       <string>Sandbox History</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="sandboxTabLayout">
+       <item>
+        <widget class="QTableWidget" name="sandboxHistoryTable"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="exportHistoryButton">
+       <property name="text">
+        <string>Export History</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="clearHistoryButton">
+       <property name="text">
+        <string>Clear History</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <connections>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>HistoryDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+ </connections>
+</ui>
