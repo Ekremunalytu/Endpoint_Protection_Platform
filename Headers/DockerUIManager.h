@@ -8,7 +8,8 @@
 #include <QTableWidget>
 #include <QPlainTextEdit>
 
-class DockerManager;
+// Arayüz için forward declaration
+class IDockerManager;
 
 class DockerUIManager : public QObject
 {
@@ -22,6 +23,9 @@ public:
     void setTableWidget(QTableWidget* tableWidget);
     void setLogTextEdit(QPlainTextEdit* logTextEdit);
     
+    // Docker manager'ı ayarla
+    void setDockerManager(IDockerManager* dockerManager);
+    
     // Docker konteyner yönetim işlemleri
     void showContainerDetails();
     void updateContainerList();
@@ -34,7 +38,7 @@ public:
 private:
     QTableWidget* m_containerTableWidget;
     QPlainTextEdit* m_logTextEdit;
-    DockerManager* m_dockerManager;
+    IDockerManager* m_dockerManager;
 };
 
 #endif // DOCKERUIMANAGER_H

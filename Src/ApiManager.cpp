@@ -1,27 +1,48 @@
 #include "../Headers/ApiManager.h"
 #include <QTimer>
 
-// Static üyelerin tanımlanması
-ApiManager* ApiManager::instance = nullptr;
-std::mutex ApiManager::mutex;
+// Modern statik üyelerin tanımlanması
+std::unique_ptr<ApiManager> ApiManager::instance = nullptr;
+std::once_flag ApiManager::initInstanceFlag;
 
+// Thread-safe singleton implementasyonu
 ApiManager* ApiManager::getInstance(QObject* parent) {
-    // Double-checked locking pattern ile thread-safe singleton
-    if (instance == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex);
-        if (instance == nullptr) {
-            instance = new ApiManager(parent);
-        }
-    }
-    return instance;
+    std::call_once(initInstanceFlag, [parent]() {
+        instance = std::unique_ptr<ApiManager>(new ApiManager(parent));
+    });
+    return instance.get();
 }
 
+// Shared_ptr alternatifi
+std::shared_ptr<ApiManager> ApiManager::getInstanceShared(QObject* parent) {
+    static std::shared_ptr<ApiManager> sharedInstance = nullptr;
+    
+    if (!sharedInstance) {
+        ApiManager* rawInstance = getInstance(parent);
+        // Raw pointer'ı shared_ptr'ye dönüştürüyoruz, ancak instance'ın sahipliğini almıyoruz
+        sharedInstance = std::shared_ptr<ApiManager>(rawInstance, [](ApiManager*) {
+            // Boş deleter - gerçek nesne unique_ptr tarafından yönetiliyor
+        });
+    }
+    
+    return sharedInstance;
+}
+
+// Constructor - smart pointer kullanarak
 ApiManager::ApiManager(QObject* parent)
-    : QObject(parent), networkManager(new QNetworkAccessManager(this)), configManager(ConfigManager::getInstance()) {
+    : QObject(parent), 
+      networkManager(std::make_unique<QNetworkAccessManager>()),
+      configManager(ConfigManager::getInstance()) {
     // VirusTotal API için base URL 
     baseUrl = "https://www.virustotal.com/api/v3/";
 }
 
+// Destructor implementasyonu
+ApiManager::~ApiManager() {
+    // networkManager smart pointer ile otomatik olarak temizlenecek
+}
+
+// Mevcut metodlar aynı kalabilir
 void ApiManager::setApiKey(const QString& key) {
     configManager->setApiKey(key);
 }
@@ -56,6 +77,11 @@ void ApiManager::makeApiRequest(const QString& endpoint, const QJsonObject& data
         // GET isteği
         QNetworkReply* reply = networkManager->get(request);
         connect(reply, &QNetworkReply::finished, [this, reply]() {
+            // QNetworkReply için QtObject'in deleteLater kullanımı
+            QObject::connect(reply, &QObject::destroyed, []() {
+                // Reply temizlendi
+            });
+            
             // Yanıt işleme
             if (reply->error() == QNetworkReply::NoError) {
                 QByteArray responseData = reply->readAll();
@@ -70,6 +96,7 @@ void ApiManager::makeApiRequest(const QString& endpoint, const QJsonObject& data
                 emit error(QString("Network error: %1").arg(reply->errorString()));
             }
             
+            // Cevabı temizle
             reply->deleteLater();
         });
     } else {
@@ -79,6 +106,11 @@ void ApiManager::makeApiRequest(const QString& endpoint, const QJsonObject& data
         
         QNetworkReply* reply = networkManager->post(request, jsonData);
         connect(reply, &QNetworkReply::finished, [this, reply]() {
+            // QNetworkReply için QtObject'in deleteLater kullanımı
+            QObject::connect(reply, &QObject::destroyed, []() {
+                // Reply temizlendi
+            });
+            
             // Yanıt işleme
             if (reply->error() == QNetworkReply::NoError) {
                 QByteArray responseData = reply->readAll();
@@ -93,6 +125,7 @@ void ApiManager::makeApiRequest(const QString& endpoint, const QJsonObject& data
                 emit error(QString("Network error: %1").arg(reply->errorString()));
             }
             
+            // Cevabı temizle
             reply->deleteLater();
         });
     }
@@ -119,7 +152,7 @@ void ApiManager::uploadFileToVirusTotal(const QString& filePath, const QString& 
     // Header'ları ayarla
     request.setRawHeader("x-apikey", getApiKey().toUtf8());
 
-    // Multipart form data hazırla
+    // Multipart form data hazırla - QNetworkReply'a sahiplik verilecek
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     // Dosya için part hazırla
@@ -139,6 +172,11 @@ void ApiManager::uploadFileToVirusTotal(const QString& filePath, const QString& 
 
     // Yanıtı dinle
     connect(reply, &QNetworkReply::finished, [this, reply, fileName]() {
+        // QNetworkReply için QtObject'in deleteLater kullanımı
+        QObject::connect(reply, &QObject::destroyed, []() {
+            // Reply temizlendi
+        });
+        
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
@@ -192,7 +230,8 @@ void ApiManager::uploadFileToVirusTotal(const QString& filePath, const QString& 
                 emit error(QString("Network error: %1").arg(reply->errorString()));
             }
         }
-
+        
+        // Cevabı temizle
         reply->deleteLater();
     });
 }

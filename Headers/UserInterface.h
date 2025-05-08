@@ -14,6 +14,7 @@
 #include <QTabWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QProgressDialog>
 
 #include "ApiManager.h"
 #include "DbManager.h"
@@ -28,7 +29,7 @@ class IDbManager;
 class IYaraRuleManager;
 class ICdrManager;
 class ISandboxManager;
-class DockerManager;
+class IDockerManager;
 
 class ApiKeyDialog : public QDialog {
     Q_OBJECT
@@ -116,11 +117,15 @@ private:
     ICdrManager* cdrManager;
     ISandboxManager* sandboxManager;
     IDbManager* dbManager;
-    DockerManager* dockerManager;
+    IDockerManager* dockerManager; // DockerManager yerine IDockerManager kullanılıyor
     
     ScanManager* scanManager;
     ResultsView* resultsView;
     DockerUIManager* dockerUIManager;
+
+    // İlerleme göstergesi
+    QProgressDialog* progressDialog;
+    int currentProgress;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -132,6 +137,13 @@ private:
     void createToolBars();
     void createStatusBar();
     void createModernCentralWidgets();
+    void setupProgressDialog();
+    void initializeServices();
+
+    // İşlem işleyicileri
+    void handleOperationStarted(const QString& operationType);
+    void handleOperationCompleted(const QString& operationType, bool success);
+    void handleProgressUpdated(int percentage);
 
 private slots:
     void onApiResponseReceived(const QJsonObject& response);

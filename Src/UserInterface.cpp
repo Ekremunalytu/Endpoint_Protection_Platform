@@ -36,6 +36,7 @@
 #include <QUrl>
 #include <QHeaderView>
 #include <QToolButton> // QToolButton başlık dosyasını ekledik
+#include <QProgressDialog> // QProgressDialog başlık dosyasını ekledik
 #include <cmath>
 #include "../Headers/DbManager.h" // DbManager.h başlık dosyasını dahil ediyoruz
 
@@ -87,42 +88,76 @@ MainWindow::MainWindow(QWidget *parent)
       virusTotalAction(nullptr),
       apiKeyAction(nullptr),
       statusLabel(nullptr),
-      resultTextEdit(nullptr)
+      resultTextEdit(nullptr),
+      progressDialog(nullptr),
+      currentProgress(0)
 {
-    // ServiceLocator'dan tüm servisleri al
+    // Window ayarları
+    setWindowTitle("Endpoint Protection Platform");
+    resize(1200, 800);
+    
+    // Stil dosyasını yükle
+    QFile styleFile(":/styles/main.qss");
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        QString styleSheet = QLatin1String(styleFile.readAll());
+        this->setStyleSheet(styleSheet);
+        styleFile.close();
+    }
+    
+    // Önce servisleri başlat, sonra UI elemanlarını oluştur
+    initializeServices(); // Bu fonksiyon önce çağrılmalı
+    
+    // UI elemanlarını oluştur
+    createModernCentralWidgets();
+    createActions();
+    createMenus();
+    createToolBars();
+    createStatusBar();
+    
+    // İlerleme göstergesini kur
+    setupProgressDialog();
+}
+
+MainWindow::~MainWindow()
+{
+    // Manager sınıfları kendi destructor'larında gerekli temizlemeleri yapacak
+}
+
+void MainWindow::setupProgressDialog() {
+    progressDialog = new QProgressDialog("İşlem başlatılıyor...", "İptal", 0, 100, this);
+    progressDialog->setWindowModality(Qt::WindowModal);
+    progressDialog->setAutoClose(true);
+    progressDialog->setAutoReset(true);
+    progressDialog->setMinimumDuration(500); // 500 ms'den uzun süren işlemler için göster
+    progressDialog->reset();
+    progressDialog->hide();
+    currentProgress = 0;
+}
+
+void MainWindow::initializeServices() {
+    // Service Locator üzerinden servisleri al
     apiManager = ServiceLocator::getApiManager();
     yaraRuleManager = ServiceLocator::getYaraRuleManager();
     cdrManager = ServiceLocator::getCdrManager();
     sandboxManager = ServiceLocator::getSandboxManager();
     dbManager = ServiceLocator::getDbManager();
-    dockerManager = dynamic_cast<DockerManager*>(ServiceLocator::getDockerManager());
-    
-    // ScanManager'ı oluştur - servisleri direkt olarak enjekte et
-    scanManager = new ScanManager(
-        apiManager,       // IApiManager olarak kullanılacak
-        yaraRuleManager,  // IYaraRuleManager olarak kullanılacak
-        cdrManager,       // ICdrManager olarak kullanılacak
-        sandboxManager,   // ISandboxManager olarak kullanılacak
-        dbManager,        // IDbManager olarak kullanılacak
-        this
-    );
-    
-    // Diğer manager'ları oluştur
+    dockerManager = ServiceLocator::getDockerManager();
+
+    // Scan Manager'ı oluştur
+    scanManager = new ScanManager(apiManager, yaraRuleManager, cdrManager, sandboxManager, dbManager, this);
+    scanManager->setTextEdit(resultTextEdit);
+    scanManager->setLogTextEdit(apiLogTextEdit);
+    scanManager->setStatusBar(statusBar());
+
+    // ResultsView'ı oluştur
     resultsView = new ResultsView(this);
+    resultsView->setResultTextEdit(resultTextEdit);
+    resultsView->setDetailedResultTextEdit(detailedResultTextEdit);
+
+    // DockerUIManager'ı oluştur
     dockerUIManager = new DockerUIManager(this);
-    
-    // API yanıtlarını yakalamak için sinyal-slot bağlantıları
-    if (auto qApiManager = dynamic_cast<QObject*>(apiManager)) {
-        connect(qApiManager, SIGNAL(responseReceived(const QJsonObject&)),
-                this, SLOT(onApiResponseReceived(const QJsonObject&)));
-        connect(qApiManager, SIGNAL(error(const QString&)),
-                this, SLOT(onApiError(const QString&)));
-        connect(qApiManager, SIGNAL(requestSent(const QString&)),
-                this, SLOT(onApiRequestSent(const QString&)));
-    } else {
-        qWarning() << "MainWindow: API Manager does not support signal/slot connections!";
-    }
-    
+    dockerUIManager->setDockerManager(dockerManager);
+
     // Docker imaj seçim sinyalini bağla
     connect(scanManager, &ScanManager::dockerImageSelectionRequired, 
             this, [this](const QString &serviceType) {
@@ -138,41 +173,80 @@ MainWindow::MainWindow(QWidget *parent)
                     currentImage = scanManager->getCurrentSandboxImageName();
                 }
                 
-                // Dialog'u oluştur ve göster
+                // Eğer imaj listesi boşsa, kullanıcıya hata mesajı göster
+                if (availableImages.isEmpty()) {
+                    QMessageBox::warning(this, tr("Docker Images Not Found"), 
+                                      tr("No Docker images found for %1 operation.\n"
+                                         "Please make sure Docker is running and images are available.")
+                                      .arg(serviceType));
+                    return;
+                }
+                
+                // Docker imaj seçim dialogunu göster
                 DockerImageSelectionDialog dialog(availableImages, currentImage, serviceType, this);
-                
-                // Debug bilgisi ekle
-                qDebug() << "Docker image selection dialog shown for" << serviceType;
-                
                 if (dialog.exec() == QDialog::Accepted) {
                     QString selectedImage = dialog.getSelectedImage();
-                    if (!selectedImage.isEmpty()) {
-                        if (serviceType == "CDR") {
-                            scanManager->setCdrImageName(selectedImage);
-                        } else {
-                            scanManager->setSandboxImageName(selectedImage);
-                        }
+                    
+                    // Seçilen imajı ayarla
+                    if (serviceType == "CDR") {
+                        scanManager->setCdrImageName(selectedImage);
+                    } else {
+                        scanManager->setSandboxImageName(selectedImage);
                     }
+                    
+                    QMessageBox::information(this, tr("Image Selected"), 
+                                          tr("Selected %1 image: %2")
+                                          .arg(serviceType)
+                                          .arg(selectedImage));
                 }
             });
 
-    // Ana pencere boyutu ve stili
-    QScreen *screen = QApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
-    int width = screenGeometry.width() * 0.8;
-    int height = screenGeometry.height() * 0.8;
-    resize(width, height);
-    setMinimumSize(800, 600);
+    // İşlem başlangıç/bitiş sinyallerini bağla
+    connect(scanManager, &ScanManager::operationStarted, this, &MainWindow::handleOperationStarted);
+    connect(scanManager, &ScanManager::operationCompleted, this, &MainWindow::handleOperationCompleted);
+    connect(scanManager, &ScanManager::progressUpdated, this, &MainWindow::handleProgressUpdated);
 
-    createActions();
-    createMenus();
-    createStatusBar();
-    createModernCentralWidgets();
+    // API bağlantılarını kur (QObject* casting gerektirmeden doğrudan kullanılabilir)
+    if (auto apiManagerQObject = dynamic_cast<QObject*>(apiManager)) {
+        connect(apiManagerQObject, SIGNAL(responseReceived(const QJsonObject&)),
+                this, SLOT(onApiResponseReceived(const QJsonObject&)));
+        connect(apiManagerQObject, SIGNAL(error(const QString&)),
+                this, SLOT(onApiError(const QString&)));
+        connect(apiManagerQObject, SIGNAL(requestSent(const QString&)),
+                this, SLOT(onApiRequestSent(const QString&)));
+    } else {
+        qWarning() << "MainWindow: API Manager does not support signal/slot connections!";
+    }
 }
 
-MainWindow::~MainWindow()
-{
-    // Manager sınıfları kendi destructor'larında gerekli temizlemeleri yapacak
+void MainWindow::handleOperationStarted(const QString& operationType) {
+    progressDialog->setLabelText(tr("%1 işlemi başlatılıyor...").arg(operationType));
+    progressDialog->setValue(0);
+    progressDialog->show();
+    currentProgress = 0;
+    
+    statusBar()->showMessage(tr("%1 işlemi başlatıldı").arg(operationType));
+    qApp->processEvents();
+}
+
+void MainWindow::handleOperationCompleted(const QString& operationType, bool success) {
+    progressDialog->setValue(100);
+    progressDialog->hide();
+    currentProgress = 0;
+    
+    if (success) {
+        statusBar()->showMessage(tr("%1 işlemi başarıyla tamamlandı").arg(operationType), 5000);
+    } else {
+        statusBar()->showMessage(tr("%1 işlemi başarısız oldu").arg(operationType), 5000);
+    }
+}
+
+void MainWindow::handleProgressUpdated(int percentage) {
+    if (percentage > currentProgress) {
+        currentProgress = percentage;
+        progressDialog->setValue(percentage);
+        qApp->processEvents();
+    }
 }
 
 void MainWindow::createActions()
@@ -335,7 +409,9 @@ void MainWindow::createModernCentralWidgets()
     
     // Logo ve başlık
     QLabel *logoLabel = new QLabel(this);
-    logoLabel->setPixmap(QPixmap(":/images/shield.png").scaledToHeight(32, Qt::SmoothTransformation));
+    // Resim dosyası yerine Unicode karakteri kullanarak logo yerine geçecek simge oluşturuyoruz
+    logoLabel->setText("🛡️");
+    logoLabel->setStyleSheet("font-size: 24px;");
     logoLabel->setFixedSize(32, 32);
     
     QLabel *titleLabel = new QLabel(tr("Antivirus"), this);

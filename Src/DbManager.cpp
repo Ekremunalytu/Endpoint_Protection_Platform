@@ -4,9 +4,9 @@
 #include <QThread>
 #include "../Headers/DbManager.h"
 
-// Statik üyelerin tanımlanması
-DbManager* DbManager::instance = nullptr;
-std::mutex DbManager::mutex;
+// Modern singleton için static üye tanımlamaları
+std::unique_ptr<DbManager> DbManager::instance = nullptr;
+std::once_flag DbManager::initInstanceFlag;
 QSqlDatabase DbManager::db;
 
 // Private constructor implementation
@@ -14,13 +14,36 @@ DbManager::DbManager() {
     // Constructor içi boş kalabilir veya gerekli başlangıç işlemleri yapılabilir
 }
 
-// Singleton pattern için getInstance metodu implementasyonu
-DbManager* DbManager::getInstance() {
-    std::lock_guard<std::mutex> lock(mutex);
-    if (instance == nullptr) {
-        instance = new DbManager();
+// Destructor implementation - temizlik işlemleri
+DbManager::~DbManager() {
+    // Eğer instance nesnesi yok olurken açık veritabanı bağlantıları varsa kapatılmalı
+    QStringList connectionNames = QSqlDatabase::connectionNames();
+    for (const QString& connectionName : connectionNames) {
+        closeConnection(connectionName);
     }
-    return instance;
+}
+
+// Modern C++11 singleton pattern için thread-safe getInstance metodu
+DbManager* DbManager::getInstance() {
+    std::call_once(initInstanceFlag, []() {
+        instance = std::unique_ptr<DbManager>(new DbManager());
+    });
+    return instance.get();
+}
+
+// Shared_ptr döndüren alternatif getInstance metodu
+std::shared_ptr<DbManager> DbManager::getInstanceShared() {
+    static std::shared_ptr<DbManager> sharedInstance = nullptr;
+    
+    if (!sharedInstance) {
+        DbManager* rawInstance = getInstance();
+        // Raw pointer'ı shared_ptr'ye dönüştürüyoruz, ancak instance'ın sahipliğini almıyoruz
+        sharedInstance = std::shared_ptr<DbManager>(rawInstance, [](DbManager*) {
+            // Boş deleter - gerçek nesne unique_ptr tarafından yönetiliyor
+        });
+    }
+    
+    return sharedInstance;
 }
 
 // Thread local veritabanı bağlantı adını oluştur

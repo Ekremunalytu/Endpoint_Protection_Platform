@@ -1,5 +1,5 @@
 #include "../Headers/DockerUIManager.h"
-#include "../Headers/DockerManager.h"
+#include "../Headers/Interfaces/IDockerManager.h" // IDockerManager arayüzünü dahil et
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -8,18 +8,26 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDateTime>
+#include <QProcess>
 
 DockerUIManager::DockerUIManager(QObject *parent)
     : QObject(parent),
       m_containerTableWidget(nullptr),
-      m_logTextEdit(nullptr)
+      m_logTextEdit(nullptr),
+      m_dockerManager(nullptr) // DockerManager'ı oluşturmak yerine başlangıçta nullptr atıyoruz
 {
-    m_dockerManager = new DockerManager(this);
+    // Artık m_dockerManager'ı dışarıdan setDockerManager metodu ile ayarlayacağız
 }
 
 DockerUIManager::~DockerUIManager()
 {
     // DockerManager parent'a sahip olduğu için burada silmeye gerek yok
+}
+
+// Docker manager'ı ayarlama metodu
+void DockerUIManager::setDockerManager(IDockerManager* dockerManager)
+{
+    m_dockerManager = dockerManager;
 }
 
 void DockerUIManager::setTableWidget(QTableWidget* tableWidget)
@@ -34,6 +42,10 @@ void DockerUIManager::setLogTextEdit(QPlainTextEdit* logTextEdit)
 
 bool DockerUIManager::isDockerAvailable() const
 {
+    // Docker manager null kontrolü ekleyelim
+    if (!m_dockerManager) {
+        return false;
+    }
     return m_dockerManager->isDockerAvailable();
 }
 
@@ -85,7 +97,7 @@ void DockerUIManager::showContainerDetails()
     QObject::connect(closeButton, &QPushButton::clicked, containerDialog, &QDialog::accept);
     
     // Check current Docker status - Only add log, don't display status (specific to Service Status page)
-    if (m_dockerManager->isDockerAvailable() && m_logTextEdit) {
+    if (isDockerAvailable() && m_logTextEdit) {
         // Add Docker status to log section
         m_logTextEdit->appendPlainText(QString("\n🔍 %1 | Docker status checked: Available")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
@@ -104,7 +116,7 @@ void DockerUIManager::updateContainerList()
     
     m_containerTableWidget->setRowCount(0);
     
-    if (!m_dockerManager->isDockerAvailable()) {
+    if (!isDockerAvailable()) {
         QTableWidgetItem *errorItem = new QTableWidgetItem("Docker is not available or not running!");
         m_containerTableWidget->insertRow(0);
         m_containerTableWidget->setSpan(0, 0, 1, 5);
@@ -112,7 +124,8 @@ void DockerUIManager::updateContainerList()
         return;
     }
     
-    QJsonArray containers = m_dockerManager->listContainers();
+    // listContainers yerine getDockerContainers kullanılıyor
+    QJsonArray containers = m_dockerManager->getDockerContainers();
     
     for (int i = 0; i < containers.size(); ++i) {
         QJsonObject container = containers[i].toObject();
@@ -143,50 +156,21 @@ void DockerUIManager::updateContainerList()
 QJsonArray DockerUIManager::getDockerContainers()
 {
     // List containers through the DockerManager class
-    if (!m_dockerManager || !m_dockerManager->isDockerAvailable()) {
+    if (!m_dockerManager || !isDockerAvailable()) {
         return QJsonArray(); // Return empty list if Docker is not running
     }
     
-    return m_dockerManager->listContainers(true); // List all containers (running and stopped)
+    // IDockerManager arayüzündeki uygun metodu kullan
+    return m_dockerManager->getDockerContainers();
 }
 
 QJsonArray DockerUIManager::getDockerImages()
 {
     // List images through the DockerManager class
-    if (!m_dockerManager || !m_dockerManager->isDockerAvailable()) {
+    if (!m_dockerManager || !isDockerAvailable()) {
         return QJsonArray(); // Return empty list if Docker is not running
     }
     
-    // Get image list from DockerManager
-    QProcess dockerProcess;
-    dockerProcess.start("docker", QStringList() << "images" << "--format" << "{{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}");
-    dockerProcess.waitForFinished();
-    
-    if (dockerProcess.exitCode() != 0) {
-        return QJsonArray();
-    }
-
-    QString output = dockerProcess.readAllStandardOutput().trimmed();
-    QStringList images = output.split("\n");
-    QJsonArray imageArray;
-    
-    for (const QString &image : images) {
-        if (image.trimmed().isEmpty()) continue;
-        
-        QStringList parts = image.split("\t");
-        QJsonObject imageObj;
-        
-        if (parts.size() >= 4) {
-            imageObj["id"] = parts[0];
-            imageObj["repository"] = parts[1];
-            imageObj["tag"] = parts[2];
-            imageObj["size"] = parts[3];
-        }
-        
-        if (!imageObj.isEmpty()) {
-            imageArray.append(imageObj);
-        }
-    }
-    
-    return imageArray;
+    // IDockerManager arayüzündeki uygun metodu kullan
+    return m_dockerManager->getDockerImages();
 }

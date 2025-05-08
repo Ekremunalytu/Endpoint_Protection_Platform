@@ -21,7 +21,8 @@ ScanManager::ScanManager(
     m_yaraManager(yaraManager),
     m_cdrManager(cdrManager),
     m_sandboxManager(sandboxManager),
-    m_dbManager(dbManager)
+    m_dbManager(dbManager),
+    m_operationInProgress(false)
 {
     // Null kontrolü - güvenlik için
     if (!m_apiManager || !m_yaraManager || !m_cdrManager || !m_sandboxManager || !m_dbManager) {
@@ -47,7 +48,7 @@ ScanManager::ScanManager(
 ScanManager::~ScanManager()
 {
     // Zamanlayıcıyı durdur
-    if (m_refreshTimer->isActive()) {
+    if (m_refreshTimer && m_refreshTimer->isActive()) {
         m_refreshTimer->stop();
     }
     
@@ -85,6 +86,17 @@ void ScanManager::performOfflineScan(const QString& filePath)
         return;
     }
     
+    // Operasyon zaten çalışıyorsa uyarı ver
+    if (m_operationInProgress) {
+        QMessageBox::warning(nullptr, tr("Operation in Progress"),
+                            tr("Another scanning operation is already in progress. Please wait for it to complete."));
+        return;
+    }
+    
+    QMutexLocker locker(&m_operationMutex);
+    m_operationInProgress = true;
+    emit operationStarted("Offline Scan");
+    
     // Durum mesajını güncelle
     m_statusBar->showMessage(tr("Scanning file: %1").arg(filePath));
     
@@ -103,58 +115,99 @@ void ScanManager::performOfflineScan(const QString& filePath)
     if (!fileInfo.exists() || !fileInfo.isFile() || !fileInfo.isReadable()) {
         m_resultTextEdit->appendPlainText(tr("❌ File not found or unreadable: %1").arg(filePath));
         m_statusBar->showMessage(tr("Scan failed: File not found"));
+        
+        m_operationInProgress = false;
+        emit operationCompleted("Offline Scan", false);
         return;
     }
     
-    // YARA motoru ile offline tarama yap
-    try {
-        std::vector<std::string> matchesVector;
-        std::error_code error = m_yaraManager->scanFile(filePath.toStdString(), matchesVector);
-        
-        // Convert std::vector<std::string> to QStringList
-        QStringList matches;
-        for (const auto& match : matchesVector) {
-            matches.append(QString::fromStdString(match));
-        }
-        
-        if (error) {
-            m_resultTextEdit->appendPlainText(tr("❌ Error occurred during scanning: %1").arg(QString::fromStdString(error.message())));
-        } else if (matches.isEmpty()) {
-            m_resultTextEdit->appendPlainText(tr("✅ No threats detected in the file."));
-        } else {
-            m_resultTextEdit->appendPlainText(tr("⚠️ Potential threats detected in the file!\n"));
-            m_resultTextEdit->appendPlainText(tr("Matching YARA rules:"));
-            
-            for (const QString &match : matches) {
-                m_resultTextEdit->appendPlainText(tr("- %1").arg(match));
+    // ThreadPool kullanarak YARA taramasını asenkron yap
+    ThreadPool::getInstance()->runAsync(
+        [this, filePath]() {
+            try {
+                emit progressUpdated(25);
+                std::vector<std::string> matchesVector;
+                std::error_code error = m_yaraManager->scanFile(filePath.toStdString(), matchesVector);
+                
+                // Convert std::vector<std::string> to QStringList
+                QStringList matches;
+                for (const auto& match : matchesVector) {
+                    matches.append(QString::fromStdString(match));
+                }
+                
+                emit progressUpdated(75);
+                
+                // UI thread'inde sonuçları göster
+                QMetaObject::invokeMethod(this, [this, error, matches]() {
+                    if (error) {
+                        m_resultTextEdit->appendPlainText(tr("❌ Error occurred during scanning: %1").arg(QString::fromStdString(error.message())));
+                    } else if (matches.isEmpty()) {
+                        m_resultTextEdit->appendPlainText(tr("✅ No threats detected in the file."));
+                    } else {
+                        m_resultTextEdit->appendPlainText(tr("⚠️ Potential threats detected in the file!\n"));
+                        m_resultTextEdit->appendPlainText(tr("Matching YARA rules:"));
+                        
+                        for (const QString &match : matches) {
+                            m_resultTextEdit->appendPlainText(tr("- %1").arg(match));
+                        }
+                        
+                        m_resultTextEdit->appendPlainText(tr("\n⚠️ This file may be harmful. Proceed with caution!"));
+                    }
+                    
+                    // İsteğe bağlı olarak, daha fazla analiz için VirusTotal'e yönlendirebiliriz
+                    if (!matches.isEmpty()) {
+                        m_resultTextEdit->appendPlainText(tr("\nFor more detailed analysis, you can use the 'VirusTotal Scan' feature."));
+                    }
+                    
+                    // Durum çubuğunu güncelle
+                    m_statusBar->showMessage(tr("Scan completed"));
+                    
+                    m_operationInProgress = false;
+                    emit operationCompleted("Offline Scan", true);
+                    emit progressUpdated(100);
+                }, Qt::QueuedConnection);
+                
+            } catch (const std::exception& e) {
+                QMetaObject::invokeMethod(this, [this, e]() {
+                    m_resultTextEdit->appendPlainText(tr("❌ Unexpected error occurred during scanning: %1").arg(e.what()));
+                    m_logTextEdit->appendPlainText(QString("\n❌ %1 | Scan error: %2")
+                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                        .arg(e.what()));
+                    
+                    m_statusBar->showMessage(tr("Scan failed"));
+                    m_operationInProgress = false;
+                    emit operationCompleted("Offline Scan", false);
+                }, Qt::QueuedConnection);
+            } catch (...) {
+                QMetaObject::invokeMethod(this, [this]() {
+                    m_resultTextEdit->appendPlainText(tr("❌ Unknown error occurred during scanning."));
+                    m_logTextEdit->appendPlainText(QString("\n❌ %1 | Scan error: Unknown error")
+                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
+                    
+                    m_statusBar->showMessage(tr("Scan failed"));
+                    m_operationInProgress = false;
+                    emit operationCompleted("Offline Scan", false);
+                }, Qt::QueuedConnection);
             }
-            
-            m_resultTextEdit->appendPlainText(tr("\n⚠️ This file may be harmful. Proceed with caution!"));
         }
-        
-        // İsteğe bağlı olarak, daha fazla analiz için VirusTotal'e yönlendirebiliriz
-        if (!matches.isEmpty()) {
-            m_resultTextEdit->appendPlainText(tr("\nFor more detailed analysis, you can use the 'VirusTotal Scan' feature."));
-        }
-    } catch (const std::exception& e) {
-        m_resultTextEdit->appendPlainText(tr("❌ Unexpected error occurred during scanning: %1").arg(e.what()));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Scan error: %2")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-            .arg(e.what()));
-    } catch (...) {
-        m_resultTextEdit->appendPlainText(tr("❌ Unknown error occurred during scanning."));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Scan error: Unknown error")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
-    }
-    
-    // Durum çubuğunu güncelle
-    m_statusBar->showMessage(tr("Scan completed"));
+    );
 }
 
 void ScanManager::performOnlineScan(const QString& filePath)
 {
     if (!m_resultTextEdit || !m_statusBar || !m_logTextEdit || !m_apiManager)
         return;
+    
+    // Operasyon zaten çalışıyorsa uyarı ver
+    if (m_operationInProgress) {
+        QMessageBox::warning(nullptr, tr("Operation in Progress"),
+                            tr("Another scanning operation is already in progress. Please wait for it to complete."));
+        return;
+    }
+    
+    QMutexLocker locker(&m_operationMutex);
+    m_operationInProgress = true;
+    emit operationStarted("VirusTotal Scan");
     
     // API Key kontrolü
     if (!m_apiManager->hasApiKey()) {
@@ -163,6 +216,9 @@ void ScanManager::performOnlineScan(const QString& filePath)
         QMessageBox::warning(nullptr, tr("API Key Required"), 
                            tr("VirusTotal scan requires an API key.\n"
                               "Please use the 'Set API Key' option first."));
+                              
+        m_operationInProgress = false;
+        emit operationCompleted("VirusTotal Scan", false);
         return;
     }
     
@@ -174,44 +230,88 @@ void ScanManager::performOnlineScan(const QString& filePath)
     m_resultTextEdit->appendPlainText(tr("Sending file to VirusTotal: %1").arg(filePath));
     m_resultTextEdit->appendPlainText(tr("This process may take some time depending on the file size..."));
     
-    // Dosya içeriğini okumalı ve multipart form olarak göndermeli
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        m_resultTextEdit->appendPlainText(tr("\n❌ File could not be opened: %1").arg(filePath));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | File could not be opened: %2")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-            .arg(filePath));
-        return;
-    }
-    
-    // Dosya verilerini oku
-    QByteArray fileData = file.readAll();
-    file.close();
-    
-    if (fileData.isEmpty()) {
-        m_resultTextEdit->appendPlainText(tr("\n❌ File is empty: %1").arg(filePath));
-        return;
-    }
-    
-    // Dosya adını al (yalnızca dosya adı, yolu olmadan)
-    QFileInfo fileInfo(filePath);
-    QString fileName = fileInfo.fileName();
-    
-    // VirusTotal'e dosyayı gönder
-    m_apiManager->uploadFileToVirusTotal(filePath, fileName, fileData);
-    
-    m_logTextEdit->appendPlainText(QString("\n📤 %1 | Sending file to VirusTotal: %2")
-        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-        .arg(filePath));
+    // Dosya işlemlerini asenkron yap
+    ThreadPool::getInstance()->runAsync([this, filePath]() {
+        try {
+            emit progressUpdated(10);
+            // Dosya içeriğini okumalı ve multipart form olarak göndermeli
+            QFile file(filePath);
+            if (!file.open(QIODevice::ReadOnly)) {
+                QMetaObject::invokeMethod(this, [this, filePath]() {
+                    m_resultTextEdit->appendPlainText(tr("\n❌ File could not be opened: %1").arg(filePath));
+                    m_logTextEdit->appendPlainText(QString("\n❌ %1 | File could not be opened: %2")
+                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                        .arg(filePath));
+                        
+                    m_statusBar->showMessage(tr("Scan failed: File could not be opened"));
+                    m_operationInProgress = false;
+                    emit operationCompleted("VirusTotal Scan", false);
+                }, Qt::QueuedConnection);
+                return;
+            }
+            
+            // Dosya verilerini oku
+            emit progressUpdated(30);
+            QByteArray fileData = file.readAll();
+            file.close();
+            
+            if (fileData.isEmpty()) {
+                QMetaObject::invokeMethod(this, [this, filePath]() {
+                    m_resultTextEdit->appendPlainText(tr("\n❌ File is empty: %1").arg(filePath));
+                    m_statusBar->showMessage(tr("Scan failed: File is empty"));
+                    m_operationInProgress = false;
+                    emit operationCompleted("VirusTotal Scan", false);
+                }, Qt::QueuedConnection);
+                return;
+            }
+            
+            // Dosya adını al (yalnızca dosya adı, yolu olmadan)
+            QFileInfo fileInfo(filePath);
+            QString fileName = fileInfo.fileName();
+            
+            // UI thread'e geri dön ve gönderi yap
+            QMetaObject::invokeMethod(this, [this, filePath, fileName, fileData]() {
+                emit progressUpdated(50);
+                // VirusTotal'e dosyayı gönder
+                m_apiManager->uploadFileToVirusTotal(filePath, fileName, fileData);
+                
+                m_logTextEdit->appendPlainText(QString("\n📤 %1 | Sending file to VirusTotal: %2")
+                    .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                    .arg(filePath));
+            }, Qt::QueuedConnection);
+            
+        } catch (const std::exception& e) {
+            QMetaObject::invokeMethod(this, [this, e]() {
+                m_resultTextEdit->appendPlainText(tr("\n❌ Error: %1").arg(e.what()));
+                m_statusBar->showMessage(tr("Scan failed"));
+                m_operationInProgress = false;
+                emit operationCompleted("VirusTotal Scan", false);
+            }, Qt::QueuedConnection);
+        } catch (...) {
+            QMetaObject::invokeMethod(this, [this]() {
+                m_resultTextEdit->appendPlainText(tr("\n❌ Unknown error occurred"));
+                m_statusBar->showMessage(tr("Scan failed"));
+                m_operationInProgress = false;
+                emit operationCompleted("VirusTotal Scan", false);
+            }, Qt::QueuedConnection);
+        }
+    });
 }
 
-bool ScanManager::performCdrScan(const QString& filePath) {
+bool ScanManager::performCdrScan(const QString& filePath, bool async) {
     if (!m_cdrManager) {
         qDebug() << "CDR manager is not initialized";
         if (m_resultTextEdit) {
             m_resultTextEdit->clear();
             m_resultTextEdit->appendPlainText("⚠️ CDR manager could not be initialized! Docker setup should be checked.");
         }
+        return false;
+    }
+    
+    // Operasyon zaten çalışıyorsa uyarı ver
+    if (m_operationInProgress) {
+        QMessageBox::warning(nullptr, tr("Operation in Progress"),
+                            tr("Another scanning operation is already in progress. Please wait for it to complete."));
         return false;
     }
     
@@ -241,50 +341,45 @@ bool ScanManager::performCdrScan(const QString& filePath) {
         return false;
     }
     
-    if (m_resultTextEdit) {
-        m_resultTextEdit->clear();
-        m_resultTextEdit->appendPlainText("🔍 Starting CDR scan...");
-        m_resultTextEdit->appendPlainText("📄 File: " + filePath);
-        m_resultTextEdit->appendPlainText("🐳 Docker Image: " + m_cdrManager->getCurrentImageName());
-        m_resultTextEdit->appendPlainText("\nOperation in progress, please wait...\n");
-    }
-    
-    // CDR taraması işlemi
-    bool success = m_cdrManager->processFile(filePath);
-    
-    if (success) {
-        QString cleanedFilePath = m_cdrManager->getCleanedFilePath(filePath);
+    // Senkron veya asenkron çalıştırma kararı
+    if (async) {
+        executeCdrScanAsync(filePath);
+        return true; // İşlem başladı, gerçek sonucu asenkron alacağız
+    } else {
+        QMutexLocker locker(&m_operationMutex);
+        m_operationInProgress = true;
         
-        if (m_resultTextEdit) {
-            m_resultTextEdit->appendPlainText("\n✅ CDR scan completed!");
-            m_resultTextEdit->appendPlainText("🔒 Cleaned file: " + cleanedFilePath);
-        }
+        updateUiForOperationStart("CDR Scan", filePath);
         
-        if (m_statusBar) {
-            m_statusBar->showMessage("CDR scan completed: " + cleanedFilePath);
-        }
-    }
-    else {
-        if (m_resultTextEdit) {
-            m_resultTextEdit->appendPlainText("\n❌ CDR scan failed!");
-            m_resultTextEdit->appendPlainText("An error occurred while processing the file.");
+        // CDR taraması işlemi
+        bool success = m_cdrManager->processFile(filePath);
+        
+        if (success) {
+            QString cleanedFilePath = m_cdrManager->getCleanedFilePath(filePath);
+            updateUiForOperationComplete("CDR Scan", success, cleanedFilePath);
+        } else {
+            updateUiForOperationComplete("CDR Scan", false);
         }
         
-        if (m_statusBar) {
-            m_statusBar->showMessage("CDR scan failed!");
-        }
+        m_operationInProgress = false;
+        return success;
     }
-    
-    return success;
 }
 
-bool ScanManager::performSandboxScan(const QString& filePath) {
+bool ScanManager::performSandboxScan(const QString& filePath, bool async) {
     if (!m_sandboxManager) {
         qDebug() << "Sandbox manager is not initialized";
         if (m_resultTextEdit) {
             m_resultTextEdit->clear();
             m_resultTextEdit->appendPlainText("⚠️ Sandbox manager could not be initialized! Docker setup should be checked.");
         }
+        return false;
+    }
+    
+    // Operasyon zaten çalışıyorsa uyarı ver
+    if (m_operationInProgress) {
+        QMessageBox::warning(nullptr, tr("Operation in Progress"),
+                            tr("Another scanning operation is already in progress. Please wait for it to complete."));
         return false;
     }
     
@@ -314,59 +409,205 @@ bool ScanManager::performSandboxScan(const QString& filePath) {
         return false;
     }
     
+    // Senkron veya asenkron çalıştırma kararı
+    if (async) {
+        executeSandboxScanAsync(filePath);
+        return true; // İşlem başladı, gerçek sonucu asenkron alacağız
+    } else {
+        QMutexLocker locker(&m_operationMutex);
+        m_operationInProgress = true;
+        
+        updateUiForOperationStart("Sandbox Scan", filePath);
+
+        // Sandbox analizi başlat ve sonuç objesini al
+        QJsonObject analysisResult = m_sandboxManager->analyzeFile(filePath);
+        bool success = analysisResult.value("success").toBool();
+        
+        if (success) {
+            QJsonObject results = m_sandboxManager->getAnalysisResults();
+            QString analysisResultJson = QString::fromUtf8(QJsonDocument(results).toJson(QJsonDocument::Indented));
+            
+            updateUiForOperationComplete("Sandbox Scan", true);
+            
+            m_resultTextEdit->appendPlainText(tr("\nANALYSIS RESULTS:"));
+            m_resultTextEdit->appendPlainText(analysisResultJson);
+            
+            m_logTextEdit->appendPlainText(QString("\n✅ %1 | Sandbox analysis completed: %2")
+                .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                .arg(filePath));
+        } else {
+            updateUiForOperationComplete("Sandbox Scan", false);
+            
+            m_logTextEdit->appendPlainText(QString("\n❌ %1 | Sandbox analysis failed: %2")
+                .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                .arg(filePath));
+        }
+        
+        m_operationInProgress = false;
+        return success;
+    }
+}
+
+void ScanManager::executeCdrScanAsync(const QString& filePath) {
+    QMutexLocker locker(&m_operationMutex);
+    m_operationInProgress = true;
+    emit operationStarted("CDR Scan");
+    
+    updateUiForOperationStart("CDR Scan", filePath);
+    
+    // ThreadPool üzerinden CDR taramasını asenkron yap
+    ThreadPool::getInstance()->runAsync(
+        [this, filePath]() {
+            emit progressUpdated(25);
+            // CDR taraması işlemi
+            bool success = m_cdrManager->processFile(filePath);
+            emit progressUpdated(90);
+            
+            // İşlem tamamlandı, UI thread'e dön ve sonuçları göster
+            QMetaObject::invokeMethod(this, [this, success, filePath]() {
+                if (success) {
+                    QString cleanedFilePath = m_cdrManager->getCleanedFilePath(filePath);
+                    updateUiForOperationComplete("CDR Scan", true, cleanedFilePath);
+                } else {
+                    updateUiForOperationComplete("CDR Scan", false);
+                }
+                
+                m_operationInProgress = false;
+                emit operationCompleted("CDR Scan", success);
+                emit progressUpdated(100);
+            }, Qt::QueuedConnection);
+        }
+    );
+}
+
+void ScanManager::executeSandboxScanAsync(const QString& filePath) {
+    QMutexLocker locker(&m_operationMutex);
+    m_operationInProgress = true;
+    emit operationStarted("Sandbox Scan");
+    
+    updateUiForOperationStart("Sandbox Scan", filePath);
+    
+    // ThreadPool üzerinden Sandbox taramasını asenkron yap
+    ThreadPool::getInstance()->runAsync(
+        [this, filePath]() {
+            emit progressUpdated(25);
+            // Sandbox analizi başlat ve sonuç objesini al
+            QJsonObject analysisResult = m_sandboxManager->analyzeFile(filePath);
+            emit progressUpdated(75);
+            
+            bool success = analysisResult.value("success").toBool();
+            QJsonObject results;
+            
+            if (success) {
+                results = m_sandboxManager->getAnalysisResults();
+            }
+            
+            // İşlem tamamlandı, UI thread'e dön ve sonuçları göster
+            QMetaObject::invokeMethod(this, [this, success, results, filePath]() {
+                if (success) {
+                    QString analysisResultJson = QString::fromUtf8(QJsonDocument(results).toJson(QJsonDocument::Indented));
+                    
+                    updateUiForOperationComplete("Sandbox Scan", true);
+                    
+                    m_resultTextEdit->appendPlainText(tr("\nANALYSIS RESULTS:"));
+                    m_resultTextEdit->appendPlainText(analysisResultJson);
+                    
+                    m_logTextEdit->appendPlainText(QString("\n✅ %1 | Sandbox analysis completed: %2")
+                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                        .arg(filePath));
+                } else {
+                    updateUiForOperationComplete("Sandbox Scan", false);
+                    
+                    m_logTextEdit->appendPlainText(QString("\n❌ %1 | Sandbox analysis failed: %2")
+                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
+                        .arg(filePath));
+                }
+                
+                m_operationInProgress = false;
+                emit operationCompleted("Sandbox Scan", success);
+                emit progressUpdated(100);
+            }, Qt::QueuedConnection);
+        }
+    );
+}
+
+void ScanManager::updateUiForOperationStart(const QString& operationType, const QString& filePath) {
     if (m_resultTextEdit) {
         m_resultTextEdit->clear();
-        m_resultTextEdit->appendPlainText("🧪 Starting Sandbox analysis...");
-        m_resultTextEdit->appendPlainText("📄 File: " + filePath);
-        m_resultTextEdit->appendPlainText("🐳 Docker Image: " + m_sandboxManager->getCurrentImageName());
-        m_resultTextEdit->appendPlainText("\nAnalysis in progress, please wait...\n");
-    }
-
-    // Sandbox analizi başlat ve sonuç objesini al
-    QJsonObject analysisResult = m_sandboxManager->analyzeFile(filePath);
-    bool success = analysisResult.value("success").toBool();
-    
-    if (success) {
-        QJsonObject results = m_sandboxManager->getAnalysisResults();
-        QString analysisResultJson = QString::fromUtf8(QJsonDocument(results).toJson(QJsonDocument::Indented));
-        m_resultTextEdit->appendPlainText(tr("\n✅ Sandbox analysis completed."));
-        m_resultTextEdit->appendPlainText(tr("\nANALYSIS RESULTS:"));
-        m_resultTextEdit->appendPlainText(analysisResultJson);
         
-        m_logTextEdit->appendPlainText(QString("\n✅ %1 | Sandbox analysis completed: %2")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-            .arg(filePath));
-    } else {
-        m_resultTextEdit->appendPlainText(tr("\n❌ Sandbox analysis failed."));
-        m_logTextEdit->appendPlainText(QString("\n❌ %1 | Sandbox analysis failed: %2")
-            .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-            .arg(filePath));
+        if (operationType == "CDR Scan") {
+            m_resultTextEdit->appendPlainText("🔍 Starting CDR scan...");
+            m_resultTextEdit->appendPlainText("📄 File: " + filePath);
+            m_resultTextEdit->appendPlainText("🐳 Docker Image: " + m_cdrManager->getCurrentImageName());
+        } else if (operationType == "Sandbox Scan") {
+            m_resultTextEdit->appendPlainText("🧪 Starting Sandbox analysis...");
+            m_resultTextEdit->appendPlainText("📄 File: " + filePath);
+            m_resultTextEdit->appendPlainText("🐳 Docker Image: " + m_sandboxManager->getCurrentImageName());
+        }
+        
+        m_resultTextEdit->appendPlainText("\nOperation in progress, please wait...\n");
     }
     
-    // Durum çubuğunu güncelle
-    m_statusBar->showMessage(tr("Sandbox analysis completed"));
+    if (m_statusBar) {
+        m_statusBar->showMessage(tr("%1 in progress...").arg(operationType));
+    }
+}
+
+void ScanManager::updateUiForOperationComplete(const QString& operationType, bool success, const QString& details) {
+    if (m_resultTextEdit) {
+        if (success) {
+            m_resultTextEdit->appendPlainText(QString("\n✅ %1 completed!").arg(operationType));
+            
+            if (!details.isEmpty()) {
+                if (operationType == "CDR Scan") {
+                    m_resultTextEdit->appendPlainText("🔒 Cleaned file: " + details);
+                } else {
+                    m_resultTextEdit->appendPlainText(details);
+                }
+            }
+        } else {
+            m_resultTextEdit->appendPlainText(QString("\n❌ %1 failed!").arg(operationType));
+            m_resultTextEdit->appendPlainText("An error occurred during the operation.");
+        }
+    }
     
-    return success;
+    if (m_statusBar) {
+        if (success) {
+            m_statusBar->showMessage(tr("%1 completed successfully").arg(operationType));
+        } else {
+            m_statusBar->showMessage(tr("%1 failed").arg(operationType));
+        }
+    }
 }
 
 void ScanManager::handleApiResponse(const QJsonObject& response)
 {
-    // ...  (Mevcut implementasyon aynı kalabilir)
+    // Eğer API çağrısı bizden geldiyse, operasyon tamamlandığında durumu güncelle
+    if (m_operationInProgress) {
+        emit progressUpdated(100);
+        m_operationInProgress = false;
+        emit operationCompleted("VirusTotal Scan", true);
+    }
 }
 
 void ScanManager::handleApiError(const QString& errorMessage)
 {
-    // ...  (Mevcut implementasyon aynı kalabilir)
+    // Eğer API çağrısı bizden geldiyse, hata durumunda da operasyon durumunu güncelle
+    if (m_operationInProgress) {
+        emit progressUpdated(100);
+        m_operationInProgress = false;
+        emit operationCompleted("VirusTotal Scan", false);
+    }
 }
 
 void ScanManager::fetchAnalysisResults(const QString& analysisId)
 {
-    // ...  (Mevcut implementasyon aynı kalabilir)
+    // ... (Mevcut implementasyonu koru)
 }
 
 void ScanManager::checkAnalysisStatus()
 {
-    // ...  (Mevcut implementasyon aynı kalabilir)
+    // ... (Mevcut implementasyonu koru)
 }
 
 bool ScanManager::isCdrInitialized() const

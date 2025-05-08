@@ -17,6 +17,12 @@ public:
     virtual bool stopContainer(const QString& containerName) = 0;
     virtual bool isContainerRunning(const QString& containerName) = 0;
     virtual QString getContainerLogs(const QString& containerName) = 0;
+    
+    virtual bool startContainer(const QString& containerConfig) = 0;
+    virtual bool copyFileToContainer(const QString& localPath, const QString& containerPath) = 0;
+    virtual QString executeCommand(const QString& command) = 0;
+    virtual bool stopContainer() = 0;
+    virtual bool isContainerRunning() = 0;
 };
 
 #endif // IDOCKERMANAGER_H

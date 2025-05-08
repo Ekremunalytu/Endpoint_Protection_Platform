@@ -5,15 +5,25 @@
 #include <QString>
 #include <QStringList>
 #include <QJsonObject>
+#include <memory>
 #include "Interfaces/ISandboxManager.h"
-#include "DockerManager.h"
+#include "Interfaces/IDockerManager.h"
+
+// İleri bildirimler - header bağımlılıklarını azaltmak için
+class DockerManager;
 
 class SandboxManager : public QObject, public ISandboxManager {
     Q_OBJECT
 
 public:
-    SandboxManager(QObject *parent = nullptr);
-    ~SandboxManager();
+    // Constructor - dependency injection destekli
+    explicit SandboxManager(QObject *parent = nullptr);
+    
+    // Docker Manager enjeksiyonu için alternatif constructor
+    explicit SandboxManager(std::shared_ptr<IDockerManager> dockerMgr, QObject *parent = nullptr);
+    
+    // Destructor
+    ~SandboxManager() override;
 
     // ISandboxManager arayüzünü uygulama
     bool initialize() override;
@@ -24,7 +34,9 @@ public:
     QStringList getAvailableSandboxImages() const override;
 
 private:
-    DockerManager *dockerManager;
+    // Docker yöneticisini smart pointer ile tutuyoruz ve interface üzerinden kullanıyoruz
+    std::shared_ptr<IDockerManager> dockerManager;
+    
     QString sandboxImageName;
     int analysisTimeout;
     QStringList monitoredBehaviors;

@@ -13,26 +13,38 @@
 #include <QtCore/QFutureWatcher>
 #include <functional>
 #include <mutex>
+#include <memory>
 #include "Interfaces/IDbManager.h"
 
 // DatabaseManager sınıfı, veritabanı bağlantısı, şema oluşturma, tablo listeleme,
 // örnek sorgu çalıştırma ve bağlantı kapatma işlemlerini yöneten bir singleton olarak çalışır
 class DbManager : public IDbManager {
 private:
-    static DbManager* instance;
-    static std::mutex mutex;
+    // Modern C++11 thread-safe singleton uygulaması
+    static std::unique_ptr<DbManager> instance;
+    static std::once_flag initInstanceFlag;
     static QSqlDatabase db;
 
     // Private constructor for singleton pattern
     DbManager();
+    
+    // Delete copy constructor and assignment operator
+    DbManager(const DbManager&) = delete;
+    DbManager& operator=(const DbManager&) = delete;
     
     // Veritabanı yardımcı fonksiyonları
     bool createTables();
     void closeConnection(const QString &connectionName = QString());
 
 public:
-    // Singleton pattern için thread-safe getInstance metodu
+    // Singleton pattern için modern thread-safe getInstance metodu
     static DbManager* getInstance();
+    
+    // Factory metodu ile shared_ptr döndüren alternatif
+    static std::shared_ptr<DbManager> getInstanceShared();
+    
+    // Destructor
+    ~DbManager();
     
     // IDbManager implementasyonu
     bool connectToDatabase() override;

@@ -1,4 +1,5 @@
 #include "../Headers/SandboxManager.h"
+#include "../Headers/DockerManager.h"
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
@@ -7,9 +8,39 @@
 #include <QJsonArray>
 #include <QDateTime>
 #include <QThread>
+#include "../Headers/ServiceLocator.h"
 
+// Constructor - varsayılan
 SandboxManager::SandboxManager(QObject *parent) : QObject(parent) {
-    dockerManager = new DockerManager(this);
+    // ServiceLocator üzerinden DockerManager'ı al
+    // Smart pointer versiyonunu kullanıyoruz
+    dockerManager = ServiceLocator::getDockerManagerPtr();
+    
+    // Eğer dockerManager hala nullptr ise, yeni bir instance oluştur
+    if (!dockerManager) {
+        dockerManager = std::make_shared<DockerManager>();
+        // Yeni oluşturulan DockerManager'ı ServiceLocator'a kaydet
+        ServiceLocator::provide(dockerManager);
+    }
+    
+    sandboxImageName = ""; // Boş başlatılıyor, kullanıcı seçecek
+    resultsDir = QDir::tempPath() + "/sandbox_results";
+    analysisTimeout = 300; // 5 dakikalık varsayılan timeout değeri
+    
+    // Sonuçlar dizininin var olduğundan emin olalım
+    QDir().mkpath(resultsDir);
+}
+
+// Constructor - dependency injection destekli
+SandboxManager::SandboxManager(std::shared_ptr<IDockerManager> dockerMgr, QObject *parent) 
+    : QObject(parent), dockerManager(dockerMgr) {
+    
+    // Docker Manager kontrolü
+    if (!dockerManager) {
+        qDebug() << "Warning: Null DockerManager provided, creating a new instance";
+        dockerManager = std::make_shared<DockerManager>();
+    }
+    
     sandboxImageName = ""; // Boş başlatılıyor, kullanıcı seçecek
     resultsDir = QDir::tempPath() + "/sandbox_results";
     analysisTimeout = 300; // 5 dakikalık varsayılan timeout değeri
@@ -21,13 +52,10 @@ SandboxManager::SandboxManager(QObject *parent) : QObject(parent) {
 SandboxManager::~SandboxManager() {
     // Düzgün temizlik
     try {
-        if (dockerManager) {
-            if (dockerManager->isContainerRunning()) {
-                dockerManager->stopContainer();
-            }
-            delete dockerManager;
-            dockerManager = nullptr;
+        if (dockerManager && dockerManager->isContainerRunning()) {
+            dockerManager->stopContainer();
         }
+        // Smart pointer kullanımı ile manuel temizlik gerekmiyor
     } catch (...) {
         qDebug() << "Exception while cleaning up in SandboxManager destructor";
     }
@@ -35,8 +63,16 @@ SandboxManager::~SandboxManager() {
 
 bool SandboxManager::initialize() {
     try {
-        if (!dockerManager || !dockerManager->isDockerAvailable()) {
-            qDebug() << "Docker is not available, cannot initialize Sandbox";
+        if (!dockerManager) {
+            qDebug() << "DockerManager is null, cannot initialize Sandbox";
+            return false;
+        }
+        
+        if (!dockerManager->isDockerAvailable()) {
+            // Get more detailed error information from DockerManager
+            DockerError error = static_cast<DockerManager*>(dockerManager.get())->lastError();
+            qDebug() << "Docker is not available, cannot initialize Sandbox: " 
+                     << static_cast<DockerManager*>(dockerManager.get())->lastErrorMessage();
             return false;
         }
         
@@ -109,25 +145,75 @@ QJsonObject SandboxManager::analyzeFile(const QString& filePath) {
             qDebug() << "File does not exist: " << filePath;
             result["success"] = false;
             result["message"] = "File not found";
+            result["error_details"] = "The specified file does not exist: " + filePath;
             return result;
         }
         
         // Container adını ve imajını yapılandıralım
         QString containerConfig = "name=sandbox_container,image=" + sandboxImageName;
         
+        // DockerManager'a erişim sağla
+        DockerManager* dockerMgr = static_cast<DockerManager*>(dockerManager.get());
+        
         // Önceki konteyner çalışıyorsa durdur
         if (dockerManager->isContainerRunning()) {
             qDebug() << "Stopping previous container before starting a new one";
-            dockerManager->stopContainer();
+            if (!dockerManager->stopContainer()) {
+                // Hata durumunu kontrol et ve daha detaylı bilgi ver
+                QString errorMsg = dockerMgr->lastErrorMessage();
+                qDebug() << "Failed to stop previous container: " << errorMsg;
+                result["success"] = false;
+                result["message"] = "Failed to stop previous container";
+                result["error_details"] = errorMsg;
+                return result;
+            }
             QThread::msleep(1000); // Biraz bekleyerek Docker'ın temizlenmesine izin ver
         }
+        
+        // Hata durumları için RAII kullanımı - Docker konteyner temizliği
+        struct ContainerCleanup {
+            std::shared_ptr<IDockerManager> docker;
+            bool shouldCleanup;
+            
+            ContainerCleanup(std::shared_ptr<IDockerManager> dm) : docker(dm), shouldCleanup(false) {}
+            ~ContainerCleanup() {
+                if (shouldCleanup && docker && docker->isContainerRunning()) {
+                    try {
+                        docker->stopContainer();
+                    } catch (...) {
+                        qDebug() << "Error stopping container during cleanup";
+                    }
+                }
+            }
+        };
+        
+        // RAII konteyner temizlik nesnesi
+        ContainerCleanup cleanup(dockerManager);
+        cleanup.shouldCleanup = true; // Başlangıçta temizleme yapılacak
         
         // Container'ı başlatalım
         qDebug() << "Starting sandbox container with config: " << containerConfig;
         if (!dockerManager->startContainer(containerConfig)) {
-            qDebug() << "Failed to start sandbox container with image: " << sandboxImageName;
+            // Hata durumunu kontrol et ve daha detaylı bilgi ver
+            QString errorMsg = dockerMgr->lastErrorMessage();
+            DockerError error = dockerMgr->lastError();
+            
+            qDebug() << "Failed to start sandbox container with image: " << sandboxImageName
+                     << " - Error: " << errorMsg;
+            
             result["success"] = false;
             result["message"] = "Failed to start sandbox container";
+            result["error_details"] = errorMsg;
+            
+            // Docker error koduna göre daha açıklayıcı yönlendirme ekle
+            if (error.code == DockerErrorCode::ImageNotFound || 
+                error.code == DockerErrorCode::ImagePullFailed) {
+                result["suggestion"] = "The specified sandbox image '" + sandboxImageName + 
+                                      "' could not be found or pulled. Please check if the image name is correct.";
+            } else if (error.code == DockerErrorCode::DockerNotAvailable) {
+                result["suggestion"] = "Docker service is not available. Please make sure Docker is installed and running.";
+            }
+            
             return result;
         }
         
@@ -135,10 +221,13 @@ QJsonObject SandboxManager::analyzeFile(const QString& filePath) {
         QString containerPath = "/samples/" + fileInfo.fileName();
         qDebug() << "Copying file to container: " << filePath << " -> " << containerPath;
         if (!dockerManager->copyFileToContainer(filePath, containerPath)) {
-            qDebug() << "Failed to copy file to sandbox container";
-            dockerManager->stopContainer();
+            // Hata durumunu kontrol et ve daha detaylı bilgi ver
+            QString errorMsg = dockerMgr->lastErrorMessage();
+            qDebug() << "Failed to copy file to sandbox container: " << errorMsg;
+            
             result["success"] = false;
             result["message"] = "Failed to copy file to sandbox container";
+            result["error_details"] = errorMsg;
             return result;
         }
         
@@ -170,6 +259,17 @@ QJsonObject SandboxManager::analyzeFile(const QString& filePath) {
         qDebug() << "Executing analysis command: " << command;
         QString analysisResult = dockerManager->executeCommand(command);
         
+        // Komut çalışırken hata oluştu mu kontrol et
+        if (dockerMgr->lastError().hasError() && analysisResult.isEmpty()) {
+            QString errorMsg = dockerMgr->lastErrorMessage();
+            qDebug() << "Failed to execute analysis command: " << errorMsg;
+            result["success"] = false;
+            result["message"] = "Failed to execute analysis command";
+            result["error_details"] = errorMsg;
+            result["command"] = command;
+            return result;
+        }
+        
         qDebug() << "Raw analysis output: " << analysisResult;
         
         if (analysisResult.isEmpty()) {
@@ -178,9 +278,18 @@ QJsonObject SandboxManager::analyzeFile(const QString& filePath) {
             command = "file " + containerPath + " && sha256sum " + containerPath;
             analysisResult = dockerManager->executeCommand(command);
             
+            // İkinci denemede de hata var mı kontrol et
+            if (dockerMgr->lastError().hasError() && analysisResult.isEmpty()) {
+                QString errorMsg = dockerMgr->lastErrorMessage();
+                qDebug() << "Alternative analysis failed too: " << errorMsg;
+                result["success"] = false;
+                result["message"] = "Sandbox analysis failed - no output";
+                result["error_details"] = errorMsg;
+                return result;
+            }
+            
             if (analysisResult.isEmpty()) {
                 qDebug() << "Alternative analysis failed too";
-                dockerManager->stopContainer();
                 result["success"] = false;
                 result["message"] = "Sandbox analysis failed - no output";
                 return result;
@@ -195,16 +304,25 @@ QJsonObject SandboxManager::analyzeFile(const QString& filePath) {
             command = "chmod +x " + containerPath + " && " + command;
             analysisResult = dockerManager->executeCommand(command);
             
+            // İkinci denemede de hata var mı kontrol et
+            if (dockerMgr->lastError().hasError()) {
+                QString errorMsg = dockerMgr->lastErrorMessage();
+                qDebug() << "Failed even after chmod: " << errorMsg;
+            }
+            
             if (analysisResult.isEmpty() || 
                 (analysisResult.contains("error", Qt::CaseInsensitive) && 
                  analysisResult.contains("permission denied", Qt::CaseInsensitive))) {
                 qDebug() << "Sandbox analysis failed even after permissions fix: " << analysisResult;
-                dockerManager->stopContainer();
                 result["success"] = false;
                 result["message"] = "Sandbox analysis failed - permission error";
+                result["error_details"] = "Permission denied even after chmod attempt";
                 return result;
             }
         }
+        
+        // İşlem başarılı bitti, RAII nesnesinin temizlememesini sağla
+        cleanup.shouldCleanup = false;
         
         qDebug() << "Sandbox analysis completed with output: " << analysisResult;
         
@@ -217,31 +335,13 @@ QJsonObject SandboxManager::analyzeFile(const QString& filePath) {
         qDebug() << "Exception in analyzeFile:" << e.what();
         result["success"] = false;
         result["message"] = QString("Exception occurred: %1").arg(e.what());
-        
-        // Güvenli temizlik
-        try {
-            if (dockerManager && dockerManager->isContainerRunning()) {
-                dockerManager->stopContainer();
-            }
-        } catch (...) {
-            qDebug() << "Exception during container cleanup";
-        }
-        
+        result["error_type"] = "exception";
         return result;
     } catch (...) {
         qDebug() << "Unknown exception in analyzeFile";
         result["success"] = false;
         result["message"] = "Unknown exception occurred";
-        
-        // Güvenli temizlik
-        try {
-            if (dockerManager && dockerManager->isContainerRunning()) {
-                dockerManager->stopContainer();
-            }
-        } catch (...) {
-            qDebug() << "Exception during container cleanup";
-        }
-        
+        result["error_type"] = "unknown_exception";
         return result;
     }
 }
@@ -250,13 +350,31 @@ QJsonObject SandboxManager::getAnalysisResults() {
     QJsonObject results;
     
     try {
+        // DockerManager'a erişim sağla
+        DockerManager* dockerMgr = static_cast<DockerManager*>(dockerManager.get());
+        
         // Birleştirilmiş sonuçları oluştur
         results["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
         results["timeout"] = analysisTimeout;
         
         // Konteyner çalışıyor mu kontrol et
-        if (!dockerManager || !dockerManager->isContainerRunning()) {
-            results["error"] = "Container is not running";
+        if (!dockerManager) {
+            results["error"] = "DockerManager is not initialized";
+            results["error_code"] = "null_manager";
+            return results;
+        }
+        
+        if (!dockerManager->isContainerRunning()) {
+            // Daha detaylı hata bilgisi ekle
+            QString errorMsg = dockerMgr->lastErrorMessage();
+            if (dockerMgr->lastError().hasError()) {
+                results["error"] = "Container is not running: " + errorMsg;
+                results["error_code"] = "container_not_running";
+                results["error_details"] = errorMsg;
+            } else {
+                results["error"] = "Container is not running";
+                results["error_code"] = "container_not_running";
+            }
             return results;
         }
         
@@ -292,24 +410,37 @@ QJsonObject SandboxManager::getAnalysisResults() {
         // Basit bir dosya bilgisi analizi ekleyelim
         QString command = "find /samples -type f -exec file {} \\; | sort";
         QString fileInfo = dockerManager->executeCommand(command);
-        if (!fileInfo.isEmpty()) {
+        
+        // Komut çalışırken hata oluştu mu kontrol et
+        if (dockerMgr->lastError().hasError() && fileInfo.isEmpty()) {
+            results["file_info_error"] = dockerMgr->lastErrorMessage();
+        } else if (!fileInfo.isEmpty()) {
             results["file_info"] = fileInfo;
         }
         
         // Temel dosya hash'leri
         command = "find /samples -type f -exec sha256sum {} \\; | sort";
         QString hashInfo = dockerManager->executeCommand(command);
-        if (!hashInfo.isEmpty()) {
+        
+        // Komut çalışırken hata oluştu mu kontrol et
+        if (dockerMgr->lastError().hasError() && hashInfo.isEmpty()) {
+            results["hash_info_error"] = dockerMgr->lastErrorMessage();
+        } else if (!hashInfo.isEmpty()) {
             results["hash_info"] = hashInfo;
         }
         
         // Tamamlandığında container'ı durdur
-        dockerManager->stopContainer();
+        if (!dockerManager->stopContainer()) {
+            QString errorMsg = dockerMgr->lastErrorMessage();
+            results["cleanup_warning"] = "Failed to stop container properly: " + errorMsg;
+        }
         
         return results;
     } catch (const std::exception& e) {
         qDebug() << "Exception in getAnalysisResults:" << e.what();
         results["error"] = QString("Exception occurred: %1").arg(e.what());
+        results["error_code"] = "exception";
+        results["error_type"] = "std_exception";
         
         // Güvenli temizlik
         try {
@@ -324,6 +455,8 @@ QJsonObject SandboxManager::getAnalysisResults() {
     } catch (...) {
         qDebug() << "Unknown exception in getAnalysisResults";
         results["error"] = "Unknown exception occurred";
+        results["error_code"] = "exception";
+        results["error_type"] = "unknown_exception";
         
         // Güvenli temizlik
         try {

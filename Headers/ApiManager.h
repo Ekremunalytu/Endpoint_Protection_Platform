@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QHttpMultiPart>
 #include <mutex>
+#include <memory>
 #include "ConfigManager.h"
 #include "Interfaces/IApiManager.h"
 
@@ -17,19 +18,29 @@ class ApiManager : public QObject, public IApiManager {
     Q_OBJECT
 
 private:
-    QNetworkAccessManager* networkManager;
-    ConfigManager* configManager;
+    std::unique_ptr<QNetworkAccessManager> networkManager;
+    std::shared_ptr<ConfigManager> configManager;
     QString baseUrl;
 
-    // Singleton için statik değişkenler 
-    static ApiManager* instance;
-    static std::mutex mutex;
+    // Modern singleton için statik değişkenler 
+    static std::unique_ptr<ApiManager> instance;
+    static std::once_flag initInstanceFlag;
 
     explicit ApiManager(QObject* parent = nullptr);
+    
+    // Delete copy constructor and assignment operator
+    ApiManager(const ApiManager&) = delete;
+    ApiManager& operator=(const ApiManager&) = delete;
 
 public:
-    // Singleton pattern güvenli implementasyonu
+    // Destructor
+    virtual ~ApiManager();
+    
+    // Modern singleton pattern güvenli implementasyonu
     static ApiManager* getInstance(QObject* parent = nullptr);
+    
+    // Shared_ptr alternatifi
+    static std::shared_ptr<ApiManager> getInstanceShared(QObject* parent = nullptr);
 
     // IApiManager arayüzünü uygulama
     void setApiKey(const QString& key) override;
