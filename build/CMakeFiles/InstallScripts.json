@@ -1,7 +1,16 @@
 {
 	"InstallScripts" : 
 	[
-		"/Volumes/Crucial/Endpoint_Protection_Platform/build/cmake_install.cmake"
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Core/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Database/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Network/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Docker/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Security/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Scanning/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/UI/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Interfaces/cmake_install.cmake",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/build/Resources/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

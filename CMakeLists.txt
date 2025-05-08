@@ -21,73 +21,7 @@ elseif(APPLE)
 endif()
 
 # Qt bileşenlerini bul
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql Network Concurrent)
-
-# Kaynak ve başlık dosyaları
-set(SOURCE_FILES
-    main.cpp
-    Src/HashCalculation.cpp
-    Src/UserInterface.cpp
-    Src/DbManager.cpp
-    Src/ConfigManager.cpp
-    Src/YaraRuleManager.cpp
-    Src/ApiManager.cpp
-    Src/DockerManager.cpp
-    Src/CdrManager.cpp
-    Src/SandboxManager.cpp
-    Src/ScanManager.cpp      # Yeni eklendi
-    Src/ResultsView.cpp      # Yeni eklendi
-    Src/DockerUIManager.cpp  # Yeni eklendi
-)
-
-set(HEADER_FILES
-    Headers/HashCalculation.h
-    Headers/UserInterface.h
-    Headers/DbManager.h
-    Headers/ApiManager.h
-    Headers/ConfigManager.h
-    Headers/YaraRuleManager.h
-    Headers/DockerManager.h
-    Headers/CdrManager.h
-    Headers/SandboxManager.h
-    Headers/ScanManager.h      # Yeni eklendi
-    Headers/ResultsView.h      # Yeni eklendi
-    Headers/DockerUIManager.h  # Yeni eklendi
-)
-
-# Yürütülebilir oluştur
-add_executable(${PROJECT_NAME}
-    ${SOURCE_FILES}
-    ${HEADER_FILES}
-)
-
-# Qt kütüphanelerini linkle
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-        Qt6::Core
-        Qt6::Gui
-        Qt6::Widgets
-        Qt6::Sql
-        Qt6::Network
-        Qt6::Concurrent
-)
-
-# Include dizinleri (proje ve Başlık klasörü)
-if(WIN32)
-    target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/Headers
-        "C:/Qt/6.10.0/msvc2022_64/include"
-        "C:/Qt/6.10.0/msvc2022_64/lib"
-    )
-elseif(APPLE)
-    target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/Headers
-        "/Volumes/Crucial/QT/6.10.0/macos/include"
-        "/Volumes/Crucial/QT/6.10.0/macos/lib"
-    )
-endif()
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql Network Concurrent Charts)
 
 # YARA konfigürasyonu
 if(WIN32)
@@ -110,6 +44,58 @@ elseif(APPLE)
     )
 endif()
 
+# Tüm alt modülleri ekle
+add_subdirectory(Core)
+add_subdirectory(Database)
+add_subdirectory(Network)
+add_subdirectory(Docker)
+add_subdirectory(Security)
+add_subdirectory(Scanning)
+add_subdirectory(UI)
+add_subdirectory(Interfaces)
+add_subdirectory(Resources)
+
+# Ana uygulama için kaynak dosyaları
+set(SOURCE_FILES
+    main.cpp
+)
+
+# Yürütülebilir oluştur
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+# Modülleri ana uygulamaya bağla
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Core
+    Database
+    Network
+    Docker
+    Security
+    Scanning
+    UI
+    Resources
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Sql
+    Qt6::Network
+    Qt6::Concurrent
+    Qt6::Charts
+)
+
+# Include dizinleri
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/Core/Headers
+    ${CMAKE_SOURCE_DIR}/Database/Headers
+    ${CMAKE_SOURCE_DIR}/Network/Headers
+    ${CMAKE_SOURCE_DIR}/Docker/Headers
+    ${CMAKE_SOURCE_DIR}/Security/Headers
+    ${CMAKE_SOURCE_DIR}/Scanning/Headers
+    ${CMAKE_SOURCE_DIR}/UI/Headers
+    ${CMAKE_SOURCE_DIR}/Interfaces/Headers
+)
+
+# YARA bağlantısı
 if(YARA_INCLUDE_DIR AND YARA_LIBRARY)
     target_include_directories(${PROJECT_NAME} PRIVATE ${YARA_INCLUDE_DIR})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${YARA_LIBRARY})

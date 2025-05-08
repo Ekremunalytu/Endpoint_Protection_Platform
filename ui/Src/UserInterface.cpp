@@ -97,31 +97,62 @@ void UserInterface::setupProgressDialog()
 
 void UserInterface::initializeServices()
 {
-    // Smart pointers ile servis nesnelerini oluştur
-    // ApiManager singleton'unu al
-    m_apiManager = std::shared_ptr<IApiManager>(ApiManager::getInstance());
+    // First check if ScanManager is available from ServiceLocator
+    // This is the preferred way as it ensures all services are properly initialized
+    ScanManager* scanManagerFromLocator = ServiceLocator::getScanManager();
     
-    // Diğer manager'ları oluştur - Factory pattern veya ServiceLocator kullanılabilir
-    m_yaraManager = std::shared_ptr<IYaraRuleManager>(ServiceLocator::getYaraRuleManager());
-    m_cdrManager = std::shared_ptr<ICdrManager>(ServiceLocator::getCdrManager());
-    m_sandboxManager = std::shared_ptr<ISandboxManager>(ServiceLocator::getSandboxManager());
-    m_dbManager = std::shared_ptr<IDbManager>(ServiceLocator::getDbManager());
-    m_dockerManager = std::shared_ptr<IDockerManager>(ServiceLocator::getDockerManager());
-    
-    // Null kontrolü - güvenlik için
-    if (!m_apiManager || !m_yaraManager || !m_cdrManager || !m_sandboxManager || !m_dbManager || !m_dockerManager) {
-        throw std::runtime_error("One or more required services could not be initialized");
-    }
+    if (scanManagerFromLocator != nullptr) {
+        qDebug() << "Using ScanManager from ServiceLocator";
+        m_scanManager = std::unique_ptr<ScanManager>(scanManagerFromLocator);
+        
+        // These should also be already registered in the ServiceLocator
+        m_apiManager = std::shared_ptr<IApiManager>(ServiceLocator::getApiManagerPtr());
+        m_yaraManager = std::shared_ptr<IYaraRuleManager>(ServiceLocator::getYaraRuleManagerPtr());
+        m_cdrManager = std::shared_ptr<ICdrManager>(ServiceLocator::getCdrManagerPtr());
+        m_sandboxManager = std::shared_ptr<ISandboxManager>(ServiceLocator::getSandboxManagerPtr());
+        m_dbManager = std::shared_ptr<IDbManager>(ServiceLocator::getDbManagerPtr());
+        m_dockerManager = std::shared_ptr<IDockerManager>(ServiceLocator::getDockerManagerPtr());
+    } else {
+        // Fallback to creating services directly (this is not the preferred way)
+        qWarning() << "ScanManager not found in ServiceLocator, creating services directly";
+        
+        // Smart pointers ile servis nesnelerini oluştur
+        // ApiManager singleton'unu al
+        m_apiManager = std::shared_ptr<IApiManager>(ApiManager::getInstance());
+        
+        // Diğer manager'ları oluştur - Factory pattern veya ServiceLocator kullanılabilir
+        m_yaraManager = std::shared_ptr<IYaraRuleManager>(ServiceLocator::getYaraRuleManager());
+        m_cdrManager = std::shared_ptr<ICdrManager>(ServiceLocator::getCdrManager());
+        m_sandboxManager = std::shared_ptr<ISandboxManager>(ServiceLocator::getSandboxManager());
+        m_dbManager = std::shared_ptr<IDbManager>(ServiceLocator::getDbManager());
+        m_dockerManager = std::shared_ptr<IDockerManager>(ServiceLocator::getDockerManager());
+        
+        // Register the services we've created so other components can use them
+        ServiceLocator::provide(m_apiManager.get());
+        ServiceLocator::provide(m_yaraManager.get());
+        ServiceLocator::provide(m_cdrManager.get());
+        ServiceLocator::provide(m_sandboxManager.get());
+        ServiceLocator::provide(m_dbManager.get());
+        ServiceLocator::provide(m_dockerManager.get());
+        
+        // Null kontrolü - güvenlik için
+        if (!m_apiManager || !m_yaraManager || !m_cdrManager || !m_sandboxManager || !m_dbManager || !m_dockerManager) {
+            throw std::runtime_error("One or more required services could not be initialized");
+        }
 
-    // ScanManager - UI bağımlılığı olan özel sınıf
-    m_scanManager = std::make_unique<ScanManager>(
-        m_apiManager.get(), 
-        m_yaraManager.get(), 
-        m_cdrManager.get(), 
-        m_sandboxManager.get(), 
-        m_dbManager.get(),
-        this
-    );
+        // ScanManager - UI bağımlılığı olan özel sınıf
+        m_scanManager = std::make_unique<ScanManager>(
+            m_apiManager.get(), 
+            m_yaraManager.get(), 
+            m_cdrManager.get(), 
+            m_sandboxManager.get(), 
+            m_dbManager.get(),
+            this
+        );
+        
+        // Register ScanManager in ServiceLocator so it's available to other components
+        ServiceLocator::provide(m_scanManager.get());
+    }
     
     // ResultsView - UI bağımlılığı olan bir başka sınıf
     m_resultsView = std::make_unique<ResultsView>(this);

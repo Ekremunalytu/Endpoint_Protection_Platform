@@ -477,96 +477,76 @@
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ConcurrentPrivate/Qt6ConcurrentPrivateTargets.cmake",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ConcurrentPrivate/Qt6ConcurrentPrivateAdditionalTargetInfo.cmake",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ConcurrentPrivate/Qt6ConcurrentPrivateVersionlessAliasTargets.cmake",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Concurrent/Qt6ConcurrentVersionlessAliasTargets.cmake"
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Concurrent/Qt6ConcurrentVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsConfigVersion.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsConfigVersionImpl.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsConfig.cmake",
+		"/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsDependencies.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLConfigVersion.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLConfigVersionImpl.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLConfig.cmake",
+		"/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLDependencies.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLTargets-relwithdebinfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLAdditionalTargetInfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateConfigVersion.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateConfigVersionImpl.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateConfig.cmake",
+		"/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateDependencies.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateAdditionalTargetInfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGL/Qt6OpenGLVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsConfigVersion.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsConfigVersionImpl.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsConfig.cmake",
+		"/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsDependencies.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsTargets-relwithdebinfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsAdditionalTargetInfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateConfigVersion.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateConfigVersionImpl.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateConfig.cmake",
+		"/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateDependencies.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateAdditionalTargetInfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsTargets-relwithdebinfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsAdditionalTargetInfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateConfigVersion.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateConfigVersionImpl.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateConfig.cmake",
+		"/Applications/CMake.app/Contents/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateDependencies.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateAdditionalTargetInfo.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateVersionlessAliasTargets.cmake",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/cmake/Qt6Charts/Qt6ChartsVersionlessAliasTargets.cmake"
 	],
 	"CMAKE_SOURCE_DIR" : "/Volumes/Crucial/Endpoint_Protection_Platform",
 	"CROSS_CONFIG" : false,
 	"DEP_FILE" : "/Volumes/Crucial/Endpoint_Protection_Platform/build/Endpoint_Protection_Platform_autogen/deps",
 	"DEP_FILE_RULE_NAME" : "Endpoint_Protection_Platform_autogen/timestamp",
-	"HEADERS" : 
-	[
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ApiManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_ApiManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/CdrManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_CdrManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ConfigManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_ConfigManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/DbManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_DbManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/DockerManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_DockerManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/DockerUIManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_DockerUIManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/HashCalculation.h",
-			"MU",
-			"D2MWKIZDYH/moc_HashCalculation.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ResultsView.h",
-			"MU",
-			"D2MWKIZDYH/moc_ResultsView.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/SandboxManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_SandboxManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/ScanManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_ScanManager.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/UserInterface.h",
-			"MU",
-			"D2MWKIZDYH/moc_UserInterface.cpp",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Headers/YaraRuleManager.h",
-			"MU",
-			"D2MWKIZDYH/moc_YaraRuleManager.cpp",
-			null
-		]
-	],
+	"HEADERS" : [],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
 	"INCLUDE_DIR" : "/Volumes/Crucial/Endpoint_Protection_Platform/build/Endpoint_Protection_Platform_autogen/include",
 	"MOC_COMPILATION_FILE" : "/Volumes/Crucial/Endpoint_Protection_Platform/build/Endpoint_Protection_Platform_autogen/mocs_compilation.cpp",
 	"MOC_DEFINITIONS" : 
 	[
+		"QT_CHARTS_LIB",
 		"QT_CONCURRENT_LIB",
 		"QT_CORE_LIB",
 		"QT_GUI_LIB",
 		"QT_NETWORK_LIB",
+		"QT_OPENGLWIDGETS_LIB",
+		"QT_OPENGL_LIB",
 		"QT_SQL_LIB",
 		"QT_WIDGETS_LIB"
 	],
@@ -580,23 +560,35 @@
 	"MOC_INCLUDES" : 
 	[
 		"/Volumes/Crucial/Endpoint_Protection_Platform",
-		"/Volumes/Crucial/Endpoint_Protection_Platform/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Core/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Database/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Network/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Docker/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Security/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Scanning/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/UI/Headers",
+		"/Volumes/Crucial/Endpoint_Protection_Platform/Interfaces/Headers",
 		"/opt/homebrew/include",
-		"/Volumes/Crucial/QT/6.10.0/macos/include",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtCore.framework/Headers",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtCore.framework",
 		"/Volumes/Crucial/QT/6.10.0/macos/mkspecs/macx-clang",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework/Headers",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtWidgets.framework/Headers",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtWidgets.framework",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtSql.framework/Headers",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtSql.framework",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtNetwork.framework/Headers",
-		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtNetwork.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/include",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtConcurrent.framework/Headers",
 		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtConcurrent.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtWidgets.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtWidgets.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtGui.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtNetwork.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtNetwork.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtSql.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtSql.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtCharts.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtCharts.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtOpenGL.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtOpenGL.framework",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtOpenGLWidgets.framework/Headers",
+		"/Volumes/Crucial/QT/6.10.0/macos/lib/QtOpenGLWidgets.framework",
 		"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1",
 		"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include",
 		"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
@@ -635,66 +627,6 @@
 	"SETTINGS_FILE" : "/Volumes/Crucial/Endpoint_Protection_Platform/build/CMakeFiles/Endpoint_Protection_Platform_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ApiManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/CdrManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ConfigManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/DbManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/DockerManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/DockerUIManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/HashCalculation.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ResultsView.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/SandboxManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/ScanManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/UserInterface.cpp",
-			"MU",
-			null
-		],
-		[
-			"/Volumes/Crucial/Endpoint_Protection_Platform/Src/YaraRuleManager.cpp",
-			"MU",
-			null
-		],
 		[ "/Volumes/Crucial/Endpoint_Protection_Platform/main.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
