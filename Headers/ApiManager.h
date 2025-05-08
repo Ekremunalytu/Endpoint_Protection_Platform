@@ -37,6 +37,9 @@ public:
     bool hasApiKey() override;
     void makeApiRequest(const QString& endpoint, const QJsonObject& data = QJsonObject()) override;
     void uploadFileToVirusTotal(const QString& filePath, const QString& fileName, const QByteArray& fileData) override;
+    
+    // Additional methods for API handling
+    void getAnalysisResults(const QString& analysisId);
 
 signals:
     void responseReceived(const QJsonObject& response);

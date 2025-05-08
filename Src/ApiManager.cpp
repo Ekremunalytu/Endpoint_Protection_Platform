@@ -1,4 +1,5 @@
 #include "../Headers/ApiManager.h"
+#include <QTimer>
 
 // Static üyelerin tanımlanması
 ApiManager* ApiManager::instance = nullptr;
@@ -137,13 +138,34 @@ void ApiManager::uploadFileToVirusTotal(const QString& filePath, const QString& 
     multiPart->setParent(reply); // multiPart'ın sahipliğini reply'a ver
 
     // Yanıtı dinle
-    connect(reply, &QNetworkReply::finished, [this, reply]() {
+    connect(reply, &QNetworkReply::finished, [this, reply, fileName]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
             if (!jsonDoc.isNull() && jsonDoc.isObject()) {
-                emit responseReceived(jsonDoc.object());
+                QJsonObject response = jsonDoc.object();
+                
+                // File upload response contains the analysis ID, we need to get analysis results
+                if (response.contains("data") && response["data"].isObject()) {
+                    QJsonObject data = response["data"].toObject();
+                    if (data.contains("id") && data.contains("type") && data["type"].toString() == "analysis") {
+                        QString analysisId = data["id"].toString();
+                        
+                        // Şimdi analiz sonuçlarını almak için ID ile API çağrısı yap
+                        // Dosya yüklendikten sonra VirusTotal'in analiz işlemi biraz zaman alabilir
+                        emit responseReceived(response);  // Önce upload başarılı yanıtını gönder
+                        
+                        // Analiz sonuçları için 5 saniye bekle - VirusTotal'in işleme zamanı için
+                        QTimer::singleShot(5000, [this, analysisId]() {
+                            this->getAnalysisResults(analysisId);
+                        });
+                    } else {
+                        emit responseReceived(response);
+                    }
+                } else {
+                    emit responseReceived(response);
+                }
             } else {
                 emit error("Invalid response format");
             }
@@ -173,4 +195,13 @@ void ApiManager::uploadFileToVirusTotal(const QString& filePath, const QString& 
 
         reply->deleteLater();
     });
+}
+
+// Yeni metod: VirusTotal'den belirli bir analiz ID'si için sonuçları al
+void ApiManager::getAnalysisResults(const QString& analysisId) {
+    // VirusTotal API sonuç endpoint'i
+    QString endpoint = QString("analyses/%1").arg(analysisId);
+    
+    // Standart API isteği yap
+    makeApiRequest(endpoint);
 }

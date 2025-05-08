@@ -657,9 +657,18 @@ void MainWindow::onApiKeyButtonClicked() {
     if (dialog.exec() == QDialog::Accepted) {
         QString apiKey = dialog.getApiKey();
         if (!apiKey.isEmpty()) {
+            // Add debug output for API key
+            qDebug() << "Setting API key:" << apiKey.left(5) + "..."; // Only show first 5 chars for security
+            
             apiManager->setApiKey(apiKey);
             apiLogTextEdit->appendPlainText(QString("\n🔑 %1 | API key updated")
                 .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
+            
+            // Verify the API key was stored correctly
+            QString storedKey = apiManager->getApiKey();
+            qDebug() << "Stored API key length:" << storedKey.length();
+            qDebug() << "API key successfully stored:" << !storedKey.isEmpty();
+            
             QMessageBox::information(this, tr("API Key"), tr("API key successfully saved."));
         }
     }
@@ -768,44 +777,19 @@ ServiceStatusDialog::ServiceStatusDialog(IApiManager* apiManager, ScanManager* s
 
 void ServiceStatusDialog::createUI()
 {
-    // Modern tema renkleri - ana temadan alındı
-    QString backgroundColor = "#181818";
-    QString textColor = "#ffffff";
-    QString secondaryTextColor = "#cccccc";
-    QString accentColor = "#0078d7";
-    QString borderColor = "#333333";
-
     // Main layout
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(30, 30, 30, 30);
     
-    // Dialog stil ayarları
-    setStyleSheet(QString(
-        "QDialog {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;"
-        "}")
-        .arg(backgroundColor)
-        .arg(textColor)
-    );
-    
     // Title with icon
     QHBoxLayout* titleLayout = new QHBoxLayout();
     QLabel* iconLabel = new QLabel(this);
     iconLabel->setText("📊");
-    iconLabel->setStyleSheet("font-size: 24px;");
+    iconLabel->setObjectName("serviceStatsIconLabel");
     
     QLabel* titleLabel = new QLabel(tr("System Services and Container Status"), this);
-    titleLabel->setStyleSheet(QString(
-        "QLabel {"
-        "    font-size: 22px;"
-        "    font-weight: bold;"
-        "    color: %1;"
-        "}")
-        .arg(textColor)
-    );
+    titleLabel->setObjectName("titleLabel");
     
     titleLayout->addWidget(iconLabel);
     titleLayout->addWidget(titleLabel);
@@ -813,34 +797,8 @@ void ServiceStatusDialog::createUI()
     
     mainLayout->addLayout(titleLayout);
     
-    // Create Tab Widget with modern styling
+    // Create Tab Widget
     tabWidget = new QTabWidget(this);
-    tabWidget->setStyleSheet(QString(
-        "QTabWidget::pane {"
-        "    border: 1px solid %1;"
-        "    background-color: %2;"
-        "    border-radius: 8px;"
-        "}"
-        "QTabBar::tab {"
-        "    background-color: #2d2d30;"
-        "    color: %3;"
-        "    padding: 10px 20px;"
-        "    border-top-left-radius: 8px;"
-        "    border-top-right-radius: 8px;"
-        "    margin-right: 4px;"
-        "}"
-        "QTabBar::tab:selected {"
-        "    background-color: %4;"
-        "    color: white;"
-        "}"
-        "QTabBar::tab:hover:!selected {"
-        "    background-color: #3e3e42;"
-        "}")
-        .arg(borderColor)
-        .arg(backgroundColor)
-        .arg(secondaryTextColor)
-        .arg(accentColor)
-    );
     
     // Service Status Tab
     QWidget* serviceStatusTab = new QWidget(this);
@@ -849,12 +807,7 @@ void ServiceStatusDialog::createUI()
     
     // Service status açıklaması
     QLabel* serviceInfoLabel = new QLabel(tr("Below is the current status of system services. Green indicates the service is active and running properly."), serviceStatusTab);
-    serviceInfoLabel->setStyleSheet(QString(
-        "font-size: 14px;"
-        "color: %1;"
-        "margin-bottom: 15px;")
-        .arg(secondaryTextColor)
-    );
+    serviceInfoLabel->setObjectName("serviceInfoLabel");
     serviceInfoLabel->setWordWrap(true);
     serviceLayout->addWidget(serviceInfoLabel);
     
@@ -867,34 +820,6 @@ void ServiceStatusDialog::createUI()
     statusTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     statusTable->setAlternatingRowColors(true);
     statusTable->verticalHeader()->setVisible(false);
-    statusTable->setStyleSheet(QString(
-        "QTableWidget {"
-        "   background-color: %1;"
-        "   color: %2;"
-        "   gridline-color: %3;"
-        "   border: 1px solid %3;"
-        "   border-radius: 8px;"
-        "}"
-        "QTableWidget::item {"
-        "   padding: 12px;"
-        "   border-bottom: 1px solid %3;"
-        "}"
-        "QTableWidget::item:selected {"
-        "   background-color: %4;"
-        "   color: white;"
-        "}"
-        "QHeaderView::section {"
-        "   background-color: #252526;"
-        "   color: %2;"
-        "   font-weight: bold;"
-        "   border: none;"
-        "   padding: 10px;"
-        "}")
-        .arg("#212121")
-        .arg(textColor)
-        .arg(borderColor)
-        .arg(accentColor)
-    );
     serviceLayout->addWidget(statusTable);
     
     // Docker Containers Tab
@@ -904,12 +829,7 @@ void ServiceStatusDialog::createUI()
     
     // Docker container açıklaması
     QLabel* containerInfoLabel = new QLabel(tr("This tab shows all Docker containers and their current status. Running containers are marked in green."), dockerContainersTab);
-    containerInfoLabel->setStyleSheet(QString(
-        "font-size: 14px;"
-        "color: %1;"
-        "margin-bottom: 15px;")
-        .arg(secondaryTextColor)
-    );
+    containerInfoLabel->setObjectName("serviceInfoLabel");
     containerInfoLabel->setWordWrap(true);
     containersLayout->addWidget(containerInfoLabel);
     
@@ -930,48 +850,12 @@ void ServiceStatusDialog::createUI()
     containerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     containerTable->setAlternatingRowColors(true);
     containerTable->verticalHeader()->setVisible(false);
-    containerTable->setStyleSheet(QString(
-        "QTableWidget {"
-        "   background-color: %1;"
-        "   color: %2;"
-        "   gridline-color: %3;"
-        "   border: 1px solid %3;"
-        "   border-radius: 8px;"
-        "}"
-        "QTableWidget::item {"
-        "   padding: 12px;"
-        "   border-bottom: 1px solid %3;"
-        "}"
-        "QTableWidget::item:selected {"
-        "   background-color: %4;"
-        "   color: white;"
-        "}"
-        "QHeaderView::section {"
-        "   background-color: #252526;"
-        "   color: %2;"
-        "   font-weight: bold;"
-        "   border: none;"
-        "   padding: 10px;"
-        "}")
-        .arg("#212121")
-        .arg(textColor)
-        .arg(borderColor)
-        .arg(accentColor)
-    );
     containersLayout->addWidget(containerTable);
     
     // Widget for Docker image and container statistics
     QFrame* dockerStatsFrame = new QFrame(dockerContainersTab);
     dockerStatsFrame->setFrameShape(QFrame::StyledPanel);
-    dockerStatsFrame->setStyleSheet(QString(
-        "QFrame {"
-        "    border: 1px solid %1;"
-        "    border-radius: 8px;"
-        "    background-color: #1a1a1a;"
-        "    padding: 15px;"
-        "}")
-        .arg(borderColor)
-    );
+    dockerStatsFrame->setObjectName("dockerStatsFrame");
     
     QHBoxLayout* statsLayout = new QHBoxLayout(dockerStatsFrame);
     statsLayout->setSpacing(20);
@@ -980,25 +864,26 @@ void ServiceStatusDialog::createUI()
     auto createStatCard = [this, dockerContainersTab](const QString& labelText, const QString& initialValue, const QString& color) {
         QFrame* card = new QFrame(dockerContainersTab);
         card->setFrameShape(QFrame::StyledPanel);
-        card->setStyleSheet(QString(
-            "QFrame {"
-            "    background-color: #252526;"
-            "    border-radius: 8px;"
-            "    border: 1px solid %1;"
-            "    padding: 10px;"
-            "}")
-            .arg("#333333")
-        );
+        card->setObjectName("statsCard");
         
         QVBoxLayout* cardLayout = new QVBoxLayout(card);
         cardLayout->setSpacing(5);
         
         QLabel* label = new QLabel(labelText, card);
-        label->setStyleSheet("color: #cccccc; font-size: 13px;");
+        label->setObjectName("statsCardLabel");
         label->setAlignment(Qt::AlignCenter);
         
         QLabel* value = new QLabel(initialValue, card);
-        value->setStyleSheet(QString("color: %1; font-size: 24px; font-weight: bold;").arg(color));
+        // Use object name for styling instead of direct style
+        if (color == "#4CAF50") {
+            value->setObjectName("statsCardGreen");
+        } else if (color == "#2196F3") {
+            value->setObjectName("statsCardBlue");
+        } else if (color == "#FFC107") {
+            value->setObjectName("statsCardYellow");
+        } else {
+            value->setObjectName("statsCardValue");
+        }
         value->setAlignment(Qt::AlignCenter);
         
         cardLayout->addWidget(label);
@@ -1044,47 +929,12 @@ void ServiceStatusDialog::createUI()
     // Refresh button with modern design
     refreshButton = new QPushButton(tr("Refresh"), this);
     refreshButton->setIcon(QIcon::fromTheme("view-refresh"));
-    refreshButton->setStyleSheet(QString(
-        "QPushButton {"
-        "   background-color: %1;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 12px 25px;"
-        "   border-radius: 6px;"
-        "   font-size: 14px;"
-        "   font-weight: 500;"
-        "   min-width: 140px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #1e88e5;"
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #0066c0;"
-        "}")
-        .arg(accentColor)
-    );
+    refreshButton->setObjectName("refreshButton");
     buttonLayout->addWidget(refreshButton);
     
     // Close button
     QPushButton* closeButton = new QPushButton(tr("Close"), this);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "   background-color: #424242;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 12px 25px;"
-        "   border-radius: 6px;"
-        "   font-size: 14px;"
-        "   font-weight: 500;"
-        "   min-width: 140px;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #616161;"
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #212121;"
-        "}"
-    );
+    closeButton->setObjectName("secondaryButton");
     buttonLayout->addWidget(closeButton);
     
     // Add buttons to main layout
@@ -1292,24 +1142,6 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     setWindowTitle(tr("Select Docker Image for %1").arg(serviceType));
     setModal(true);
     setMinimumSize(600, 350); // Boyutu artırıldı
-    
-    // Modern tema renkleri - tanımlanması gereken tüm renkleri tanımlıyoruz
-    QString backgroundColor = "#181818";      // İkincil arkaplan rengi
-    QString textColor = "#ffffff";            // Ana metin rengi
-    QString secondaryTextColor = "#cccccc";   // İkincil metin rengi
-    QString accentColor = "#0078d7";          // Vurgu rengi
-    QString borderColor = "#333333";          // Kenarlık rengi
-    
-    // Dialog'a tema uygula
-    setStyleSheet(QString(
-        "QDialog {"
-        "   background-color: %1;"
-        "   color: %2;"
-        "   font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;"
-        "}")
-        .arg(backgroundColor)
-        .arg(textColor)
-    );
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(20);
@@ -1318,17 +1150,10 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     // Üst kısımda hizalı başlık
     QHBoxLayout* titleLayout = new QHBoxLayout();
     QLabel* iconLabel = new QLabel("🐳", this);
-    iconLabel->setStyleSheet("font-size: 32px;"); // İkon boyutu artırıldı
+    iconLabel->setObjectName("dockerIconLabel");
 
     QLabel* titleLabel = new QLabel(tr("%1 Docker Image").arg(serviceType), this);
-    titleLabel->setStyleSheet(QString(
-        "QLabel {"
-        "   font-size: 24px;" // Font boyutu artırıldı
-        "   font-weight: bold;"
-        "   color: %1;"
-        "}")
-        .arg(textColor)
-    );
+    titleLabel->setObjectName("dockerTitleLabel");
     
     titleLayout->addWidget(iconLabel);
     titleLayout->addWidget(titleLabel);
@@ -1337,13 +1162,7 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     
     // Açıklama metni
     QLabel* descLabel = new QLabel(tr("Select a Docker image to use for %1 processing:").arg(serviceType), this);
-    descLabel->setStyleSheet(QString(
-        "font-size: 16px;" // Font boyutu artırıldı
-        "color: %1;"
-        "margin: 10px 0;"
-        )
-        .arg(secondaryTextColor)
-    );
+    descLabel->setObjectName("dockerDescLabel");
     descLabel->setWordWrap(true);
     layout->addWidget(descLabel);
 
@@ -1358,51 +1177,12 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
         imageComboBox->setCurrentIndex(currentIndex);
     }
     
-    imageComboBox->setStyleSheet(QString(
-        "QComboBox {"
-        "   padding: 12px 15px;"
-        "   font-size: 16px;" // Font boyutu artırıldı
-        "   border: 2px solid %1;"
-        "   border-radius: 5px;"
-        "   background-color: #232323;"
-        "   color: %2;"
-        "   min-width: 400px;" // Genişlik artırıldı
-        "}"
-        "QComboBox:focus {"
-        "   border: 2px solid %3;"
-        "}"
-        "QComboBox::drop-down {"
-        "   subcontrol-origin: padding;"
-        "   subcontrol-position: center right;"
-        "   width: 30px;" // Ok genişliği artırıldı
-        "   border: none;"
-        "   padding-right: 10px;"
-        "}"
-        "QComboBox QAbstractItemView {"
-        "   background-color: #232323;"
-        "   border: 1px solid %1;"
-        "   color: %2;"
-        "   selection-background-color: %3;"
-        "   selection-color: white;"
-        "   font-size: 16px;" // Liste öğeleri font boyutu artırıldı
-        "}")
-        .arg(borderColor)
-        .arg(textColor)
-        .arg(accentColor)
-    );
-    
     layout->addWidget(imageComboBox);
     
     // Docker Hub linki
     QLabel* hubLabel = new QLabel(tr("Don't see what you need? <a href='https://hub.docker.com/search?q=%1&type=image'>Search on Docker Hub</a>").arg(serviceType.toLower()), this);
     hubLabel->setOpenExternalLinks(true);
-    hubLabel->setStyleSheet(QString(
-        "font-size: 14px;" // Font boyutu artırıldı
-        "color: %1;"
-        "margin-top: 5px;"
-        "margin-bottom: 15px;")
-        .arg(secondaryTextColor)
-    );
+    hubLabel->setObjectName("dockerHubLabel");
     layout->addWidget(hubLabel);
     
     // Alt kısımda butonlar
@@ -1417,45 +1197,6 @@ DockerImageSelectionDialog::DockerImageSelectionDialog(const QStringList& availa
     // Butonların minimum genişlik ve yüksekliği artırıldı
     cancelButton->setMinimumSize(150, 45);
     okButton->setMinimumSize(150, 45);
-    
-    // İptal butonu
-    cancelButton->setStyleSheet(
-        "QPushButton {"
-        "   background-color: #424242;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 12px 25px;"
-        "   border-radius: 6px;"
-        "   font-size: 16px;" // Font boyutu artırıldı
-        "   font-weight: 500;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #616161;"
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #212121;"
-        "}"
-    );
-    
-    // Onay butonu
-    okButton->setStyleSheet(QString(
-        "QPushButton {"
-        "   background-color: %1;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 12px 25px;"
-        "   border-radius: 6px;"
-        "   font-size: 16px;" // Font boyutu artırıldı
-        "   font-weight: 500;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #1e88e5;"
-        "}"
-        "QPushButton:pressed {"
-        "   background-color: #0066c0;"
-        "}")
-        .arg(accentColor)
-    );
     
     buttonLayout->addStretch();
     buttonLayout->addWidget(cancelButton);
@@ -1493,44 +1234,22 @@ HistoryDialog::HistoryDialog(QWidget *parent) : QDialog(parent),
 }
 
 void HistoryDialog::createUI() {
-    // Modern tema renkleri
-    QString backgroundColor = "#181818";
-    QString textColor = "#ffffff";
-    QString secondaryTextColor = "#cccccc";
-    QString accentColor = "#0078d7";
-    QString borderColor = "#333333";
-    
     // Ana layout
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(30, 30, 30, 30);
     
-    // Dialog stil ayarları
-    setStyleSheet(QString(
-        "QDialog {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;"
-        "}")
-        .arg(backgroundColor)
-        .arg(textColor)
-    );
+    // Set object name for the dialog to connect with QSS
+    setObjectName("historyDialog");
     
     // Title with icon
     QHBoxLayout* titleLayout = new QHBoxLayout();
     QLabel* iconLabel = new QLabel(this);
     iconLabel->setText("📅");
-    iconLabel->setStyleSheet("font-size: 24px;");
+    iconLabel->setObjectName("serviceStatsIconLabel");
     
     QLabel* titleLabel = new QLabel(tr("Scan History"), this);
-    titleLabel->setStyleSheet(QString(
-        "QLabel {"
-        "    font-size: 22px;"
-        "    font-weight: bold;"
-        "    color: %1;"
-        "}")
-        .arg(textColor)
-    );
+    titleLabel->setObjectName("historyTitleLabel");
     
     titleLayout->addWidget(iconLabel);
     titleLayout->addWidget(titleLabel);
@@ -1538,73 +1257,13 @@ void HistoryDialog::createUI() {
     
     // Statistics summary
     QLabel* statsLabel = new QLabel(tr("Total Scans: 54  |  Threats Detected: 12  |  Last Scan: Today 15:30"), this);
-    statsLabel->setStyleSheet(QString(
-        "QLabel {"
-        "    font-size: 14px;"
-        "    color: %1;"
-        "}")
-        .arg(secondaryTextColor)
-    );
+    statsLabel->setObjectName("historyStatsLabel");
     titleLayout->addWidget(statsLabel);
     
     mainLayout->addLayout(titleLayout);
     
-    // Create Tab Widget with modern styling
+    // Create Tab Widget
     tabWidget = new QTabWidget(this);
-    tabWidget->setStyleSheet(QString(
-        "QTabWidget::pane {"
-        "    border: 1px solid %1;"
-        "    background-color: %2;"
-        "    border-radius: 8px;"
-        "}"
-        "QTabBar::tab {"
-        "    background-color: #2d2d30;"
-        "    color: %3;"
-        "    padding: 10px 20px;"
-        "    border-top-left-radius: 8px;"
-        "    border-top-right-radius: 8px;"
-        "    margin-right: 4px;"
-        "}"
-        "QTabBar::tab:selected {"
-        "    background-color: %4;"
-        "    color: white;"
-        "}"
-        "QTabBar::tab:hover:!selected {"
-        "    background-color: #3e3e42;"
-        "}")
-        .arg(borderColor)
-        .arg(backgroundColor)
-        .arg(secondaryTextColor)
-        .arg(accentColor)
-    );
-    
-    // Create table style string for reuse
-    QString tableStyle = QString(
-        "QTableWidget {"
-        "    background-color: #212121;"
-        "    color: %1;"
-        "    gridline-color: %2;"
-        "    border: 1px solid %2;"
-        "    border-radius: 8px;"
-        "}"
-        "QTableWidget::item {"
-        "    padding: 8px;"
-        "    border-bottom: 1px solid %2;"
-        "}"
-        "QTableWidget::item:selected {"
-        "    background-color: %3;"
-        "    color: white;"
-        "}"
-        "QHeaderView::section {"
-        "    background-color: #252526;"
-        "    color: %1;"
-        "    font-weight: bold;"
-        "    border: none;"
-        "    padding: 8px;"
-        "}")
-        .arg(textColor)
-        .arg(borderColor)
-        .arg(accentColor);
     
     // Offline scan history tab
     QWidget* offlineTab = new QWidget(this);
@@ -1613,6 +1272,7 @@ void HistoryDialog::createUI() {
     
     // Table for offline scan history
     scanHistoryTable = new QTableWidget(offlineTab);
+    scanHistoryTable->setObjectName("historyTable");
     scanHistoryTable->setColumnCount(6);
     scanHistoryTable->setHorizontalHeaderLabels({
         tr("Date & Time"), 
@@ -1627,7 +1287,6 @@ void HistoryDialog::createUI() {
     scanHistoryTable->setAlternatingRowColors(true);
     scanHistoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     scanHistoryTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    scanHistoryTable->setStyleSheet(tableStyle);
     offlineLayout->addWidget(scanHistoryTable);
     
     // VirusTotal scan history tab
@@ -1636,6 +1295,7 @@ void HistoryDialog::createUI() {
     vtLayout->setContentsMargins(20, 20, 20, 20);
     
     vtHistoryTable = new QTableWidget(vtTab);
+    vtHistoryTable->setObjectName("historyTable");
     vtHistoryTable->setColumnCount(6);
     vtHistoryTable->setHorizontalHeaderLabels({
         tr("Date & Time"), 
@@ -1650,7 +1310,6 @@ void HistoryDialog::createUI() {
     vtHistoryTable->setAlternatingRowColors(true);
     vtHistoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     vtHistoryTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    vtHistoryTable->setStyleSheet(tableStyle);
     vtLayout->addWidget(vtHistoryTable);
     
     // CDR history tab
@@ -1659,6 +1318,7 @@ void HistoryDialog::createUI() {
     cdrLayout->setContentsMargins(20, 20, 20, 20);
     
     cdrHistoryTable = new QTableWidget(cdrTab);
+    cdrHistoryTable->setObjectName("historyTable");
     cdrHistoryTable->setColumnCount(6);
     cdrHistoryTable->setHorizontalHeaderLabels({
         tr("Date & Time"), 
@@ -1673,7 +1333,6 @@ void HistoryDialog::createUI() {
     cdrHistoryTable->setAlternatingRowColors(true);
     cdrHistoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     cdrHistoryTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    cdrHistoryTable->setStyleSheet(tableStyle);
     cdrLayout->addWidget(cdrHistoryTable);
     
     // Sandbox history tab
@@ -1682,6 +1341,7 @@ void HistoryDialog::createUI() {
     sandboxLayout->setContentsMargins(20, 20, 20, 20);
     
     sandboxHistoryTable = new QTableWidget(sandboxTab);
+    sandboxHistoryTable->setObjectName("historyTable");
     sandboxHistoryTable->setColumnCount(6);
     sandboxHistoryTable->setHorizontalHeaderLabels({
         tr("Date & Time"), 
@@ -1696,7 +1356,6 @@ void HistoryDialog::createUI() {
     sandboxHistoryTable->setAlternatingRowColors(true);
     sandboxHistoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     sandboxHistoryTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    sandboxHistoryTable->setStyleSheet(tableStyle);
     sandboxLayout->addWidget(sandboxHistoryTable);
     
     // Add tabs to tab widget
@@ -1714,77 +1373,23 @@ void HistoryDialog::createUI() {
     
     // Statistics & info text
     QLabel* resultCountLabel = new QLabel(tr("Showing 20 most recent results in each category"), this);
-    resultCountLabel->setStyleSheet(QString(
-        "font-size: 13px;"
-        "color: %1;")
-        .arg(secondaryTextColor)
-    );
-    
+    resultCountLabel->setObjectName("resultCountLabel");
     buttonLayout->addWidget(resultCountLabel);
     buttonLayout->addStretch();
     
     // Export button
     exportHistoryButton = new QPushButton(tr("Export CSV"), this);
-    exportHistoryButton->setStyleSheet(QString(
-        "QPushButton {"
-        "    background-color: #424242;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 10px 20px;"
-        "    border-radius: 6px;"
-        "    font-size: 14px;"
-        "    min-width: 130px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #616161;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #212121;"
-        "}")
-    );
+    exportHistoryButton->setObjectName("exportHistoryButton");
     buttonLayout->addWidget(exportHistoryButton);
     
     // Clear history button
     clearHistoryButton = new QPushButton(tr("Clear History"), this);
-    clearHistoryButton->setStyleSheet(QString(
-        "QPushButton {"
-        "    background-color: #d32f2f;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 10px 20px;"
-        "    border-radius: 6px;"
-        "    font-size: 14px;"
-        "    min-width: 130px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #f44336;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #b71c1c;"
-        "}")
-    );
+    clearHistoryButton->setObjectName("clearHistoryButton");
     buttonLayout->addWidget(clearHistoryButton);
     
     // Close button
     closeButton = new QPushButton(tr("Close"), this);
-    closeButton->setStyleSheet(QString(
-        "QPushButton {"
-        "    background-color: %1;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 10px 20px;"
-        "    border-radius: 6px;"
-        "    font-size: 14px;"
-        "    min-width: 130px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #1e88e5;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #0066c0;"
-        "}")
-        .arg(accentColor)
-    );
+    closeButton->setObjectName("secondaryButton");
     buttonLayout->addWidget(closeButton);
     
     mainLayout->addLayout(buttonLayout);
@@ -1810,23 +1415,13 @@ void HistoryDialog::loadHistory() {
         scanHistoryTable->setItem(row, 3, new QTableWidgetItem(QString("%1 sec").arg(i * 3 + 5)));
         
         QTableWidgetItem* resultItem = new QTableWidgetItem(i % 3 == 0 ? tr("Malicious") : tr("Clean"));
-        resultItem->setForeground(i % 3 == 0 ? QColor("#f44336") : QColor("#4caf50"));
+        resultItem->setData(Qt::UserRole + 1, i % 3 == 0 ? "malicious" : "clean");
         scanHistoryTable->setItem(row, 4, resultItem);
         
         // View details button for actions column
         QPushButton* viewButton = new QPushButton(tr("View"));
-        viewButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: transparent;"
-            "    color: #2196f3;"
-            "    border: 1px solid #2196f3;"
-            "    border-radius: 4px;"
-            "    padding: 5px 10px;"
-            "}"
-            "QPushButton:hover {"
-            "    background-color: rgba(33, 150, 243, 0.1);"
-            "}"
-        );
+        viewButton->setObjectName("historyViewButton");
+        
         QWidget* buttonContainer = new QWidget();
         QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
         buttonLayout->addWidget(viewButton);
@@ -1848,23 +1443,13 @@ void HistoryDialog::loadHistory() {
         vtHistoryTable->setItem(row, 3, new QTableWidgetItem(QString("8a3b%1c94d7ef2%2a17").arg(i*3).arg(i)));
         
         QTableWidgetItem* resultItem = new QTableWidgetItem(i % 2 == 0 ? tr("Suspicious") : tr("Malicious"));
-        resultItem->setForeground(i % 2 == 0 ? QColor("#ff9800") : QColor("#f44336"));
+        resultItem->setData(Qt::UserRole + 1, i % 2 == 0 ? "suspicious" : "malicious");
         vtHistoryTable->setItem(row, 4, resultItem);
         
         // View details button
         QPushButton* viewButton = new QPushButton(tr("View"));
-        viewButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: transparent;"
-            "    color: #2196f3;"
-            "    border: 1px solid #2196f3;"
-            "    border-radius: 4px;"
-            "    padding: 5px 10px;"
-            "}"
-            "QPushButton:hover {"
-            "    background-color: rgba(33, 150, 243, 0.1);"
-            "}"
-        );
+        viewButton->setObjectName("historyViewButton");
+        
         QWidget* buttonContainer = new QWidget();
         QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
         buttonLayout->addWidget(viewButton);
@@ -1898,18 +1483,8 @@ void HistoryDialog::loadHistory() {
         
         // View details button
         QPushButton* viewButton = new QPushButton(tr("View"));
-        viewButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: transparent;"
-            "    color: #2196f3;"
-            "    border: 1px solid #2196f3;"
-            "    border-radius: 4px;"
-            "    padding: 5px 10px;"
-            "}"
-            "QPushButton:hover {"
-            "    background-color: rgba(33, 150, 243, 0.1);"
-            "}"
-        );
+        viewButton->setObjectName("historyViewButton");
+        
         QWidget* buttonContainer = new QWidget();
         QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
         buttonLayout->addWidget(viewButton);
@@ -1931,13 +1506,16 @@ void HistoryDialog::loadHistory() {
         // Risk score (0-100)
         int riskScore = i * 30 + 40;
         QTableWidgetItem* scoreItem = new QTableWidgetItem(QString::number(riskScore) + "/100");
+        
+        // Set risk level using data role instead of property
         if (riskScore >= 80) {
-            scoreItem->setForeground(QColor("#f44336")); // High risk - red
+            scoreItem->setData(Qt::UserRole + 1, "high");
         } else if (riskScore >= 50) {
-            scoreItem->setForeground(QColor("#ff9800")); // Medium risk - orange
+            scoreItem->setData(Qt::UserRole + 1, "medium");
         } else {
-            scoreItem->setForeground(QColor("#ffeb3b")); // Low risk - yellow
+            scoreItem->setData(Qt::UserRole + 1, "low");
         }
+        
         sandboxHistoryTable->setItem(row, 2, scoreItem);
         
         // Suspicious behaviors
@@ -1962,18 +1540,8 @@ void HistoryDialog::loadHistory() {
         
         // View details button
         QPushButton* viewButton = new QPushButton(tr("View"));
-        viewButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: transparent;"
-            "    color: #2196f3;"
-            "    border: 1px solid #2196f3;"
-            "    border-radius: 4px;"
-            "    padding: 5px 10px;"
-            "}"
-            "QPushButton:hover {"
-            "    background-color: rgba(33, 150, 243, 0.1);"
-            "}"
-        );
+        viewButton->setObjectName("historyViewButton");
+        
         QWidget* buttonContainer = new QWidget();
         QHBoxLayout* buttonLayout = new QHBoxLayout(buttonContainer);
         buttonLayout->addWidget(viewButton);
@@ -1991,25 +1559,6 @@ void HistoryDialog::setupConnections() {
         qDebug() << "Tab changed to" << index;
         // Gerçek uygulamada burada ilgili sekme için verileri DbManager'dan yeniden yükleyebiliriz
     });
-    
-    // Clearhistory button styling - just styling, not adding to any layout here
-    clearHistoryButton->setStyleSheet(QString(
-        "QPushButton {"
-        "    background-color: #d32f2f;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 10px 20px;"
-        "    border-radius: 6px;"
-        "    font-size: 14px;"
-        "    min-width: 130px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #f44336;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #b71c1c;"
-        "}")
-    );
     
     // Temizle butonu tıklandığında
     connect(clearHistoryButton, &QPushButton::clicked, [this]() {

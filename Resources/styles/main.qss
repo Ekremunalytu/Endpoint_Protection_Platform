@@ -397,3 +397,305 @@ QLabel#apiInfoLabel {
     margin-top: -10px;
     margin-bottom: 10px;
 }
+
+/* Docker Dialog Icon Label Stili */
+QLabel#dockerIconLabel {
+    font-size: 32px;
+}
+
+/* Docker Dialog Title Label Stili */
+QLabel#dockerTitleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Docker Dialog Description Label Stili */
+QLabel#dockerDescLabel {
+    font-size: 16px;
+    color: #cccccc;
+    margin: 10px 0;
+}
+
+/* Docker Hub Link Stili */
+QLabel#dockerHubLink {
+    font-size: 14px;
+    color: #cccccc;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+/* Service Dialog Stats Label Stili */
+QLabel#serviceStatsLabel {
+    font-size: 14px;
+    color: #cccccc;
+}
+
+/* Service Dialog Info Label Stili */
+QLabel#serviceInfoLabel {
+    font-size: 14px;
+    color: #cccccc;
+    margin-bottom: 15px;
+}
+
+/* Docker Stats Frame Stili */
+QFrame#dockerStatsFrame {
+    border: 1px solid #333333;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+    padding: 15px;
+}
+
+/* Stats Card Stili */
+QFrame#statsCard {
+    background-color: #252526;
+    border-radius: 8px;
+    border: 1px solid #333333;
+    padding: 10px;
+}
+
+/* Stats Card Label Stili */
+QLabel#statsCardLabel {
+    color: #cccccc;
+    font-size: 13px;
+}
+
+/* Stats Card Value Stili */
+QLabel#statsCardValue {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Refresh Button Stili */
+QPushButton#refreshButton {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 140px;
+}
+
+QPushButton#refreshButton:hover {
+    background-color: #1e88e5;
+}
+
+QPushButton#refreshButton:pressed {
+    background-color: #0066c0;
+}
+
+/* History Dialog Result Count Label Stili */
+QLabel#resultCountLabel {
+    font-size: 13px;
+    color: #cccccc;
+}
+
+/* Export History Button Stili */
+QPushButton#exportHistoryButton {
+    background-color: #424242;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 130px;
+}
+
+QPushButton#exportHistoryButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#exportHistoryButton:pressed {
+    background-color: #212121;
+}
+
+/* Clear History Button Stili */
+QPushButton#clearHistoryButton {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 130px;
+}
+
+QPushButton#clearHistoryButton:hover {
+    background-color: #f44336;
+}
+
+QPushButton#clearHistoryButton:pressed {
+    background-color: #b71c1c;
+}
+
+/* History View Button Stili */
+QPushButton#historyViewButton {
+    background-color: transparent;
+    color: #2196f3;
+    border: 1px solid #2196f3;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+QPushButton#historyViewButton:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* Menu Icon Button Stili */
+QPushButton#menuIcon {
+    font-size: 24px;
+    background-color: transparent;
+    color: #ffffff;
+}
+
+/* Menu Tool Button Stili */
+QToolButton#menuToolButton {
+    background-color: transparent;
+    border: 1px solid #444444;
+    padding: 8px 16px;
+    color: #ffffff;
+}
+
+/* QComboBox için özel boyutlar */
+QComboBox#largeComboBox {
+    padding: 12px 15px;
+    font-size: 16px;
+    min-width: 400px;
+    min-height: 50px;
+}
+
+/* Service Stats Icon Label Stili */
+QLabel#serviceStatsIconLabel {
+    font-size: 24px;
+}
+
+/* History Dialog Styles */
+QDialog#historyDialog {
+    background-color: #181818;
+    color: #ffffff;
+    font-family: 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+/* History Title Label */
+QLabel#historyTitleLabel {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* History Statistics Label */
+QLabel#historyStatsLabel {
+    font-size: 14px;
+    color: #cccccc;
+}
+
+/* History Table Style */
+QTableWidget#historyTable {
+    background-color: #212121;
+    color: #ffffff;
+    gridline-color: #333333;
+    border: 1px solid #333333;
+    border-radius: 8px;
+}
+
+QTableWidget#historyTable::item {
+    padding: 8px;
+    border-bottom: 1px solid #333333;
+}
+
+QTableWidget#historyTable::item:selected {
+    background-color: #0078d7;
+    color: white;
+}
+
+/* View Button Style for History Tables */
+QPushButton#historyViewButton {
+    background-color: transparent;
+    color: #2196f3;
+    border: 1px solid #2196f3;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+QPushButton#historyViewButton:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* Stat Card Value Text Colors */
+QLabel#greenStatValue {
+    color: #4CAF50;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+QLabel#blueStatValue {
+    color: #2196F3;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+QLabel#yellowStatValue {
+    color: #FFC107;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Positive/Negative Result Text Colors */
+QTableWidgetItem[data="clean"] {
+    color: #4CAF50;
+}
+
+QTableWidgetItem[data="malicious"] {
+    color: #F44336;
+}
+
+QTableWidgetItem[data="suspicious"] {
+    color: #FF9800;
+}
+
+/* High/Medium/Low Risk Text Colors */
+QTableWidgetItem[data="high"] {
+    color: #F44336;
+}
+
+QTableWidgetItem[data="medium"] {
+    color: #FF9800;
+}
+
+QTableWidgetItem[data="low"] {
+    color: #FFEB3B;
+}
+
+/* Specific Colors for Stat Card Values */
+QLabel#statsCardGreen {
+    color: #4CAF50;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+QLabel#statsCardBlue {
+    color: #2196F3;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+QLabel#statsCardYellow {
+    color: #FFC107;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Table Status Item Colors */
+QTableWidgetItem[status="active"] {
+    color: #4CAF50;
+}
+
+QTableWidgetItem[status="inactive"] {
+    color: #F44336;
+}
+
+QTableWidgetItem[status="warning"] {
+    color: #FFC107;
+}
